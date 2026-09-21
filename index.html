@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>NurvKor · Gestió d'equips de futbol sala</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = { theme: { extend: { colors: { granate: {
@@ -13,14 +16,13 @@
         800:'#6b1c2b',900:'#5c1b28',950:'#340a11'
       } } } } };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+    <script src="https://unpkg.com/lucide@1.47.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
         .nk-icon { display: inline-block; background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggMjUyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9Im5rZyIgeDE9IjAiIHkxPSIwIiB4Mj0iNDQ4IiB5Mj0iMCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNjZjU1NjYiLz48c3RvcCBvZmZzZXQ9IjQ1JSIgc3RvcC1jb2xvcj0iIzk5MjQzOCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM0MGExMSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik02NS4xMCAxNC43MCBMNjQuMTAgMTguNTAgTDU1LjYwIDUxLjUwIEw0Ny4xMCA4NC41MCBMNDUuMDAgOTIuNTAgTDQyLjkwIDEwMC41MCBMMzguMzAgMTE3LjUwIEwzMy44MCAxMzQuNTAgTDMwLjQwIDE0OC4wMCBMMjYuOTAgMTYxLjUwIEwxOS40MCAxOTAuNTAgTDExLjgwIDIxOS41MCBMOC45MCAyMjkuOTAgTDYuMDAgMjQwLjIwIEw2LjYwIDI0MS4xMCBMNy4xMCAyNDIuMDAgTDIyLjEwIDI0Mi4wMCBMMzcuMDAgMjQyLjAwIEwzNy4wMCAyNDEuNTAgTDM3LjAwIDI0MS4wMCBMNDMuOTAgMjE0LjMwIEw1MC45MCAxODcuNTAgTDU2LjQwIDE2Ni41MCBMNjEuOTAgMTQ1LjUwIEw2Ni40MCAxMjguMDAgTDcwLjkwIDExMC41MCBMODAuMDAgNzUuNTAgTDg5LjIwIDQwLjUwIEw5My4wMCAyNS43MCBMOTYuODAgMTEuMDAgTDgxLjQwIDExLjAwIEw2Ni4xMCAxMS4wMCBMNjUuMTAgMTQuNzAgWiBNMTA1LjMwIDExLjcwIEwxMDUuODAgMTIuNTAgTDExNy4yMCAzNi4wMCBMMTI4LjYwIDU5LjUwIEwxNzEuNTAgMTQ1LjgwIEwyMTQuNDAgMjMyLjAwIEwyMTUuMTAgMjMxLjMwIEwyMTUuNzAgMjMwLjUwIEwyMTguNDAgMjE5LjUwIEwyMjEuMTAgMjA4LjUwIEwyMjguNTAgMTgwLjUwIEwyMzUuOTAgMTUyLjUwIEwyNDYuNTAgMTExLjAwIEwyNTcuMjAgNjkuNTAgTDI2NC42MCA0MS4wMCBMMjcyLjAwIDEyLjUwIEwyNzIuMDAgMTEuODAgTDI3Mi4wMCAxMS4wMCBMMjU2LjgwIDExLjAwIEwyNDEuNTAgMTEuMDAgTDIzNC4zMCAzOS4zMCBMMjI3LjAwIDY3LjUwIEwyMTkuMDAgOTguNTAgTDIxMS4wMCAxMjkuNTAgTDIwOS4xMCAxMzYuNTAgTDIwNy4zMCAxNDMuNTAgTDE3NC4yMCA3Ny4yMCBMMTQxLjAwIDExLjAwIEwxMjIuOTAgMTEuMDAgTDEwNC45MCAxMS4wMCBMMTA1LjMwIDExLjcwIFogTTI3OS43MCAyMS43MCBMMjc3LjAwIDMyLjUwIEwyNzAuNjAgNTcuNTAgTDI2NC4yMCA4Mi41MCBMMjU3LjAwIDExMC4zMCBMMjQ5LjkwIDEzOC4yMCBMMjUwLjMwIDEzOC42MCBMMjUwLjcwIDEzOS4wMCBMMjU3LjYwIDEzNi42MCBMMjY0LjUwIDEzNC4yMCBMMjczLjAwIDEzMC42MCBMMjgxLjUwIDEyNi45MCBMMjkwLjcwIDEyMi4wMCBMMjk5LjkwIDExNy4xMCBMMzA4LjQwIDExMS42MCBMMzE2LjgwIDEwNi4wMCBMMzI2LjcwIDk4LjEwIEwzMzYuNTAgOTAuMjAgTDM0OC43MCA3Ny44MCBMMzYwLjkwIDY1LjUwIEwzNjguNTAgNTYuMDAgTDM3Ni4xMCA0Ni41MCBMMzgyLjkwIDM2LjUwIEwzODkuNzAgMjYuNTAgTDM5My44MCAxOS4zMCBMMzk4LjAwIDEyLjIwIEwzOTguMDAgMTEuNjAgTDM5OC4wMCAxMS4wMCBMMzgxLjgwIDExLjAwIEwzNjUuNTAgMTEuMDAgTDM1Ny4zMCAyMy4zMCBMMzQ5LjEwIDM1LjUwIEwzNDAuNDAgNDYuMDAgTDMzMS42MCA1Ni41MCBMMzIxLjYwIDY2LjYwIEwzMTEuNTAgNzYuNjAgTDMwMy4wMCA4My4zMCBMMjk0LjYwIDkwLjAwIEwyOTMuOTAgOTAuMDAgTDI5My4yMCA5MC4wMCBMMjkzLjYwIDg4LjIwIEwyOTQuMDAgODYuNTAgTDMwMy4xMCA1MS4wMCBMMzEyLjMwIDE1LjUwIEwzMTIuODAgMTMuMjAgTDMxMy4yMCAxMS4wMCBMMjk3LjgwIDExLjAwIEwyODIuNDAgMTEuMDAgTDI3OS43MCAyMS43MCBaIE00MDguMTAgMTMuNzAgTDQwNi44MCAxNi41MCBMMzk5LjIwIDI5LjAwIEwzOTEuNTAgNDEuNTAgTDM4MS4xMCA1NS41MCBMMzcwLjcwIDY5LjUwIEwzNTQuMTAgODYuMTAgTDMzNy41MCAxMDIuNjAgTDMyNy41MCAxMTAuMDAgTDMxNy41MCAxMTcuMzAgTDMxNy4xMCAxMTcuNjAgTDMxNi44MCAxMTcuOTAgTDMyOC4yMCAxMzYuMjAgTDMzOS43MCAxNTQuNTAgTDM1Mi44MCAxNzYuMDAgTDM2Ni4wMCAxOTcuNTAgTDM3OS43MCAyMTkuNTAgTDM5My41MCAyNDEuNTAgTDQxMS4zMCAyNDEuODAgTDQyOS4wMCAyNDIuMDAgTDQyOS4wMCAyNDEuNDAgTDQyOS4wMCAyNDAuNzAgTDQyNi44MCAyMzcuMTAgTDQyNC43MCAyMzMuNTAgTDQxOC41MCAyMjMuNTAgTDQxMi4zMCAyMTMuNTAgTDM5OS45MCAxOTMuNTAgTDM4Ny42MCAxNzMuNTAgTDM3OS40MCAxNjAuMDAgTDM3MS4zMCAxNDYuNTAgTDM2NC4wMCAxMzQuNjAgTDM1Ni44MCAxMjIuODAgTDM1OC4xMCAxMjEuNTAgTDM1OS41MCAxMjAuMzAgTDM3MC4wMCAxMTAuNDAgTDM4MC41MCAxMDAuNjAgTDM4OS44MCA5MC4wMCBMMzk5LjIwIDc5LjUwIEw0MDcuNDAgNjguNTAgTDQxNS43MCA1Ny41MCBMNDIyLjcwIDQ3LjAwIEw0MjkuNzAgMzYuNTAgTDQzNi4zMCAyNC44MCBMNDQzLjAwIDEzLjEwIEw0NDMuMDAgMTIuMTAgTDQ0My4wMCAxMS4wMCBMNDI2LjIwIDExLjAwIEw0MDkuMzAgMTEuMDAgTDQwOC4xMCAxMy43MCBaIE05OC4wMCA0NS43MCBMOTMuODAgNjIuNTAgTDkxLjcwIDcwLjcwIEw4OS42MCA3OC45MCBMMTI1LjQwIDE1MC4yMCBMMTYxLjIwIDIyMS41MCBMMTY2LjcwIDIzMS43MCBMMTcyLjIwIDI0Mi4wMCBMMTkwLjEwIDI0Mi4wMCBMMjA4LjAwIDI0Mi4wMCBMMjA4LjAwIDI0MS41MCBMMjA4LjAwIDI0MC45MCBMMTU2LjUwIDEzNy4wMCBMMTA1LjAwIDMzLjEwIEwxMDUuMDAgMzIuMjAgTDEwNS4wMCAzMS4yMCBMMTAzLjYwIDMwLjEwIEwxMDIuMzAgMjkuMDAgTDk4LjAwIDQ1LjcwIFogTTg0LjYwIDk4LjIwIEw4NC4wMCAxMDAuNTAgTDc3LjYwIDEyNS4wMCBMNzEuMTAgMTQ5LjUwIEw2OC42MCAxNTkuMDAgTDY2LjEwIDE2OC41MCBMNjIuNjAgMTgyLjAwIEw1OS4xMCAxOTUuNTAgTDUzLjYwIDIxNy4xMCBMNDguMDAgMjM4LjYwIEw0OC4wMCAyNDAuMzAgTDQ4LjAwIDI0Mi4xMCBMNjIuNjAgMjQxLjgwIEw3Ny4zMCAyNDEuNTAgTDgyLjUwIDIyMS41MCBMODcuODAgMjAxLjUwIEw5Ni40MCAxNjguNjAgTDEwNS4wMCAxMzUuNzAgTDEwNS4wMCAxMzQuNzAgTDEwNS4wMCAxMzMuNjAgTDk1LjgwIDExNC44MCBMODYuNjAgOTYuMDAgTDg1LjkwIDk2LjAwIEw4NS4yMCA5Ni4wMCBMODQuNjAgOTguMjAgWiBNMjk1LjMwIDEzMC43MCBMMjgzLjAwIDEzNy4zMCBMMjgzLjAwIDEzOC40MCBMMjgzLjAwIDEzOS40MCBMMjkyLjcwIDE1NS41MCBMMzAyLjMwIDE3MS41MCBMMzIyLjMwIDIwNC4wMCBMMzQyLjMwIDIzNi41MCBMMzQ0LjIwIDIzOS4yMCBMMzQ2LjEwIDI0Mi4wMCBMMzYzLjYwIDI0Mi4wMCBMMzgxLjAwIDI0Mi4wMCBMMzgxLjAwIDI0MC44MCBMMzgxLjAwIDIzOS43MCBMMzc1LjMwIDIzMC42MCBMMzY5LjYwIDIyMS41MCBMMzYzLjUwIDIxMS41MCBMMzU3LjMwIDIwMS41MCBMMzQ5LjMwIDE4OC41MCBMMzQxLjMwIDE3NS41MCBMMzMyLjAwIDE2MC41MCBMMzIyLjcwIDE0NS41MCBMMzE2LjMwIDEzNC43MCBMMzA5LjkwIDEyNC4wMCBMMzA4LjcwIDEyNC4xMCBMMzA3LjUwIDEyNC4xMCBMMjk1LjMwIDEzMC43MCBaIE0yNzUuMDAgMTQxLjgwIEwyNzIuNTAgMTQzLjQwIEwyNTkuMDAgMTUyLjMwIEwyNDUuNTAgMTYxLjIwIEwyNDQuMjAgMTYyLjQwIEwyNDIuOTAgMTYzLjYwIEwyMzcuOTAgMTgzLjEwIEwyMzIuOTAgMjAyLjUwIEwyMjguMDAgMjIxLjYwIEwyMjMuMDAgMjQwLjgwIEwyMjMuMDAgMjQxLjQwIEwyMjMuMDAgMjQyLjEwIEwyMzguMjAgMjQxLjgwIEwyNTMuNDAgMjQxLjUwIEwyNTkuNzAgMjE3LjUwIEwyNjYuMDAgMTkzLjUwIEwyNzIuNTAgMTY4LjAwIEwyNzkuMDAgMTQyLjUwIEwyNzkuMDAgMTQxLjIwIEwyNzkuMDAgMTQwLjAwIEwyNzguMzAgMTQwLjEwIEwyNzcuNTAgMTQwLjEwIEwyNzUuMDAgMTQxLjgwIFoiIGZpbGw9InVybCgjbmtnKSIvPjwvc3ZnPg=='); background-size: contain; background-repeat: no-repeat; background-position: center; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -560,6 +562,11 @@
                         </div>
                         <input type="file" id="backup-file-input" accept=".json" class="hidden" onchange="handleImportBackup(event)">
                         <p id="backup-status" class="text-[9px] text-slate-500 mt-1 leading-tight"></p>
+                        <p id="export-reminder" class="text-[9px] mt-1.5 leading-tight"></p>
+                        <div class="mt-2 pt-2 border-t border-slate-800/60">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1">Còpies automàtiques d'aquest dispositiu</p>
+                            <div id="backup-history-list" class="max-h-32 overflow-y-auto"></div>
+                        </div>
                         <button onclick="copyDiagnosticReport()" class="w-full mt-2 py-1.5 bg-slate-800 hover:bg-slate-700/80 active:scale-[0.98] transition-all text-[10px] font-semibold rounded-lg text-slate-200 flex items-center justify-center gap-1.5">
                             <i data-lucide="stethoscope" class="w-3.5 h-3.5 text-rose-400"></i>Informe tècnic (per al xat)
                         </button>
@@ -2652,6 +2659,12 @@
         </div>
     </div>
 
+    <div id="offline-banner" class="hidden fixed bottom-20 md:bottom-6 left-3 md:left-6 right-3 md:right-auto z-40 max-w-md bg-slate-900 border border-amber-500/40 text-slate-100 text-xs px-4 py-3 rounded-xl shadow-2xl flex items-start gap-3">
+        <i data-lucide="wifi-off" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+        <span id="offline-banner-text" class="leading-relaxed flex-1"></span>
+        <button onclick="syncRecover({ manual: true })" class="shrink-0 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] font-semibold rounded-lg text-amber-300">Reintenta</button>
+    </div>
+
     <div id="toast" class="hidden fixed bottom-6 right-6 z-50 max-w-xs bg-slate-900 border border-emerald-500/40 text-slate-100 text-xs font-medium px-4 py-3 rounded-xl shadow-2xl shadow-emerald-500/10"></div>
 
     <!-- MODAL · perfil del jugador -->
@@ -2745,7 +2758,22 @@
        DIAGNÒSTIC — versió i captador d'errors, per generar l'informe tècnic
        sense dades personals (vegeu generateDiagnosticReport()).
        ========================================================================= */
-    const APP_BUILD = '2026-09-13';
+    /* Si alguna llibreria externa no ha carregat (sense xarxa i sense memòria cau del navegador), es diu
+       clarament en lloc de deixar la pàgina en blanc. */
+    (function () {
+        const LIBS = [['Tailwind', 'tailwind'], ['Chart.js', 'Chart'], ['Lucide', 'lucide'], ['SheetJS', 'XLSX'], ['jsPDF', 'jspdf'], ['Supabase', 'supabase']];
+        const missing = LIBS.filter(l => typeof window[l[1]] === 'undefined').map(l => l[0]);
+        if (!missing.length) return;
+        window.__libsMissing = missing;
+        const show = () => {
+            const d = document.createElement('div');
+            d.setAttribute('style', 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#7f1d1d;color:#fff;font:14px sans-serif;padding:12px 16px;text-align:center');
+            d.innerHTML = 'No s\'han pogut carregar components de l\'aplicació (' + missing.join(', ') + '). Comprova la connexió i <a href="" style="color:#fecaca;text-decoration:underline">torna a carregar</a>.';
+            document.body.appendChild(d);
+        };
+        if (document.body) show(); else window.addEventListener('DOMContentLoaded', show);
+    })();
+    const APP_BUILD = '2026-09-21 · Fases 1-4 completes';
     const recentErrors = [];
     function logDiagError(msg) {
         recentErrors.unshift({ at: Date.now(), msg: String(msg).slice(0, 300) });
@@ -2760,7 +2788,7 @@
        només l'acabat visual, perquè tinguin un aire més cuidat i coherent.
        ========================================================================= */
     if (typeof Chart !== 'undefined') {
-        Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        Chart.defaults.font.family = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
         Chart.defaults.font.size = 11;
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = 'rgba(51,65,85,0.35)';
@@ -2831,6 +2859,9 @@
     const norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     const key  = s => norm(s).replace(/[^a-z0-9]/g, '');
     const esc  = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    // Valor JS per posar dins d'un atribut HTML entre cometes dobles (onclick="f(${jsArg(x)})"): JSON + escapament HTML.
+    // Així un nom amb apòstrof o cometes ("L'Hospitalet") ja no trenca el botó ni permet injectar atributs.
+    const jsArg = v => esc(JSON.stringify(v === undefined ? null : v));
 
     const DAY_NAMES = ['dilluns','dimarts','dimecres','dijous','divendres','dissabte','diumenge'];
     const MONTHS_CA = ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
@@ -2948,9 +2979,11 @@
        canvi. El botó Desfés recupera l'última. Com que saveSoon agrupa els
        canvis, cada acció acabada deixa un sol punt de desfer.               */
     const UNDO_MAX = 40;
+    const UNDO_MAX_CHARS = 8 * 1024 * 1024;   // ~8 MB en memòria com a màxim
     let undoStack = [];
     let lastSavedJson = null;   // última fotografia desada (per comparar-hi)
     let isRestoring = false;    // true mentre apliquem un desfer (no en registrem un de nou)
+    let applyingRemote = false; // true mentre apliquem dades baixades del núvol (no compten com a canvi local)
 
     function pushUndoSnapshot(json) {
         if (isRestoring || !json) return;
@@ -2958,6 +2991,9 @@
         if (lastSavedJson) {
             undoStack.push(lastSavedJson);
             if (undoStack.length > UNDO_MAX) undoStack.shift();
+            // (Pas 13) A més del nombre, un límit de memòria: cada fotografia és tota la còpia de dades.
+            let tot = 0; for (const x of undoStack) tot += x.length;
+            while (undoStack.length > 1 && tot > UNDO_MAX_CHARS) tot -= undoStack.shift().length;
         }
         updateUndoButton();
     }
@@ -2985,6 +3021,7 @@
             state.savedAt = d.savedAt || Date.now();
             renderAll();
             document.getElementById('empty-state').classList.add('hidden');
+            markLocalChange(Date.now());       // el desfer és un canvi local: cal pujar-lo
             pushSoon();                        // propaga el desfer al núvol si cal
             toast('Últim canvi desfet.');
         } catch (e) {
@@ -3000,20 +3037,15 @@
         if (!state.loaded) return;
         if (inIframe || !storageOK()) { checkEnvironment(); return; }
         try {
-            const payload = {
-                v: 1, sv: SCHEMA_VERSION, savedAt: Date.now(), fileName: state.fileName,
-                players: state.players, sessions: state.sessions, microOrder: state.microOrder,
-                weekly: state.weekly, indicators: state.indicators, model: state.model,
-                micros: state.micros, months: state.months, stats: state.stats,
-                match: state.match, video: state.video, matchArchive: state.matchArchive, sheetsFound: state.sheetsFound, routines: state.routines, routineCats: state.routineCats, competition: state.competition, competitions: state.competitions, fines: state.fines, sociograma: state.sociograma, convocatories: state.convocatories, convPlans: state.convPlans, playerNotes: state.playerNotes, scouting: state.scouting, matchCards: state.matchCards, staff: state.staff
-            };
+            const payload = currentPayload();   // (Pas 13) un sol lloc defineix què es desa
             const json = JSON.stringify(payload, dateReplacer);
             pushUndoSnapshot(json);   // desa la versió anterior abans de sobreescriure
-            localStorage.setItem(storageKey(STORE_KEY), json);
+            setItemFreeingSpace(storageKey(STORE_KEY), json);
             // No ens refiem: ho rellegim per assegurar que s'ha desat de debò.
             if (localStorage.getItem(storageKey(STORE_KEY)) !== json) throw new Error('el navegador ha ignorat el desat');
             lastSavedJson = json;
             state.savedAt = payload.savedAt;
+            if (!applyingRemote) markLocalChange(payload.savedAt);   // canvi de l'usuari, pendent de pujar
             state.savedKB = Math.round(json.length / 1024);
             renderSourceBox();
             updateStorageUsageIndicator(); // MILLORA 9
@@ -3021,7 +3053,7 @@
         } catch (e) {
             const w = document.getElementById('storage-warning');
             w.innerText = (e && e.name === 'QuotaExceededError')
-                ? "L'Excel és massa gran per desar-lo al navegador."
+                ? "No hi ha prou espai al navegador per desar les dades. Baixa una còpia manual (Exporta) i allibera espai."
                 : "No s'ha pogut desar: " + (e && e.message ? e.message : e);
             w.classList.remove('hidden');
         }
@@ -3056,7 +3088,8 @@
        reanomenen ni esborren dades. S'executen a cada càrrega, perquè el
        desat, el desfer i la importació passen tots per applySaved().
        --------------------------------------------------------------------- */
-    const SCHEMA_VERSION = 6;
+    const SCHEMA_VERSION = 7;
+    let PIN_PURGED = false;
     function migrateState() {
         const from = Number(state.sv) || 0;
         // v1 (Fase 1) — àlies de jugador (per mostrar-lo al minutatge).
@@ -3093,6 +3126,11 @@
         if (from < 6) {
             (state.model || []).forEach(b => (b.items || []).forEach(it => { if (it.board === undefined) it.board = null; }));
         }
+        // v7 (Fase 4) — el sistema antic de PIN ja no s'usa (l'accés és amb compte). Els PIN eren en clar dins de
+        // les dades que baixa tot l'equip: s'esborren (i es marca per pujar la versió neta).
+        if (from < 7) {
+            (state.players || []).forEach(p => { if (p.pin !== undefined || p.pinHash !== undefined) { delete p.pin; delete p.pinHash; PIN_PURGED = true; } });
+        }
         state.sv = SCHEMA_VERSION;
     }
 
@@ -3112,7 +3150,7 @@
     const personById = id => playerById(id) || staffById(id);
 
     // Identificador únic curt (per a jugadors, marcadors, partits arxivats...).
-    const vuid = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const vuid = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);   // (Pas 8) 8 caràcters aleatoris: pràcticament impossible repetir-ne
     function loadSaved() {
         if (!storageOK()) return false;
         try {
@@ -3126,43 +3164,47 @@
         } catch (e) { console.warn('Desat il·legible:', e); return false; }
     }
 
-    function clearSaved() {
-        if (!confirm("Vols esborrar les dades desades? Hauràs de tornar a carregar l'Excel.")) return;
-        try { localStorage.removeItem(STORE_KEY); } catch (e) {}
-        location.reload();
-    }
 
     /* ============================================================
        MILLORA 9: INDICADOR D'ESPAI LOCALSTORAGE
        ------------------------------------------------------------ */
+    // (Pas 6) L'espai que compta és el de TOTES les claus del lloc (dades + còpies + memòria cau),
+    // no només la còpia principal.
+    function storageTotalChars() {
+        let n = 0;
+        try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i) || ''; n += k.length + (localStorage.getItem(k) || '').length; } } catch (e) {}
+        return n;
+    }
     function updateStorageUsageIndicator() {
         const bar = document.getElementById('storage-usage-bar');
         const text = document.getElementById('storage-usage-text');
         if (!bar || !text) return;
-        
         try {
-            const raw = localStorage.getItem(storageKey(STORE_KEY)) || '';
-            const usedBytes = new Blob([raw]).size;
-            const usedMB = (usedBytes / (1024 * 1024)).toFixed(2);
-            // Màxim típic de localStorage: ~5-10MB, usem 5MB com a referència conservadora
-            const maxMB = 5;
-            const percentage = Math.min((usedBytes / (maxMB * 1024 * 1024)) * 100, 100);
-            
+            const used = storageTotalChars();
+            const maxMB = 5;   // referència prudent (segons el navegador pot ser més)
+            const percentage = Math.min((used / (maxMB * 1024 * 1024)) * 100, 100);
             bar.style.width = percentage + '%';
-            text.innerText = `${usedMB} MB / ${maxMB} MB`;
-            
-            // Canvia color segons l'ús
-            if (percentage > 90) {
-                bar.className = 'h-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-300';
-            } else if (percentage > 70) {
-                bar.className = 'h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300';
-            } else {
-                bar.className = 'h-full bg-gradient-to-r from-emerald-500 to-sky-500 transition-all duration-300';
+            text.innerText = `${(used / (1024 * 1024)).toFixed(2)} MB de ~${maxMB} MB (dades + còpies)`;
+            if (percentage > 90) bar.className = 'h-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-300';
+            else if (percentage > 70) bar.className = 'h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300';
+            else bar.className = 'h-full bg-gradient-to-r from-emerald-500 to-sky-500 transition-all duration-300';
+        } catch (e) { text.innerText = 'Error'; console.error('Error calculant espai:', e); }
+    }
+    // Si el navegador es queda sense espai en desar, s'alliberen còpies diàries antigues (mai les de
+    // seguretat ni les dades) i es reintenta, en lloc de deixar de desar.
+    function setItemFreeingSpace(key, value) {
+        for (let guard = 0; guard < 12; guard++) {
+            try { localStorage.setItem(key, value); return; }
+            catch (e) {
+                if (!(e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014))) throw e;
+                const h = backupHistoryList(); let idx = -1;
+                for (let i = h.length - 1; i >= 0; i--) { if (h[i].kind !== 'safety') { idx = i; break; } }
+                if (idx < 0) throw e;
+                h.splice(idx, 1);
+                try { localStorage.setItem(histKey(), JSON.stringify(h)); } catch (e2) { try { localStorage.removeItem(histKey()); } catch (e3) {} }
             }
-        } catch (e) {
-            text.innerText = 'Error';
-            console.error('Error calculant espai:', e);
         }
+        localStorage.setItem(key, value);
     }
 
     /* =====================================================================
@@ -3222,47 +3264,117 @@
     // clau pròpia de localStorage) — protegeix contra un desat dolent que
     // sobreescrigui les dades bones, o contra un canvi fet per error. No
     // substitueix la còpia externa (si es perd el navegador, es perd també).
-    const BACKUP_HISTORY_KEY = 'cfse-backup-history';
-    const BACKUP_SNAPSHOT_GAP_MS = 20 * 60 * 60 * 1000; // com a molt un cop cada ~20h
-    const BACKUP_HISTORY_MAX = 6;
+    // (Fase 1 · Pas 3) L'historial és ara PER EQUIP (una clau per equip) i té dos tipus d'entrada:
+    //  · 'daily'  — còpia automàtica, com a molt un cop cada ~20h.
+    //  · 'safety' — còpia de seguretat feta just ABANS de qualsevol acció que sobreescrigui dades
+    //               (baixar el núvol descartant canvis locals, sobreescriure el núvol, restaurar).
+    const BACKUP_HISTORY_KEY = 'cfse-backup-history';   // clau base; amb equip actiu → 'cfse-backup-history::<equip>'
+    const BACKUP_SNAPSHOT_GAP_MS = 20 * 60 * 60 * 1000;
+    const BACKUP_DAILY_MAX = 6;
+    const BACKUP_SAFETY_MAX = 2;
+    const histKey = () => storageKey(BACKUP_HISTORY_KEY);
     function backupHistoryList() {
-        try { return JSON.parse(localStorage.getItem(BACKUP_HISTORY_KEY) || '[]'); } catch (e) { return []; }
+        try { const a = JSON.parse(localStorage.getItem(histKey()) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+    }
+    function trimHistory(hist) {
+        let d = 0, s = 0;
+        return hist.filter(h => h.kind === 'safety' ? (++s <= BACKUP_SAFETY_MAX) : (++d <= BACKUP_DAILY_MAX));
+    }
+    // Desa l'historial. Si no hi ha espai, descarta les diàries més antigues (mai les de seguretat).
+    // Si no hi ha manera de desar-lo, no toca res del que ja hi havia i retorna false.
+    function writeBackupHistory(hist) {
+        hist = trimHistory(hist);
+        for (let guard = 0; guard < 12; guard++) {
+            try { localStorage.setItem(histKey(), JSON.stringify(hist)); return true; }
+            catch (e) {
+                let idx = -1;
+                for (let i = hist.length - 1; i >= 0; i--) { if (hist[i].kind !== 'safety') { idx = i; break; } }
+                if (idx < 0) return false;
+                hist.splice(idx, 1);
+            }
+        }
+        return false;
     }
     function maybeAutoSnapshot(json) {
         try {
             const hist = backupHistoryList();
-            if (hist[0] && (Date.now() - hist[0].savedAt) < BACKUP_SNAPSHOT_GAP_MS) return;
-            hist.unshift({ savedAt: Date.now(), json });
-            while (hist.length > BACKUP_HISTORY_MAX) hist.pop();
-            localStorage.setItem(BACKUP_HISTORY_KEY, JSON.stringify(hist));
-        } catch (e) {
-            // Sense espai per l'historial: no bloquegem mai el desat principal.
-            try {
-                const hist = backupHistoryList();
-                if (hist.length > 1) { hist.pop(); localStorage.setItem(BACKUP_HISTORY_KEY, JSON.stringify(hist)); }
-            } catch (e2) {}
-        }
+            const lastDaily = hist.find(h => h.kind !== 'safety');
+            if (lastDaily && (Date.now() - lastDaily.savedAt) < BACKUP_SNAPSHOT_GAP_MS) return;
+            hist.unshift({ savedAt: Date.now(), json, kind: 'daily', reason: 'diària' });
+            writeBackupHistory(hist);   // sense espai: no bloquegem mai el desat principal
+        } catch (e) {}
         renderBackupHistory();
+    }
+    const _sansSavedAt = j => String(j).replace(/"savedAt":\d+/, '');
+    // Còpia de seguretat prèvia. Sense argument: fotografia de l'estat actual d'aquest dispositiu.
+    // Amb `json`: aquella versió concreta (p. ex. la del núvol, abans de sobreescriure-la).
+    // Retorna true si queda guardada (o ja hi era), false si no s'ha pogut.
+    function takeSafetySnapshot(reason, json) {
+        try {
+            if (!json) { if (!state.loaded) return true; json = JSON.stringify(currentPayload(), dateReplacer); }
+            const hist = backupHistoryList();
+            const last = hist.find(h => h.kind === 'safety');
+            if (last && _sansSavedAt(last.json) === _sansSavedAt(json)) return true;   // ja la tenim
+            hist.unshift({ savedAt: Date.now(), json, kind: 'safety', reason });
+            const ok = writeBackupHistory(hist);
+            renderBackupHistory();
+            return ok;
+        } catch (e) { console.warn('La còpia de seguretat prèvia ha fallat:', e); return false; }
+    }
+    // Les còpies de l'historial antic (global, d'abans que cada equip tingués el seu) es
+    // reparteixen segons l'equip: una còpia és d'aquest equip si comparteix la meitat, com
+    // a mínim, dels seus jugadors. La resta es deixen on són (mai s'esborra res que no sigui seu).
+    function adoptLegacyBackups() {
+        try {
+            if (!window.CFSE_EQUIP_ID || !state.loaded) return;
+            const raw = localStorage.getItem(BACKUP_HISTORY_KEY); if (!raw) return;
+            const legacy = JSON.parse(raw);
+            if (!Array.isArray(legacy) || !legacy.length) { localStorage.removeItem(BACKUP_HISTORY_KEY); return; }
+            const mine = new Set((state.players || []).map(p => String(p.id)));
+            const keep = [], adopt = [];
+            legacy.forEach(h => {
+                let same = false;
+                try {
+                    const ids = (JSON.parse(h.json).players || []).map(p => String(p.id));
+                    same = ids.length > 0 && mine.size > 0 && ids.filter(id => mine.has(id)).length >= Math.ceil(ids.length / 2);
+                } catch (e) {}
+                (same ? adopt : keep).push(h);
+            });
+            if (!adopt.length) return;
+            const hist = backupHistoryList();
+            adopt.forEach(h => hist.push({ savedAt: h.savedAt, json: h.json, kind: 'daily', reason: 'diària' }));
+            hist.sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+            if (!writeBackupHistory(hist)) return;   // sense espai: es queda tot com estava
+            if (keep.length) localStorage.setItem(BACKUP_HISTORY_KEY, JSON.stringify(keep)); else localStorage.removeItem(BACKUP_HISTORY_KEY);
+        } catch (e) { console.warn('No s\'ha pogut repartir l\'historial antic:', e); }
     }
     function renderBackupHistory() {
         const box = document.getElementById('backup-history-list'); if (!box) return;
         const hist = backupHistoryList();
         box.innerHTML = hist.length
-            ? hist.map((h, i) => `<div class="flex items-center justify-between gap-2 py-0.5">
-                <span class="text-[9px] text-slate-500">${esc(new Date(h.savedAt).toLocaleString('ca-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }))}</span>
-                <button onclick="restoreAutoSnapshot(${i})" class="text-[9px] text-sky-400 hover:text-sky-300 underline">Restaura</button>
+            ? hist.map((h, i) => `<div class="py-0.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[9px] text-slate-400">${esc(new Date(h.savedAt).toLocaleString('ca-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }))}</span>
+                  <button onclick="restoreAutoSnapshot(${i})" class="text-[9px] text-sky-400 hover:text-sky-300 underline">Restaura</button>
+                </div>
+                <p class="text-[9px] leading-tight ${h.kind === 'safety' ? 'text-amber-400/90' : 'text-slate-600'}">${esc(h.kind === 'safety' ? (h.reason || 'Còpia de seguretat') : 'Còpia diària')}</p>
             </div>`).join('')
-            : '<p class="text-[9px] text-slate-600">Encara no hi ha còpies automàtiques (se\'n desa una tot sol, com a molt un cop al dia).</p>';
+            : '<p class="text-[9px] text-slate-600">Encara no hi ha còpies automàtiques (se\'n desa una tota sola, com a molt un cop al dia, i una de seguretat abans de qualsevol acció que sobreescrigui dades).</p>';
     }
     function restoreAutoSnapshot(i) {
         const hist = backupHistoryList();
         const h = hist[i]; if (!h) return;
-        if (!confirm('Restaurar la còpia del ' + new Date(h.savedAt).toLocaleString('ca-ES') + '?\n\nEs perdran els canvis fets des d\'aleshores que no s\'hagin sincronitzat.')) return;
+        const quan = new Date(h.savedAt).toLocaleString('ca-ES');
+        if (!confirm('Restaurar la còpia del ' + quan + '?\n\nL\'estat actual es guardarà abans com a còpia de seguretat, així que la restauració es podrà desfer.')) return;
         try {
             const data = JSON.parse(h.json, dateReviver);
+            if (!takeSafetySnapshot('Estat anterior a restaurar la còpia del ' + quan)) {
+                if (!confirm('No s\'ha pogut guardar una còpia de l\'estat actual (poc espai al navegador).\n\nRestaurar igualment?')) return;
+            }
             applySaved(data);
             saveState();
             renderAll();
+            pushSoon();
             toast('Còpia restaurada.');
         } catch (e) { toast('No s\'ha pogut restaurar: ' + (e && e.message ? e.message : e)); }
     }
@@ -3289,13 +3401,21 @@
             '',
             '--- Sincronització ---',
             'Activada: ' + (syncEnabled() ? 'sí' : 'no'),
+            'Equip: ' + String(window.CFSE_EQUIP_ID || '—').slice(0, 8) + ' · rol: ' + (window.CFSE_ROL || '—'),
+            'Lectura del núvol: ' + (window.__TL_LLEGIR === 'ok' ? 'per funció segura (filtra dades privades per rol)' : window.__TL_LLEGIR === 'missing' ? 'DIRECTA (migració de seguretat SQL encara no aplicada)' : 'encara no comprovada'),
+            'Llibreries que no han carregat: ' + ((window.__libsMissing || []).join(', ') || 'cap'),
             syncEnabled() ? 'Última pujada/baixada confirmada: ' + ago(getSyncedAt()) : '',
+            syncEnabled() ? 'Connexió amb el núvol: ' + (window.CFSE_OFFLINE ? 'SENSE connexió (mode local)' : syncNetFail ? 'fallant (reintentant)' : 'ok') : '',
+            syncEnabled() ? 'Canvis locals sense pujar: ' + (getDirtyAt() > 0 ? 'sí' + (syncConflict ? ' (en conflicte)' : '') : 'no') : '',
             '',
             '--- Desat local ---',
             'Últim desat: ' + (state.loaded ? ago(state.savedAt) : 'sense dades carregades'),
             'Mida desada: ' + (state.savedKB != null ? state.savedKB + ' KB' : '—'),
-            'Còpies automàtiques guardades: ' + backupHistoryList().length,
+            'Còpies automàtiques guardades: ' + backupHistoryList().length + ' (de seguretat: ' + backupHistoryList().filter(h => h.kind === 'safety').length + ')',
             'Última còpia externa (exportada): ' + ago(Number(localStorage.getItem(LAST_EXPORT_KEY) || 0)),
+            'Còpies (D=diària, S=seguretat): ' + (backupHistoryList().map(h => (h.kind === 'safety' ? 'S' : 'D') + Math.round((h.json || '').length / 1024) + 'KB').join(' ') || 'cap'),
+            'Espai total del lloc: ' + (storageTotalChars() / 1048576).toFixed(2) + ' MB (dades + còpies + memòria cau)',
+            'Desfer: ' + undoStack.length + ' fotografies (~' + (undoStack.reduce((a, x) => a + x.length, 0) / 1048576).toFixed(1) + ' MB en memòria)',
             '',
             '--- Dades carregades ---',
             'Jugadors: ' + (state.players || []).length + ' (' + (state.players || []).filter(p => p.extern).length + ' convidats)',
@@ -3378,10 +3498,47 @@
     const syncEnabled   = () => !!window.CFSE_EQUIP_ID;
     const getSyncedAt   = () => Number(localStorage.getItem(storageKey(SYNC_SYNCED_KEY)) || 0);
     const setSyncedAt   = ts => { try { localStorage.setItem(storageKey(SYNC_SYNCED_KEY), String(ts || 0)); } catch (e) {} };
+
+    /* ---- Canvis locals pendents de pujar ("dirty") ------------------------------
+       Marca explícita i persistent (una per equip): només la posa una edició de
+       l'usuari, MAI una baixada del núvol. Així, després de tancar l'app amb canvis
+       sense pujar (p. ex. sense cobertura al pavelló), en tornar a entrar sabem que
+       la còpia local és la bona i no la trepitgem. 0 = tot pujat; absent = encara
+       no inicialitzada (primera vegada amb aquesta versió). */
+    const DIRTY_KEY = 'cfse-dirty-at';
+    const getDirtyAt = () => Number(localStorage.getItem(storageKey(DIRTY_KEY)) || 0);
+    const setDirtyAt = ts => { try { localStorage.setItem(storageKey(DIRTY_KEY), String(ts || 0)); } catch (e) {} try { updateOfflineBanner(); } catch (e) {} };
+    // Només compta si aquest usuari pot pujar (un jugador de només lectura no té "pendents").
+    function markLocalChange(ts) {
+        let can = true;
+        try { can = canPushSync(); } catch (e) { can = true; }   // en cas de dubte, prudència: marcar
+        if (can) setDirtyAt(ts || Date.now());
+    }
+    // Primera vegada que aquest equip s'obre amb aquesta versió: criteri antic (prudent:
+    // millor un avís de més que perdre dades) i a partir d'aquí, ja només la marca.
+    function initDirtyFlag() {
+        if (localStorage.getItem(storageKey(DIRTY_KEY)) !== null) return;
+        let can = true;
+        try { can = canPushSync(); } catch (e) { can = true; }
+        setDirtyAt(can && state.loaded && (state.savedAt || 0) > getSyncedAt() ? state.savedAt : 0);
+    }
+    // True quan hi ha un conflicte per resoldre: mentre duri, no es puja res automàticament.
+    let syncConflict = false;
+    // Compara el núvol amb el que sabem: "novetats" = el núvol té una versió diferent de
+    // l'última que vam veure (no depèn dels rellotges dels dispositius).
+    function syncSituation(remoteData) {
+        const remoteAt = remoteData ? (remoteData.savedAt || 0) : 0;
+        return {
+            remoteAt,
+            remoteHasNews: !!remoteData && remoteAt !== getSyncedAt(),
+            localDirty: !!state.loaded && getDirtyAt() > 0
+        };
+    }
     // Només l'entrenador o el delegat de multes poden pujar canvis al núvol.
     // La resta de jugadors, si la versió publicada té sync incrustat, només el
     // fan servir per rebre (GET) — mai per escriure-hi.
-    const canPushSync = () => appRole === 'coach' || (typeof canEditFines === 'function' && canEditFines());
+    // (Pas 4) CFSE_BLOCK_PUSH: es posa quan els permisos han canviat mentre s'estava sense connexió; no es puja res més amb el rol antic.
+    const canPushSync = () => !window.CFSE_BLOCK_PUSH && (appRole === 'coach' || (typeof canEditFines === 'function' && canEditFines()));
 
     // Petit indicador visual (punt de color + text) a la barra lateral.
     function syncStatus(msg, kind) {
@@ -3430,56 +3587,41 @@
         const when = d >= today
             ? 'avui a les ' + d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' })
             : 'el ' + d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' });
-        syncStatus('Sincronitzat ' + when, 'ok');
+        const pend = getDirtyAt() > 0;
+        syncStatus('Sincronitzat ' + when + (pend ? ' · canvis pendents de pujar' : ''), pend ? 'warn' : 'ok');
     }
 
     // Obsolet: la configuració per URL/clau ja no s'utilitza (la sincronització
     // és automàtica en iniciar sessió). Es deixen com a no-operacions segures
     // per si encara hi ha alguna referència viva, en comptes d'esborrar-les.
-    function toggleSyncConfig() {
-        const box = document.getElementById('sync-config');
-        if (!box) return;
-        if (box.classList.contains('hidden')) {
-            document.getElementById('sync-url').value = getSyncUrl();
-            document.getElementById('sync-key').value = getSyncSecret();
+
+
+
+    // GET: llegeix les dades del núvol (Supabase). POST: hi escriu les dades actuals.
+    // (Fase 3 · Pas 10) La lectura passa per la funció `tauler_llegir` del servidor, que filtra les dades privades
+    // segons el rol (un jugador no rep notes privades, scouting, plans de partit, telèfons...). Si la migració SQL
+    // encara no s'ha aplicat, la funció no existeix i es fa servir la lectura directa d'abans: el mateix fitxer
+    // funciona ABANS i DESPRÉS d'aplicar-la.
+    const isMissingRpc = r => !!(r && r.error) && (r.error.code === 'PGRST202' || r.status === 404 || /could not find the function|does not exist/i.test(String(r.error.message || '')));
+    async function readRemotePayload() {
+        if (window.__TL_LLEGIR !== 'missing') {
+            const r = await sb.rpc('tauler_llegir', { p_equip_id: window.CFSE_EQUIP_ID });
+            if (!r.error) { window.__TL_LLEGIR = 'ok'; return r.data || null; }
+            if (isMissingRpc(r)) window.__TL_LLEGIR = 'missing';
+            else throw new Error(r.error.message || 'error de lectura');
         }
-        box.classList.toggle('hidden');
+        const { data, error } = await sb.from('tauler_state').select('payload').eq('equip_id', window.CFSE_EQUIP_ID).maybeSingle();
+        if (error) throw new Error(error.message);
+        return data ? data.payload : null;
     }
-
-    function saveSyncConfig() {
-        const box = document.getElementById('sync-config');
-        if (!box) return;
-        const url = document.getElementById('sync-url').value.trim();
-        const k = document.getElementById('sync-key').value.trim();
-        if (!url) { syncStatus('Cal una URL vàlida.', 'error'); return; }
-        localStorage.setItem(SYNC_URL_KEY, url);
-        if (k) localStorage.setItem(SYNC_SECRET_KEY, k); else localStorage.removeItem(SYNC_SECRET_KEY);
-        box.classList.add('hidden');
-        setSyncedAt(0); // força una sincronització completa la propera vegada
-        syncStatus('Configuració desada. Comprovant el núvol...', 'busy');
-        syncNow();
-    }
-
-    function disableSync() {
-        if (!confirm('Vols desactivar la sincronització amb el núvol? Les dades locals es mantenen.')) return;
-        localStorage.removeItem(SYNC_URL_KEY);
-        localStorage.removeItem(SYNC_SECRET_KEY);
-        localStorage.removeItem(storageKey(SYNC_SYNCED_KEY));
-        const box = document.getElementById('sync-config');
-        if (box) box.classList.add('hidden');
-        refreshSyncUI();
-    }
-
     // GET: llegeix les dades del núvol (Supabase). POST: hi escriu les dades actuals.
     async function syncFetch(method, bodyData) {
         if (!window.CFSE_EQUIP_ID) throw new Error('Encara no se sap a quin equip pertanys.');
         if (method === 'GET') {
-            const { data, error } = await sb.from('tauler_state').select('payload').eq('equip_id', window.CFSE_EQUIP_ID).maybeSingle();
-            if (error) throw new Error(error.message);
-            if (!data) return {};
-            // Recorre el mateix camí que abans (parse + reviure de dates) tot i
-            // que Supabase ja ens dona un objecte, no un text.
-            return JSON.parse(JSON.stringify(data.payload), dateReviver);
+            const payload = await readRemotePayload();
+            if (!payload) return {};
+            // Recorre el mateix camí que abans (parse + reviure de dates).
+            return JSON.parse(JSON.stringify(payload), dateReviver);
         }
         const { error } = await sb.from('tauler_state').upsert(
             { equip_id: window.CFSE_EQUIP_ID, payload: bodyData, updated_at: new Date().toISOString() },
@@ -3490,29 +3632,88 @@
     }
 
     function applyRemote(remoteData) {
+        // Si aquí hi havia canvis locals sense pujar, aquesta baixada els descarta: primer en guardem una còpia.
+        if (state.loaded && getDirtyAt() > 0 && !takeSafetySnapshot('Els teus canvis d\'aquest dispositiu, abans de baixar el núvol')) {
+            toast('ATENCIÓ: no s\'ha pogut guardar la còpia de seguretat prèvia (poc espai al navegador). Convé baixar una còpia manual.');
+        }
         // Baixar del núvol no és una acció desfeble de l'usuari: no l'afegim
         // a la pila de desfer (evita que «Desfés» reverteixi una sincronització).
+        // Tampoc és un "canvi local": no ha de deixar res pendent de pujar.
         isRestoring = true;
+        applyingRemote = true;
         try {
             applySaved(remoteData);
             saveState();
         } finally {
             isRestoring = false;
+            applyingRemote = false;
         }
         setSyncedAt(remoteData.savedAt || Date.now());
+        setDirtyAt(0);
+        syncConflict = false;
         renderAll();
         document.getElementById('empty-state').classList.add('hidden');
         refreshSyncUI();
     }
 
-    async function pushToRemote() {
+    // Versió (savedAt) que hi ha ara mateix al núvol, sense baixar-ne tot el contingut.
+    // Retorna null si el núvol encara no té res. Si no es pot saber, LLANÇA un error:
+    // en cas de dubte, no es puja res.
+    async function fetchRemoteSavedAt() {
+        if (!window.CFSE_EQUIP_ID) throw new Error('Encara no se sap a quin equip pertanys.');
+        if (window.CFSE_ROL !== 'jugador' || window.__TL_LLEGIR === 'missing') {
+            try {
+                const { data, error } = await sb.from('tauler_state').select('savedAt:payload->savedAt').eq('equip_id', window.CFSE_EQUIP_ID).maybeSingle();
+                if (!error) return (data && data.savedAt != null) ? Number(data.savedAt) : null;
+            } catch (e) { /* pla B a sota */ }
+        }
+        // Pla B (o delegat de multes): llegir-ho tot amb la funció segura.
+        const p = await readRemotePayload();
+        return (p && p.v === 1 && p.savedAt != null) ? Number(p.savedAt) : null;
+    }
+
+    // Puja l'estat al núvol. Abans de pujar, comprova que el núvol continua tenint la
+    // versió que sabíem (si algú altre hi ha pujat res mentrestant, NO el trepitja: marca
+    // conflicte i retorna 'conflict'). opts.skipCheck: el cridador acaba de comprovar-ho,
+    // o l'usuari ha decidit explícitament sobreescriure.
+    async function pushToRemote(opts) {
+        opts = opts || {};
         if (!canPushSync()) return;
+        if (!opts.skipCheck) {
+            const remoteAt = await fetchRemoteSavedAt();
+            if (remoteAt !== null && remoteAt !== getSyncedAt()) {
+                syncConflict = true;
+                syncStatus('Conflicte: el núvol ha canviat. Prem la fletxa per resoldre.', 'warn');
+                return 'conflict';
+            }
+        }
+        // Un jugador que és delegat de multes només pot escriure LES MULTES (funció del servidor): no el
+        // document sencer, perquè no en trepitgi res més (les dades privades ni tan sols li arriben).
+        if (window.CFSE_ROL === 'jugador' && window.__TL_ESCRIURE !== 'missing') {
+            const builtAt = Date.now();
+            const r = await sb.rpc('tauler_escriure_multes', { p_equip_id: window.CFSE_EQUIP_ID, p_fines: JSON.parse(JSON.stringify(state.fines || {}, dateReplacer)) });
+            if (!r.error) {
+                window.__TL_ESCRIURE = 'ok';
+                setSyncedAt(Number(r.data) || builtAt);
+                if (getDirtyAt() <= builtAt) setDirtyAt(0);
+                syncConflict = false; syncNetFail = false; resetSyncRetry();
+                refreshSyncUI(); updateOfflineBanner();
+                return;
+            }
+            if (isMissingRpc(r)) window.__TL_ESCRIURE = 'missing';
+            else throw new Error(r.error.message || 'error d\'escriptura');
+        }
         const payload = currentPayload();
         const plain = JSON.parse(JSON.stringify(payload, dateReplacer)); // dates -> {__d:...} per al transport
         const resp = await syncFetch('POST', plain);
         if (resp && resp.error) throw new Error(resp.error);
         setSyncedAt(payload.savedAt);
+        // Només ho donem per pujat si no s'ha tornat a editar mentre pujàvem.
+        if (getDirtyAt() <= payload.savedAt) setDirtyAt(0);
+        syncConflict = false;
+        syncNetFail = false; resetSyncRetry();
         refreshSyncUI();
+        updateOfflineBanner();
     }
 
     let syncing = false;
@@ -3528,27 +3729,34 @@
             const remote = await syncFetch('GET');
             if (remote && remote.error) throw new Error('clau incorrecta o accés no autoritzat');
             const remoteData = (remote && remote.v === 1 && Array.isArray(remote.sessions)) ? remote : null;
-            const remoteAt = remoteData ? (remoteData.savedAt || 0) : 0;
-            const localAt = state.loaded ? (state.savedAt || 0) : 0;
-            const syncedAt = getSyncedAt();
-            const localHasUnsynced = state.loaded && localAt > syncedAt;
-            const remoteHasNews = remoteAt > syncedAt;
+            const { remoteHasNews, localDirty } = syncSituation(remoteData);
 
             if (!remoteData && !state.loaded) { syncStatus('Res al núvol ni en aquest dispositiu.', 'warn'); return; }
-            if (!remoteData && state.loaded) { await pushToRemote(); return; }
+            if (!remoteData && state.loaded) { await pushToRemote({ skipCheck: true }); return; }
             if (remoteData && !state.loaded) { applyRemote(remoteData); return; }
 
-            if (localHasUnsynced && remoteHasNews) {
+            if (localDirty && remoteHasNews) {
+                const fmtT = ts => ts ? new Date(ts).toLocaleString('ca-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'data desconeguda';
                 const keepLocal = confirm(
-                    "Hi ha canvis nous tant en aquest dispositiu com al núvol.\n\n" +
-                    "Accepta: mantén els d'aquest dispositiu (sobreescriu el núvol).\n" +
-                    "Cancel·la: agafa els del núvol (descarta els d'aquest dispositiu)."
+                    "CONFLICTE: han canviat les dades tant en aquest dispositiu com al núvol (un altre dispositiu o usuari hi ha pujat canvis).\n\n" +
+                    "· Núvol: últim canvi " + fmtT(remoteData.savedAt) + "\n" +
+                    "· Aquest dispositiu: últim canvi " + fmtT(getDirtyAt() || state.savedAt) + "\n\n" +
+                    "ACCEPTA = quedar-te amb AQUEST dispositiu.\n   El núvol se SOBREESCRIU: es perden els canvis que hi hagi pujat l'altre." +
+                    (appRole !== 'coach' ? "\n   ATENCIÓ: això també sobreescriuria dades de l'entrenador." : "") + "\n\n" +
+                    "CANCEL·LA = quedar-te amb el NÚVOL.\n   Els canvis fets en aquest dispositiu es DESCARTEN.\n\n" +
+                    "Si dubtes, cancel·la, i abans d'acceptar exporta una còpia des d'aquest dispositiu."
                 );
-                if (keepLocal) await pushToRemote(); else applyRemote(remoteData);
+                if (keepLocal) {
+                    // El núvol es sobreescriu: primer en guardem la versió actual.
+                    if (!takeSafetySnapshot('El núvol, abans de sobreescriure\'l (' + fmtT(remoteData.savedAt) + ')', JSON.stringify(remoteData, dateReplacer))) {
+                        if (!confirm('No s\'ha pogut guardar una còpia del núvol (poc espai al navegador).\n\nSobreescriure el núvol igualment?')) return;
+                    }
+                    await pushToRemote({ skipCheck: true });
+                } else applyRemote(remoteData);
                 return;
             }
             if (remoteHasNews) { applyRemote(remoteData); return; }
-            if (localHasUnsynced) { await pushToRemote(); return; }
+            if (localDirty) { await pushToRemote({ skipCheck: true }); return; }
             refreshSyncUI();
         } catch (e) {
             console.error(e);
@@ -3561,6 +3769,7 @@
     // En obrir el tauler: baixa sol el que hi hagi de nou al núvol.
     async function autoSyncOnOpen() {
         if (!syncEnabled()) { refreshSyncUI(); return; }
+        syncNetFail = false;
         syncStatus('Comprovant el núvol...', 'busy');
         try {
             const remote = await syncFetch('GET');
@@ -3568,30 +3777,94 @@
             const remoteData = (remote && remote.v === 1 && Array.isArray(remote.sessions)) ? remote : null;
             if (!remoteData) {
                 // No hi ha res al núvol encara: si tenim dades locals, pugem-les.
-                if (state.loaded) { await pushToRemote(); } else { syncStatus('Núvol buit. Prem "Entra al tauler" per començar.', 'warn'); }
+                if (state.loaded) { await pushToRemote({ skipCheck: true }); } else { syncStatus('Núvol buit. Prem "Entra al tauler" per començar.', 'warn'); }
                 return;
             }
-            const remoteAt = remoteData.savedAt || 0;
-            const localAt = state.loaded ? (state.savedAt || 0) : 0;
-            const syncedAt = getSyncedAt();
-            // Si tenim canvis locals sense pujar, no els trepitgem: avisem.
-            if (state.loaded && localAt > syncedAt && remoteAt > syncedAt) {
+            const { remoteHasNews, localDirty } = syncSituation(remoteData);
+            // Canvis nostres sense pujar I novetats al núvol: no trepitgem res, avisem.
+            if (localDirty && remoteHasNews) {
+                syncConflict = true;
                 syncStatus('Conflicte: prem la fletxa per resoldre.', 'warn');
                 return;
             }
-            if (remoteAt > syncedAt) { applyRemote(remoteData); }
-            else if (!state.loaded) {
-                // Encara no tenim res carregat a la memòria (acabem d'entrar
-                // en aquest equip): carrega el núvol igualment, encara que
-                // la marca de temps digui que "no hi ha res nou" — aquesta
-                // marca només serveix per evitar recàrregues innecessàries
-                // a mitja sessió, no per decidir si cal la primera càrrega.
-                applyRemote(remoteData);
+            // Novetats al núvol (o encara no tenim res carregat): les baixem.
+            if (remoteHasNews || !state.loaded) { applyRemote(remoteData); return; }
+            // Canvis fets aquí (p. ex. sense connexió) i el núvol no ha canviat: els pugem.
+            if (localDirty) {
+                if (!canPushSync()) { refreshSyncUI(); return; }   // es reintenta quan es coneguin els permisos
+                syncStatus('Pujant canvis fets sense connexió...', 'busy');
+                await pushToRemote({ skipCheck: true });
+                return;
             }
-            else { setSyncedAt(remoteAt || Date.now()); refreshSyncUI(); }
+            setSyncedAt(remoteData.savedAt || Date.now());
+            refreshSyncUI();
         } catch (e) {
             console.warn('Sincronització en obrir ha fallat:', e);
-            syncStatus('Sense connexió amb el núvol.', 'error');
+            if (sbIsTransient({ error: e }) || navigator.onLine === false) syncStatus('Sense connexió amb el núvol. Treballes amb la còpia d\'aquest dispositiu.', 'error');
+            else syncStatus('Error de sincronització: ' + (e && e.message ? e.message : e), 'error');
+            noteSyncFail(e);
+        } finally {
+            if (!syncNetFail) resetSyncRetry();
+            updateOfflineBanner();
+        }
+    }
+
+    /* ---------------- (Fase 1 · Pas 4) Connexió: detecció, reintents i mode sense connexió ---------------- */
+    // Error passatger (xarxa caiguda, servidor no disponible, temps esgotat) ≠ error "de veritat"
+    // (permisos, dades). Només els passatgers justifiquen reintentar i treballar sense connexió.
+    function sbIsTransient(res) {
+        const err = res && res.error; if (!err) return false;
+        const msg = String(err.message || err).toLowerCase();
+        const st = Number(res.status != null ? res.status : err.status);
+        return st === 0 || st >= 500 || err.name === 'AuthRetryableFetchError' ||
+            /failed to fetch|networkerror|network request failed|load failed|fetch failed|timeout|timed out|offline|econn|enotfound|internet/.test(msg);
+    }
+    let syncNetFail = false, syncRetryTimer = null, syncRetryN = 0, syncRecovering = false;
+    const SYNC_RETRY_STEPS = [5000, 15000, 45000, 120000, 300000];   // 5 s, 15 s, 45 s, 2 min, i després cada 5 min
+    function scheduleSyncRetry() {
+        if (syncRetryTimer) return;
+        const d = SYNC_RETRY_STEPS[Math.min(syncRetryN, SYNC_RETRY_STEPS.length - 1)]; syncRetryN++;
+        syncRetryTimer = setTimeout(() => { syncRetryTimer = null; syncRecover({ auto: true }); }, d);
+    }
+    function resetSyncRetry() { if (syncRetryTimer) clearTimeout(syncRetryTimer); syncRetryTimer = null; syncRetryN = 0; }
+    function noteSyncFail(e) {
+        if (sbIsTransient({ error: e }) || navigator.onLine === false) { syncNetFail = true; scheduleSyncRetry(); }
+        updateOfflineBanner();
+    }
+    function updateOfflineBanner() {
+        const el = document.getElementById('offline-banner'); if (!el) return;
+        const off = !!window.CFSE_OFFLINE || navigator.onLine === false || syncNetFail;
+        if (!off) { el.classList.add('hidden'); return; }
+        const pend = state.loaded && getDirtyAt() > 0;
+        const txt = !state.loaded
+            ? 'Sense connexió, i aquest dispositiu encara no té cap còpia de l\'equip. Cal connectar-se almenys una vegada.'
+            : pend
+                ? 'Sense connexió amb el núvol. Els teus canvis queden desats en aquest dispositiu i es pujaran sols quan torni la xarxa.'
+                : 'Sense connexió amb el núvol. Pots seguir treballant amb la còpia d\'aquest dispositiu; els canvis es pujaran sols quan torni la xarxa.';
+        const t = document.getElementById('offline-banner-text'); if (t) t.textContent = txt;
+        el.classList.remove('hidden');
+    }
+    // Torna a connectar i posa al dia (puja el que estigui pendent, baixa novetats, avisa si hi ha conflicte).
+    // auto: cridat per un temporitzador o pel navegador; manual: l'usuari ha premut "Reintenta".
+    async function syncRecover(opts) {
+        opts = opts || {};
+        if (syncRecovering || syncing || !syncEnabled()) { if (opts.manual && syncRecovering) toast('Ja s\'està provant de reconnectar…'); return; }
+        syncRecovering = true;
+        try {
+            if (window.CFSE_OFFLINE) {
+                const ok = (typeof reconnectSession === 'function') ? await reconnectSession() : false;
+                if (!ok) {
+                    if (opts.manual) toast('Encara sense connexió amb el servidor.'); else scheduleSyncRetry();
+                    return;
+                }
+            } else if (opts.auto && getDirtyAt() <= 0 && !syncNetFail) return;   // res a fer
+            await autoSyncOnOpen();
+            if (syncNetFail) { if (opts.manual) toast('Encara sense connexió amb el núvol.'); return; }   // autoSyncOnOpen ja ha programat el següent reintent
+            resetSyncRetry();
+            if (typeof pushSoon === 'function') pushSoon();
+        } finally {
+            syncRecovering = false;
+            updateOfflineBanner();
         }
     }
 
@@ -3602,29 +3875,38 @@
     // uns segons després de cada canvi via pushSoon, continua funcionant
     // igual) — és una xarxa de seguretat menys, no una pèrdua de la
     // sincronització habitual.
-    function beaconPush() {
-        // Desactivat conscientment: vegeu nota a dalt.
-    }
+    function beaconPush() { flushPendingSave(); }
 
     // Pujada automàtica mentre treballes, uns segons després del darrer canvi.
     let cloudTimer = null;
     function pushSoon() {
         if (!syncEnabled() || !canPushSync()) return;
+        if (syncConflict) { syncStatus('Conflicte: prem la fletxa per resoldre.', 'warn'); return; }
         clearTimeout(cloudTimer);
         cloudTimer = setTimeout(async () => {
-            if (!state.loaded || syncing) return;
-            if ((state.savedAt || 0) <= getSyncedAt()) return; // ja sincronitzat
+            if (syncing) { pushSoon(); return; }   // hi ha una sincronització en marxa: no es descarta, es torna a programar
+            if (!state.loaded || syncConflict) return;
+            if (getDirtyAt() <= 0) return; // ja sincronitzat
             syncStatus('Pujant canvis...', 'busy');
-            try { await pushToRemote(); }
-            catch (e) { syncStatus('No s\'han pogut pujar els canvis.', 'error'); }
+            try { if ((await pushToRemote()) === 'conflict') return; }
+            catch (e) { syncStatus('No s\'han pogut pujar els canvis (es tornarà a provar sol).', 'error'); noteSyncFail(e); }
         }, 2500);
     }
 
-    let saveTimer = null;
+    let saveTimer = null, savePending = false;
     const saveSoon = () => {
         clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => { saveState(); pushSoon(); }, 400);
+        savePending = true;
+        saveTimer = setTimeout(() => { savePending = false; saveState(); pushSoon(); }, 400);
     };
+    // (Pas 9) Si hi ha un desat a mitges (els 400 ms d'agrupació), es fa ara: en tancar o amagar l'app,
+    // o en canviar d'equip. La pujada al núvol no es pot fer aquí (les peticions "keepalive" admeten
+    // com a molt 64 KB i la còpia en fa ~400): queda marcada com a pendent i es puja en tornar.
+    function flushPendingSave() {
+        if (!savePending) return;
+        clearTimeout(saveTimer); savePending = false;
+        try { saveState(); } catch (e) { console.warn('flushPendingSave:', e); }
+    }
 
     let toastTimer = null;
     function toast(msg) {
@@ -4175,22 +4457,6 @@
     /* ============================================================
        MILLORA 4: CÀLCUL AUTOMÀTIC DE DADES DE SESSIÓ
        ------------------------------------------------------------ */
-    function computeSessionData(session) {
-        if (!session || !session.exercises || !Array.isArray(session.exercises)) {
-            return { volum: 0, intensitat: 0, uc: 0 };
-        }
-        let totalVolum = 0, totalUC = 0;
-        session.exercises.forEach(ex => {
-            if (ex.series && Array.isArray(ex.series)) {
-                ex.series.forEach(serie => {
-                    totalVolum += parseInt(serie.volum) || 0;
-                    totalUC += parseInt(serie.uc) || 0;
-                });
-            }
-        });
-        const intensitat = totalVolum > 0 ? (totalUC / totalVolum) * 10 : 0;
-        return { volum: totalVolum, intensitat: Math.min(intensitat, 10), uc: totalUC };
-    }
 
     function renderNextSession() {
         const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -4375,17 +4641,6 @@
         renderCharts();
     }
 
-    function getFilteredSessions() {
-        let sessions = state.sessions.filter(s => s.date);
-        if (loadDateFrom || loadDateTo) {
-            sessions = sessions.filter(s => {
-                if (loadDateFrom && s.date < loadDateFrom) return false;
-                if (loadDateTo && s.date > loadDateTo) return false;
-                return true;
-            });
-        }
-        return sessions;
-    }
 
     let loadDatesInitialized = false;
     // Franja per defecte: última setmana (avui i els 6 dies anteriors). Així no cal
@@ -4598,7 +4853,7 @@
 
             return `
                 <div class="border border-slate-800/70 rounded-xl overflow-hidden">
-                    <button onclick="toggleMicro('${esc(mc)}')" class="w-full flex items-center justify-between gap-3 p-3 bg-slate-950/40 hover:bg-slate-900/60 transition-all text-left">
+                    <button onclick="toggleMicro(${jsArg(mc)})" class="w-full flex items-center justify-between gap-3 p-3 bg-slate-950/40 hover:bg-slate-900/60 transition-all text-left">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 shrink-0 transition-transform ${open ? 'rotate-90' : ''}"></i>
                             <span class="text-sm font-bold text-emerald-400 uppercase tracking-wide shrink-0">${esc(mc)}</span>
@@ -4668,7 +4923,7 @@
             return `<tr class="hover:bg-slate-800/30 transition-all ${baixa ? 'opacity-50' : ''}">
                 <td class="p-4 text-center font-bold text-emerald-400">${esc(p.dorsal != null ? p.dorsal : (p.id || ''))}</td>
                 <td class="p-4 whitespace-nowrap">
-                    <button onclick="openPlayerProfile('${esc(p.id)}')" class="group flex items-center gap-1.5 font-semibold text-white hover:text-emerald-400 transition-colors text-left">
+                    <button onclick="openPlayerProfile(${jsArg(p.id)})" class="group flex items-center gap-1.5 font-semibold text-white hover:text-emerald-400 transition-colors text-left">
                         ${esc(p.name)}${baixa ? ' <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">Baixa</span>' : ''}
                         <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 transition-colors"></i>
                     </button>
@@ -4679,9 +4934,9 @@
                 <td class="p-4 text-center text-slate-300 font-semibold">${age !== null ? age : '—'}</td>
                 <td class="coach-only p-4 whitespace-nowrap text-center">
                     <div class="inline-flex items-center gap-1">
-                        <button onclick="openPlayerEditor('${esc(p.id)}')" title="Edita" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-emerald-400 inline-flex items-center justify-center transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="togglePlayerActive('${esc(p.id)}')" title="${baixa ? 'Reincorpora' : 'Dona de baixa'}" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-amber-400 inline-flex items-center justify-center transition-all"><i data-lucide="${baixa ? 'user-check' : 'user-minus'}" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="deletePlayer('${esc(p.id)}')" title="Elimina definitivament" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-rose-400 inline-flex items-center justify-center transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="openPlayerEditor(${jsArg(p.id)})" title="Edita" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-emerald-400 inline-flex items-center justify-center transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="togglePlayerActive(${jsArg(p.id)})" title="${baixa ? 'Reincorpora' : 'Dona de baixa'}" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-amber-400 inline-flex items-center justify-center transition-all"><i data-lucide="${baixa ? 'user-check' : 'user-minus'}" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="deletePlayer(${jsArg(p.id)})" title="Elimina definitivament" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-rose-400 inline-flex items-center justify-center transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                     </div>
                 </td>
             </tr>`;
@@ -4948,7 +5203,7 @@
         const rows = computePlayerEvolution(p.id);
         const t = rows.reduce((a, r) => ({ min: a.min + r.minutes, gols: a.gols + r.gols, assist: a.assist + r.assist }), { min: 0, gols: 0, assist: 0 });
         const badges = `${p.extern ? `<span class="text-[8px] font-extrabold px-1.5 py-0.5 rounded bg-indigo-600 text-white shrink-0">SÈNIOR B</span>` : ''}${baixa ? `<span class="text-[8px] font-bold uppercase tracking-wider text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded shrink-0">Baixa</span>` : ''}`;
-        return `<button onclick="openPlayerProfile('${esc(p.id)}')" class="squad-card group relative text-left bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl hover:border-granate-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-granate-950/20 transition-all duration-200 flex items-center gap-3 p-3 sm:block sm:p-4 ${baixa ? 'opacity-50' : ''}">
+        return `<button onclick="openPlayerProfile(${jsArg(p.id)})" class="squad-card group relative text-left bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl hover:border-granate-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-granate-950/20 transition-all duration-200 flex items-center gap-3 p-3 sm:block sm:p-4 ${baixa ? 'opacity-50' : ''}">
                 <div class="relative w-12 h-12 rounded-xl bg-granate-500/10 border border-granate-500/30 flex items-center justify-center font-black text-sm text-granate-300 shrink-0 sm:mb-3">
                     ${esc(initials)}
                     ${p.dorsal != null ? `<span class="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-200">${esc(p.dorsal)}</span>` : ''}
@@ -6087,10 +6342,6 @@
     function setObjectiveManual(pid, id, val) {
         const o = playerObjectivesList(pid).find(x => x.id === id);
         if (o) { o.manualCurrent = Number(val) || 0; saveSoon(); }
-    }
-    function toggleObjectiveDone(pid, id) {
-        const o = playerObjectivesList(pid).find(x => x.id === id);
-        if (o) { o.done = !o.done; saveSoon(); }
     }
 
     function renderPlusMinus() {
@@ -7543,7 +7794,7 @@
             if (it.existing) {
                 if (it.paid && !it.existing.paid) { it.existing.paid = true; updated++; }
             } else {
-                state.fines.items.push({ id: 'fine_' + Date.now() + '_' + Math.floor(Math.random() * 1000), playerId: String(it.ref.id), concept: it.concept, amount: it.amount, date: it.date, paid: it.paid });
+                state.fines.items.push({ id: 'fine_' + vuid(), playerId: String(it.ref.id), concept: it.concept, amount: it.amount, date: it.date, paid: it.paid });
                 created++;
             }
         });
@@ -7635,7 +7886,7 @@
         valid.forEach(s => { if (s.points) scores[s.ref.id] = s.points; });
         let round = d.iso ? comp.rounds.find(x => x.sessionIso === d.iso) : null;
         if (round) { round.scores = scores; round.label = label; round.noScore = false; }
-        else comp.rounds.push({ id: 'cr_' + Date.now(), sessionIso: d.iso, label, scores, noScore: false });
+        else comp.rounds.push({ id: 'cr_' + vuid(), sessionIso: d.iso, label, scores, noScore: false });
         closeNarrationImport();
         if (typeof renderCompetition === 'function') renderCompetition();
         saveSoon();
@@ -8600,7 +8851,7 @@
             const cells = sessions.map(s => {
                 const v = p.attendance[s.iso] || '';
                 return `<td class="p-3 text-center">
-                    <select onchange="setAttendance('${esc(p.id)}','${s.iso}',this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs font-bold ${attTextClass(v)} focus:outline-none focus:border-emerald-500 cursor-pointer">
+                    <select onchange="setAttendance(${jsArg(p.id)},'${s.iso}',this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs font-bold ${attTextClass(v)} focus:outline-none focus:border-emerald-500 cursor-pointer">
                         ${attOptions(v)}
                     </select></td>`;
             }).join('');
@@ -8669,7 +8920,7 @@
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa2), 'Resum per microcicle');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa1), 'Detall per sessió');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(leg), 'Llegenda');
-        XLSX.writeFile(wb, `assistencia_entrenaments_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        XLSX.writeFile(wb, `assistencia_entrenaments_${iso(new Date())}.xlsx`);
         toast('Assistència exportada a Excel.');
     }
 
@@ -9332,11 +9583,6 @@
             </div>`;
     }
 
-    function setProfileAttendance(isoDate, value) {
-        if (!pmPlayerId) return;
-        setAttendance(pmPlayerId, isoDate, value);
-        renderProfileAttendance();
-    }
 
     /* ------------------------------ calendari ----------------------------- */
     function renderMonthSelect() {
@@ -10022,7 +10268,7 @@
         const iEl = document.getElementById('de-inten'); if (iEl) iEl.value = L.intensitat || '';
         const uEl = document.getElementById('de-uc-preview'); if (uEl) uEl.innerText = L.uc || 0;
     }
-    function recalcDayUC() { recalcDayLoad(); }  // àlies retrocompatible
+  // àlies retrocompatible
 
     function deSetType(t) {
         if (dayDraft) dayDraft.type = t;
@@ -10897,32 +11143,6 @@
     }
     function closeMarkerEditor() { document.getElementById('marker-modal').classList.add('hidden'); document.body.style.overflow = ''; mkEditId = null; }
 
-    function generateFromGoals() {
-        const m = state.match;
-        const goals = (m && m.events) ? m.events.filter(e => e.type === 'gf' || e.type === 'gc') : [];
-        if (!goals.length) { toast('No hi ha gols registrats al Minutatge.'); return; }
-        const v = ensureVideo();
-        const already = v.markers.filter(x => x.auto).length;
-        if (already && !confirm(`Ja hi ha ${already} moments generats des dels gols. Els vols regenerar?`)) return;
-        v.markers = v.markers.filter(x => !x.auto);
-        goals.slice().reverse().forEach(e => {
-            const isGF = e.type === 'gf';
-            const scorer = isGF && e.payload && e.payload.scorer ? mkName(e.payload.scorer) : '';
-            const players = isGF && e.payload ? [e.payload.scorer, e.payload.assist].filter(Boolean) : [];
-            const minNote = (e.min != null && e.half != null) ? `Minut de joc ${e.half}a · ${e.min}'` : '';
-            v.markers.push({
-                id: vuid(), t: 0, link: '',
-                title: isGF ? (scorer ? 'Gol · ' + scorer : 'Gol a favor') : 'Gol en contra',
-                cat: isGF ? 'gol-favor' : 'gol-contra',
-                part: (e.half === 2 ? 2 : e.half === 1 ? 1 : 0),
-                players,
-                note: [e.detail, minNote].filter(Boolean).join(' · '),
-                auto: true
-            });
-        });
-        renderMarkers(); saveSoon();
-        toast(`${goals.length} moments creats. Edita cadascun per afegir-hi l'enllaç.`);
-    }
 
     /* --- mode presentació (cada moment obre YouTube en una pestanya) --- */
     let presenting = false, presIdx = 0, presSet = [], presBaseUrl = '';
@@ -11587,7 +11807,7 @@
         const amount = Number(document.getElementById('fine-amount').value) || 0;
         if (!playerId) { toast('Selecciona un jugador.'); return; }
         if (amount <= 0) { toast('Posa un import.'); return; }
-        state.fines.items.push({ id: 'fine_' + Date.now(), playerId: String(playerId), concept, amount, date: new Date().toLocaleDateString('ca-ES'), paid: false });
+        state.fines.items.push({ id: 'fine_' + vuid(), playerId: String(playerId), concept, amount, date: new Date().toLocaleDateString('ca-ES'), paid: false });
         closeFine(); renderFines(); saveSoon();
     }
     function toggleFinePaid(id) { if (!canEditFines()) return; ensureFines(); const x = state.fines.items.find(i => i.id === id); if (x) { x.paid = !x.paid; renderFines(); saveSoon(); } }
@@ -11751,7 +11971,7 @@
         doc.text('Segons la Constitució CFSE SAM 26-27 · pot comú per al SAM Fest \'27', 40, y + 10);
         pdfBrandFooter(doc);
 
-        doc.save('Multes_CFSE_SAM_' + new Date().toISOString().slice(0, 10) + '.pdf');
+        doc.save('Multes_CFSE_SAM_' + iso(new Date()) + '.pdf');
         toast('PDF de multes generat.');
     }
 
@@ -11873,7 +12093,7 @@
         }
 
         pdfBrandFooter(doc);
-        doc.save('Informe_temporada_CFSE_SAM_' + new Date().toISOString().slice(0, 10) + '.pdf');
+        doc.save('Informe_temporada_CFSE_SAM_' + iso(new Date()) + '.pdf');
         toast('Informe de temporada generat.');
     }
 
@@ -11961,14 +12181,15 @@
             const remote = await syncFetch('GET');
             if (remote && remote.error) throw new Error('accés no autoritzat al núvol');
             const remoteData = (remote && remote.v === 1 && Array.isArray(remote.sessions)) ? remote : null;
-            const remoteAt = remoteData ? (remoteData.savedAt || 0) : 0;
-            const localAt = state.loaded ? (state.savedAt || 0) : 0;
-            if (remoteData && remoteAt > localAt && remoteAt > getSyncedAt()) {
+            const { remoteHasNews, localDirty } = syncSituation(remoteData);
+            if (remoteData && remoteHasNews && !localDirty) {
                 applyRemote(remoteData); // ja fa renderAll() sencer
                 if (opts.manual) toast('Dades actualitzades.');
             } else {
                 updateFinesSyncBadge('ok');
-                if (opts.manual) toast('Ja tenies les dades més recents.');
+                if (opts.manual) toast(remoteData && remoteHasNews && localDirty
+                    ? 'Tens canvis sense pujar; no s\'han trepitjat. Resol-ho amb la fletxa de sincronització.'
+                    : 'Ja tenies les dades més recents.');
             }
         } catch (e) {
             console.warn('pullLatestQuietly ha fallat:', e);
@@ -12158,7 +12379,7 @@
                     return `<div class="flex items-center gap-2 bg-slate-950/40 border border-slate-800/50 rounded-lg px-3 py-2">
                         <span class="text-xs text-slate-200 flex-1 min-w-0 truncate">${esc(sessionLabel(sx))}</span>
                         ${badge}
-                        <button onclick="scoreSession('${esc(sx.iso)}')" class="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${round ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white'}">${round ? 'Edita' : 'Puntua'}</button>
+                        <button onclick="scoreSession(${jsArg(sx.iso)})" class="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${round ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white'}">${round ? 'Edita' : 'Puntua'}</button>
                         ${round ? `<button onclick="deleteCompRound('${round.id}')" aria-label="Treu" class="shrink-0 w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-400 transition-all"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>` : ''}
                     </div>`;
                 };
@@ -12263,7 +12484,7 @@
         if (!noScore) squadPlayers().forEach(p => { const el = document.getElementById('cr-pts-' + p.id); const v = el ? Number(el.value) || 0 : 0; if (v) scores[p.id] = v; });
         let round = editingRoundId ? comp.rounds.find(x => x.id === editingRoundId) : (iso ? comp.rounds.find(x => x.sessionIso === iso) : null);
         if (round) { round.sessionIso = iso; round.label = label; round.scores = scores; round.noScore = noScore; }
-        else comp.rounds.push({ id: 'cr_' + Date.now(), sessionIso: iso, label, scores, noScore });
+        else comp.rounds.push({ id: 'cr_' + vuid(), sessionIso: iso, label, scores, noScore });
         closeCompRound(); renderCompetition(); saveSoon();
     }
     function deleteCompRound(id) { if (!confirm('Eliminar aquesta puntuació?')) return; const comp = activeComp(); comp.rounds = comp.rounds.filter(x => x.id !== id); renderCompetition(); saveSoon(); }
@@ -12443,7 +12664,7 @@
         if (!name) { toast("Posa un nom a l'exercici."); return; }
         const data = { cat: document.getElementById('rt-cat').value, name, dose: document.getElementById('rt-dose').value.trim(), desc: document.getElementById('rt-desc').value.trim(), link: document.getElementById('rt-link').value.trim(), img: rutinaImgData || '' };
         if (editingRutinaId) { const r = state.routines.find(x => x.id === editingRutinaId); if (r) Object.assign(r, data); }
-        else state.routines.push({ id: 'rt_' + Date.now() + '_' + Math.floor(Math.random() * 1000), ...data });
+        else state.routines.push({ id: 'rt_' + vuid(), ...data });
         closeRutina(); renderRutines(); saveSoon();
     }
     function deleteRutina(id) {
@@ -12455,13 +12676,6 @@
 
     let waSent = new Set();
     function waNumber(raw) { let d = String(raw || '').replace(/\D/g, ''); if (!d) return ''; if (d.length === 9) d = '34' + d; return d; }
-    function openWhatsAppModal() {
-        if (!activePlayers().length) { toast('Afegeix jugadors a la plantilla primer.'); return; }
-        const g = document.getElementById('wa-group'); if (g) g.value = localStorage.getItem('cfse-wa-group') || '';
-        renderWhatsAppList();
-        document.getElementById('whatsapp-modal').classList.remove('hidden');
-        lucide.createIcons();
-    }
     function closeWhatsAppModal() { document.getElementById('whatsapp-modal').classList.add('hidden'); }
     function setWaGroup(val) { const v = (val || '').trim(); if (v) localStorage.setItem('cfse-wa-group', v); else localStorage.removeItem('cfse-wa-group'); }
     function renderWhatsAppList() {
@@ -12472,7 +12686,7 @@
             return `<div class="flex items-center gap-2 bg-slate-950/40 border border-slate-800/50 rounded-lg px-3 py-2">
                 <span class="text-[11px] font-bold text-granate-400 w-6 shrink-0">${esc(p.dorsal != null ? p.dorsal : '')}</span>
                 <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-slate-100 truncate">${esc(p.name)}</span><span class="block text-[10px] text-slate-500">${p.pin ? 'PIN ' + esc(p.pin) : 'sense PIN'} &middot; ${p.phone ? esc(p.phone) : 'sense telèfon'}</span></span>
-                <button onclick="waSend('${esc(p.id)}')" ${hasPhone ? '' : 'disabled'} class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${hasPhone ? (sent ? 'bg-granate-500/20 text-granate-300 border border-granate-500/40' : 'bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white') : 'bg-slate-800 text-slate-600 cursor-not-allowed'}"><i data-lucide="${sent ? 'check' : 'send'}" class="w-3.5 h-3.5"></i>${sent ? 'Enviat' : 'Envia'}</button>
+                <button onclick="waSend(${jsArg(p.id)})" ${hasPhone ? '' : 'disabled'} class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${hasPhone ? (sent ? 'bg-granate-500/20 text-granate-300 border border-granate-500/40' : 'bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white') : 'bg-slate-800 text-slate-600 cursor-not-allowed'}"><i data-lucide="${sent ? 'check' : 'send'}" class="w-3.5 h-3.5"></i>${sent ? 'Enviat' : 'Envia'}</button>
             </div>`;
         }).join('');
         lucide.createIcons();
@@ -12532,12 +12746,6 @@
         renderAll();
         showPlayerLogin();
     }
-    function exitPlayerMode() {
-        if (PUBLISHED) return;
-        playerSession = null; appRole = 'coach';
-        hidePlayerLogin(); applyRoleUI(); renderAll();
-        switchTab('plantilla');
-    }
 
     function showPlayerLogin() {
         const sel = document.getElementById('pl-name');
@@ -12573,7 +12781,6 @@
         switchTab('plantilla');
         pullLatestQuietly();
     }
-    function playerLogout() { playerSession = null; applyRoleUI(); showPlayerLogin(); }
     async function manualPlayerRefresh() {
         const btn = document.getElementById('player-refresh-btn');
         const icon = btn ? btn.querySelector('i') : null;
@@ -12588,26 +12795,14 @@
 
     function setPlayerPin(id, val) { const p = playerById(id); if (!p) return; p.pin = String(val || '').trim(); saveSoon(); }
     function setPlayerPhone(id, val) { const p = playerById(id); if (!p) return; p.phone = String(val || '').trim(); saveSoon(); }
-    function randomPin() { return String(Math.floor(Math.random() * 10000)).padStart(4, '0'); }
-    function generateAllPins() {
-        if (!squadPlayers().length) { toast('Afegeix jugadors abans de generar PINs.'); return; }
-        const used = new Set();
-        squadPlayers().forEach(p => {
-            let pin, tries = 0;
-            do { pin = randomPin(); tries++; } while (used.has(pin) && tries < 60);
-            used.add(pin); p.pin = pin;
-        });
-        renderPlayerPins(); saveSoon();
-        toast('PINs generats per a ' + squadPlayers().length + ' jugadors.');
-    }
     function renderPlayerPins() {
         const box = document.getElementById('player-pins');
         if (!box) return;
         box.innerHTML = squadPlayers().map(p => `<div class="flex items-center gap-2 bg-slate-950/40 border border-slate-800/50 rounded-lg px-3 py-2">
             <span class="text-[11px] font-bold text-granate-400 w-6 shrink-0">${esc(p.dorsal != null ? p.dorsal : '')}</span>
             <span class="text-xs text-slate-200 truncate flex-1 min-w-0">${esc(p.name)}</span>
-            <input type="tel" inputmode="tel" value="${esc(p.phone || '')}" placeholder="Telèfon" onchange="setPlayerPhone('${esc(p.id)}', this.value)" class="w-24 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-granate-500">
-            <input type="text" inputmode="numeric" value="${esc(p.pin || '')}" placeholder="PIN" onchange="setPlayerPin('${esc(p.id)}', this.value)" class="w-14 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-center text-slate-100 focus:outline-none focus:border-granate-500">
+            <input type="tel" inputmode="tel" value="${esc(p.phone || '')}" placeholder="Telèfon" onchange="setPlayerPhone(${jsArg(p.id)}, this.value)" class="w-24 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-granate-500">
+            <input type="text" inputmode="numeric" value="${esc(p.pin || '')}" placeholder="PIN" onchange="setPlayerPin(${jsArg(p.id)}, this.value)" class="w-14 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-center text-slate-100 focus:outline-none focus:border-granate-500">
         </div>`).join('');
     }
 
@@ -12687,57 +12882,6 @@
 
 
     /* --- publicació de la versió per als jugadors --- */
-    async function publishPlayerEdition() {
-        if (!state.players.length) { toast('Carrega les dades abans de publicar.'); return; }
-        if (!syncEnabled()) { toast('Activa la sincronització (icona d\'engranatge) abans de publicar, si vols que les multes del delegat quedin sempre al dia.'); }
-        try {
-            // El PIN no viatja mai en clar dins el fitxer que descarreguen els
-            // jugadors (algú amb les eines de desenvolupador del navegador no
-            // l'hauria de poder llegir directament) — s'hi incrusta només
-            // l'empremta (hash), i es compara per hash en entrar. El telèfon
-            // tampoc cal per a la vista de jugador, així que es treu del tot.
-            const playersForExport = await Promise.all(state.players.map(async p => {
-                const q = Object.assign({}, p);
-                delete q.phone;
-                if (q.pin) {
-                    try { q.pinHash = await sha256Hex(String(q.pin)); delete q.pin; }
-                    catch (e) { /* sense xifrat disponible en aquest context: es manté el PIN en clar */ }
-                }
-                return q;
-            }));
-            const payload = {
-                v: 1, sv: SCHEMA_VERSION, savedAt: Date.now(), fileName: state.fileName,
-                players: playersForExport, sessions: state.sessions, microOrder: state.microOrder,
-                weekly: state.weekly, indicators: state.indicators, model: state.model,
-                micros: state.micros, months: state.months, stats: state.stats,
-                match: state.match, video: state.video, matchArchive: state.matchArchive, sheetsFound: state.sheetsFound, routines: state.routines, routineCats: state.routineCats, competition: state.competition, competitions: state.competitions, fines: state.fines,
-                sociograma: { forms: (state.sociograma && state.sociograma.forms) || [], whatsapp: (state.sociograma && state.sociograma.whatsapp) || SG_DEFAULT_WHATSAPP, responses: {} }
-            };
-            const json = JSON.stringify(payload, dateReplacer);
-            const b64 = btoa(unescape(encodeURIComponent(json)));
-            const marker = '<meta name="cfse-published" content="1">';
-            const flag = '<script>window.__FORCE_PLAYER__=true;<\/script>';
-            const dataBlock = '<script type="application/json" id="cfse-player-data">' + b64 + '<\/script>';
-            // Incrusta la config de sync perquè el delegat de multes pugui pujar
-            // canvis i tot l'equip els rebi, sense veure cap panell de configuració.
-            let syncBlock = '';
-            if (syncEnabled()) {
-                const syncCfg = JSON.stringify({ url: getSyncUrl(), key: getSyncSecret() });
-                syncBlock = '<script>window.__FINES_SYNC__=' + syncCfg + ';<\/script>\n';
-            }
-            let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-            html = html.replace('<html', '<html data-cfse-published="1"');
-            html = html.replace('<head>', '<head>\n' + marker);
-            html = html.replace('</head>', flag + '\n' + syncBlock + dataBlock + '\n</head>');
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'CFSE_jugadors.html';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 2000);
-            toast(syncEnabled() ? 'Versió per als jugadors generada, amb multes sincronitzades.' : 'Versió per als jugadors generada.');
-        } catch (e) { toast('No s\'ha pogut generar: ' + (e && e.message ? e.message : e)); }
-    }
     function loadEmbedded() {
         try {
             let b64 = (typeof window !== 'undefined' && window.__PLAYER_DATA_B64__) || '';
@@ -14310,7 +14454,7 @@
             const cells = cols.map(j => {
                 const e = (state.convocatories[j.key] || {})[p.id];
                 if (e && e.s === 'C') { c++; return `<td class="p-1.5 text-center bg-emerald-500/15 text-emerald-300 font-bold" title="Convocat">C</td>`; }
-                if (e && e.s === 'N') { n++; const rl = CONV_REASONS[e.r || ''] || ''; return `<td class="p-1.5 text-center bg-rose-500/15 text-rose-300 font-bold" title="No convocat${rl && rl !== '—' ? ' · ' + rl : ''}${e.note ? ' · ' + e.note : ''}">N</td>`; }
+                if (e && e.s === 'N') { n++; const rl = CONV_REASONS[e.r || ''] || ''; return `<td class="p-1.5 text-center bg-rose-500/15 text-rose-300 font-bold" title="No convocat${esc(rl && rl !== '—' ? ' · ' + rl : '')}${esc(e.note ? ' · ' + e.note : '')}">N</td>`; }
                 return `<td class="p-1.5 text-center text-slate-700">·</td>`;
             }).join('');
             const tot = c + n, pct = tot ? Math.round(c / tot * 100) : 0;
@@ -14339,14 +14483,51 @@
             const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Convocatòries');
-            XLSX.writeFile(wb, 'convocatories_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+            XLSX.writeFile(wb, 'convocatories_' + iso(new Date()) + '.xlsx');
             toast('Convocatòries exportades a Excel.');
         } catch (e) { toast('No s\'ha pogut exportar.'); }
+    }
+
+    /* ---------------- (Pas 14) Accessibilitat: etiquetes, diàlegs i camps, també en el que genera JS ---------------- */
+    const A11Y_ICON_LABELS = { 'x': 'Tanca', 'plus': 'Afegeix', 'trash-2': 'Esborra', 'trash': 'Esborra', 'pencil': 'Edita', 'chevron-left': 'Anterior', 'chevron-right': 'Següent',
+        'chevron-down': 'Desplega', 'chevron-up': 'Plega', 'download': 'Descarrega', 'upload': 'Puja', 'copy': 'Copia', 'refresh-cw': 'Actualitza', 'settings': 'Configuració',
+        'more-vertical': 'Més opcions', 'menu': 'Menú', 'search': 'Cerca', 'save': 'Desa', 'check': 'Confirma', 'arrow-left': 'Enrere', 'arrow-right': 'Endavant', 'undo': 'Desfés',
+        'undo-2': 'Desfés', 'rotate-ccw': 'Desfés', 'eye': 'Mostra', 'eye-off': 'Amaga', 'external-link': 'Obre', 'send': 'Envia', 'mic': 'Parla', 'share-2': 'Comparteix',
+        'play': 'Reprodueix', 'pause': 'Pausa', 'minus': 'Treu', 'bell': 'Avisos', 'filter': 'Filtra', 'calendar': 'Calendari', 'clipboard': 'Enganxa', 'link': 'Enllaç' };
+    let a11yN = 0, a11yTimer = null;
+    function enhanceA11y(root) {
+        try {
+            root = root || document;
+            root.querySelectorAll('button:not([aria-label])').forEach(b => {
+                if ((b.textContent || '').trim()) return;
+                let lbl = b.getAttribute('title');
+                if (!lbl) { const ic = b.querySelector('[data-lucide]'); if (ic) lbl = A11Y_ICON_LABELS[ic.getAttribute('data-lucide')] || null; }
+                if (lbl) b.setAttribute('aria-label', lbl);
+            });
+            root.querySelectorAll('.fixed.inset-0:not([role])').forEach(m => {
+                m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+                const h = m.querySelector('h1,h2,h3'); const t = h && (h.textContent || '').trim();
+                if (t) m.setAttribute('aria-label', t.slice(0, 80));
+            });
+            root.querySelectorAll('label:not([for])').forEach(l => {
+                if (l.querySelector('input,select,textarea')) return;
+                let c = l.nextElementSibling;
+                if (c && !/^(INPUT|SELECT|TEXTAREA)$/.test(c.tagName)) c = c.querySelector ? c.querySelector('input,select,textarea') : null;
+                if (c && /^(INPUT|SELECT|TEXTAREA)$/.test(c.tagName)) { if (!c.id) c.id = 'auto-f-' + (++a11yN); l.setAttribute('for', c.id); }
+            });
+        } catch (e) { /* mai ha de trencar l'app */ }
+    }
+    function setupA11y() {
+        enhanceA11y();
+        if (typeof MutationObserver === 'undefined' || !document.body) return;
+        new MutationObserver(() => { clearTimeout(a11yTimer); a11yTimer = setTimeout(() => enhanceA11y(), 500); })
+            .observe(document.body, { childList: true, subtree: true });
     }
 
     /* ------------------------------ inici --------------------------------- */
     window.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
+        setupA11y();
 
         checkEnvironment();
         applyRoleUI();
@@ -14370,6 +14551,13 @@
         // beaconPush() ja comprova per si sol si aquest usuari té permís per pujar.
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') beaconPush(); });
         window.addEventListener('pagehide', beaconPush);
+        window.addEventListener('beforeunload', beaconPush);
+        // (Fase 1 · Pas 4) Tornar la connexió o tornar a l'app: es posa al dia sol.
+        window.addEventListener('online', () => { updateOfflineBanner(); syncRecover({ auto: true }); });
+        window.addEventListener('offline', () => updateOfflineBanner());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && syncEnabled() && (window.CFSE_OFFLINE || syncNetFail || getDirtyAt() > 0)) syncRecover({ auto: true });
+        });
 
         ['main-dropzone', 'side-dropzone'].forEach(id => {
             const zone = document.getElementById(id);
@@ -14408,7 +14596,7 @@
         const jd = list.find(j => j.key === convActiveJornada);
         if (!jd) { toast('No es pot trobar la jornada.'); return; }
         const form = document.getElementById('conv-wa-form');
-        const dataPartit = jd.date ? jd.date.toISOString().split('T')[0] : '';
+        const dataPartit = jd.date ? iso(jd.date) : (jd.iso || '');   // data LOCAL (toISOString() la passava a UTC: sortia el dia abans)
         const rival = jd.rival || '';
         const camp = jd.camp || 'L';
         // Si ja tens la Fitxa del partit omplerta (hora de convocatòria i
@@ -14500,7 +14688,7 @@
     <script>
         const SB_URL = 'https://tcbcdwtwlklsiezfjgiu.supabase.co';
         const SB_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjYmNkd3R3bGtsc2llemZqZ2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NTMwMzAsImV4cCI6MjEwNTAyOTAzMH0.oi9bzkLODdhlU9qUiw0ZQ2OZmwqDBZS0RY1lLsvVwKM';
-        const sb = supabase.createClient(SB_URL, SB_ANON_KEY);
+        const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SB_URL, SB_ANON_KEY) : null;
 
         // Context de l'equip actiu, disponible per a tota la resta del
         // fitxer (i per a l'etapa 2, quan connectem dades de veritat).
@@ -14512,7 +14700,7 @@
 
         function agShowMsg(text, type) {
             document.getElementById('ag-msg').innerHTML =
-                `<div class="text-xs rounded-lg px-3 py-2.5 leading-relaxed ${type === 'error' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/25' : 'bg-granate-500/10 text-granate-300 border border-granate-500/25'}">${text}</div>`;
+                `<div class="text-xs rounded-lg px-3 py-2.5 leading-relaxed ${type === 'error' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/25' : 'bg-granate-500/10 text-granate-300 border border-granate-500/25'}">${esc(text)}</div>`;
         }
 
         function agForgotPassword() {
@@ -14567,7 +14755,7 @@
             const btn = document.getElementById('sp-submit');
             const msg = document.getElementById('sp-msg');
             msg.innerHTML = '';
-            if (!p1 || p1.length < 6) { msg.innerHTML = '<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">Cal almenys 6 caràcters.</div>'; return; }
+            if (!p1 || p1.length < 8) { msg.innerHTML = '<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">Cal almenys 8 caràcters.</div>'; return; }
             if (p1 !== p2) { msg.innerHTML = '<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">Les dues contrasenyes no coincideixen.</div>'; return; }
             btn.disabled = true;
             try {
@@ -14577,7 +14765,7 @@
                 document.getElementById('set-password-gate').classList.add('hidden');
                 await agCheckSessionAndEnter();
             } catch (e) {
-                msg.innerHTML = `<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">${e.message || 'No s\'ha pogut desar.'}</div>`;
+                msg.innerHTML = `<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">${esc(e.message || 'No s\'ha pogut desar.')}</div>`;
             } finally {
                 btn.disabled = false;
             }
@@ -14585,23 +14773,102 @@
 
         let cachedRols = [];
 
+        /* ---- (Fase 1 · Pas 4) Context guardat per poder entrar sense connexió ----
+           Es desa després de cada entrada correcta: quins equips i quin rol té el compte.
+           Sense connexió NO es pot preguntar al servidor, però això no vol dir "no tens equip":
+           el dispositiu segueix funcionant amb la còpia local d'aquell equip. */
+        const CTX_KEY = 'cfse-ctx', CFG_KEY = 'cfse-cfg';
+        const ROLS_SELECT = 'rol, equip_id, jugador_blob_id, equips(nom, club_id, clubs(nom, escut_url))';
+        function saveCtxCache(o) { try { localStorage.setItem(CTX_KEY, JSON.stringify(o)); } catch (e) {} }
+        function loadCtxCache() { try { return JSON.parse(localStorage.getItem(CTX_KEY) || 'null'); } catch (e) { return null; } }
+        function loadCfgCache() { try { return JSON.parse(localStorage.getItem(storageKey(CFG_KEY)) || 'null'); } catch (e) { return null; } }
+        function saveCfgCache(o) { try { localStorage.setItem(storageKey(CFG_KEY), JSON.stringify(o)); } catch (e) {} }
+        // Hi ha una sessió guardada al navegador? (si l'usuari ha tancat la sessió, no n'hi ha)
+        function hasStoredAuthToken() {
+            try { for (let i = 0; i < localStorage.length; i++) { if (/^sb-.+-auth-token$/.test(localStorage.key(i) || '')) return true; } } catch (e) {}
+            return false;
+        }
+
+        async function enterOfflineFromCache(session) {
+            const c = loadCtxCache();
+            if (!c || !Array.isArray(c.rols) || !c.rols.length) return false;
+            if (session && session.user && c.uid && c.uid !== session.user.id) return false;
+            window.CFSE_USER_ID = c.uid; window.CFSE_USER_EMAIL = c.email || '';
+            window.CFSE_IS_ADMIN = false;          // el panell d'administració necessita connexió
+            window.CFSE_OFFLINE = true;
+            document.getElementById('admin-panel-btn').classList.add('hidden');
+            cachedRols = c.rols;
+            document.getElementById('auth-gate').classList.add('hidden');
+            document.getElementById('switch-team-btn').classList.toggle('hidden', cachedRols.length < 2);
+            updateOfflineBanner();
+            if (cachedRols.length === 1) await enterTeamContext(cachedRols[0]);
+            else showTeamPicker(cachedRols);
+            return true;
+        }
+
+        // Comprova que el servidor torna a respondre i que els permisos no han canviat.
+        async function reconnectSession() {
+            try {
+                const r = await sb.auth.getSession();
+                const session = r && r.data && r.data.session;
+                if (!session) return false;
+                const rolsRes = await sb.from('usuari_equip_rol').select(ROLS_SELECT);
+                if (rolsRes.error) return false;
+                const rols = rolsRes.data || [];
+                saveCtxCache({ uid: session.user.id, email: session.user.email, isAdmin: !!window.CFSE_IS_ADMIN, rols, at: Date.now() });
+                const mine = rols.find(x => x.equip_id === window.CFSE_EQUIP_ID);
+                if (!mine || mine.rol !== window.CFSE_ROL) {
+                    window.CFSE_BLOCK_PUSH = true;   // res més es puja amb el rol antic
+                    alert('Els teus permisos han canviat mentre estaves sense connexió. Es tornarà a carregar l\'aplicació (els teus canvis continuen desats en aquest dispositiu).');
+                    location.reload();
+                    return false;
+                }
+                window.CFSE_OFFLINE = false;
+                window.CFSE_USER_ID = session.user.id; window.CFSE_USER_EMAIL = session.user.email;
+                try { await loadAppConfig(); } catch (e) { console.warn('loadAppConfig en reconnectar:', e); }
+                return true;
+            } catch (e) { return false; }
+        }
+
         async function agCheckSessionAndEnter() {
             if (awaitingPasswordSetup) return;
-            const { data: { session } } = await sb.auth.getSession();
-            if (!session) return;
+            let session = null, sessErr = null;
+            try {
+                const r = await sb.auth.getSession();
+                session = r && r.data ? r.data.session : null;
+                sessErr = r ? r.error : null;
+            } catch (e) { sessErr = e; }
+
+            if (!session) {
+                // Sense sessió. Si és perquè no hi ha connexió (i aquest dispositiu ja hi havia entrat),
+                // no és un "no has entrat": es treballa amb la còpia local.
+                if ((sessErr && sbIsTransient({ error: sessErr })) || navigator.onLine === false) {
+                    if (hasStoredAuthToken() && await enterOfflineFromCache(null)) return;
+                }
+                return;
+            }
 
             window.CFSE_USER_ID = session.user.id;
             window.CFSE_USER_EMAIL = session.user.email;
 
-            const { data: isAdmin } = await sb.rpc('soc_admin');
+            const adminRes = await sb.rpc('soc_admin');
+            const isAdmin = adminRes ? adminRes.data : null;
+            const rolsRes = await sb.from('usuari_equip_rol').select(ROLS_SELECT);
+            const rols = rolsRes.data, error = rolsRes.error;
+
+            // Sense connexió amb el servidor: NO és el mateix que "no tens equip". No es tanca la sessió.
+            if (error && sbIsTransient(rolsRes)) {
+                if (await enterOfflineFromCache(session)) return;
+                agShowMsg('No hi ha connexió amb el servidor i aquest dispositiu encara no té cap equip desat. Torna-ho a provar quan tinguis xarxa.', 'error');
+                return;
+            }
+
+            window.CFSE_OFFLINE = false;
             window.CFSE_IS_ADMIN = !!isAdmin;
             document.getElementById('admin-panel-btn').classList.toggle('hidden', !window.CFSE_IS_ADMIN);
 
-            const { data: rols, error } = await sb
-                .from('usuari_equip_rol')
-                .select('rol, equip_id, jugador_blob_id, equips(nom, club_id, clubs(nom, escut_url))');
-
             cachedRols = rols || [];
+            if (!error) saveCtxCache({ uid: session.user.id, email: session.user.email, isAdmin: !!isAdmin, rols: cachedRols, at: Date.now() });
 
             if (window.CFSE_IS_ADMIN) {
                 // Un administrador aterra sempre al panell, tingui o no
@@ -14615,7 +14882,12 @@
                 return;
             }
 
-            if (error || !cachedRols.length) {
+            // Un error de veritat (no de xarxa) tampoc tanca la sessió: només s'avisa.
+            if (error) {
+                agShowMsg('No s\'ha pogut comprovar el teu accés: ' + (error.message || 'error desconegut') + '. Torna-ho a provar.', 'error');
+                return;
+            }
+            if (!cachedRols.length) {
                 agShowMsg('Aquest compte encara no té cap equip assignat. Contacta amb el coordinador del teu club.', 'error');
                 await sb.auth.signOut();
                 return;
@@ -14631,6 +14903,7 @@
         }
 
         async function enterTeamContext(r) {
+            if (typeof flushPendingSave === 'function' && window.CFSE_EQUIP_ID) flushPendingSave();   // desat pendent de l'equip anterior
             window.CFSE_CLUB_ID = r.equips.club_id;
             window.CFSE_EQUIP_ID = r.equip_id;
             window.CFSE_ROL = r.rol;
@@ -14644,8 +14917,23 @@
             // amb un objecte buit) i no només la marca "loaded" — si no,
             // un equip sense res encara al núvol (com un equip nou) es
             // quedava mostrant per pantalla les dades de l'equip anterior.
-            if (typeof applySaved === 'function') applySaved({});
-            if (typeof state !== 'undefined') state.loaded = false;
+            // (Fase 1 · Pas 1) Ara NO es descarta la còpia local d'aquest equip: pot
+            // tenir canvis fets sense connexió que encara no s'han pujat. Es llegeix
+            // primer i la sincronització decideix després (vegeu autoSyncOnOpen).
+            // La pila de desfer i l'estat de conflicte són de l'equip anterior: fora.
+            if (typeof undoStack !== 'undefined') { undoStack = []; lastSavedJson = null; syncConflict = false; }
+            // Rol provisional, perquè ja n'hi ha prou per decidir què es mostra i si es pot pujar.
+            // El definitiu (amb la fitxa vinculada) s'aplica més avall, com abans.
+            if (typeof appRole !== 'undefined') { appRole = (window.CFSE_ROL === 'jugador') ? 'player' : 'coach'; playerSession = null; }
+            let hadLocal = false;
+            try { hadLocal = (typeof loadSaved === 'function') && loadSaved(); } catch (e) { hadLocal = false; }
+            if (hadLocal) {
+                if (typeof initDirtyFlag === 'function') initDirtyFlag();
+            } else {
+                if (typeof applySaved === 'function') applySaved({});
+                if (typeof state !== 'undefined') state.loaded = false;
+            }
+            if (typeof updateUndoButton === 'function') updateUndoButton();
             if (typeof renderAll === 'function') renderAll();
 
             // L'arrencada normal de la pàgina (DOMContentLoaded) ja s'ha
@@ -14653,7 +14941,15 @@
             // automàtica d'aleshores no ha pogut fer res. La repetim ara,
             // i aquesta vegada SÍ que hi esperem (cal state.players carregat
             // abans de decidir el mode jugador/entrenador, dues línies avall).
-            if (typeof autoSyncOnOpen === 'function') await autoSyncOnOpen();
+            if (typeof autoSyncOnOpen === 'function') {
+                // Amb una connexió molt lenta, no es queda l'app esperant: s'entra amb la còpia local
+                // i la sincronització segueix (o es reintenta) per darrere.
+                const r = await Promise.race([autoSyncOnOpen(), new Promise(res => setTimeout(() => res('timeout'), 10000))]);
+                if (r === 'timeout') {
+                    syncStatus('Connexió molt lenta: treballes amb la còpia d\'aquest dispositiu.', 'warn');
+                    noteSyncFail(new Error('timeout'));
+                }
+            }
 
             // Connecta el rol real de Supabase amb el sistema jugador/
             // entrenador que ja existia al fitxer: un "jugador" queda en
@@ -14684,7 +14980,17 @@
                 }
             }
 
-            await loadAppConfig();
+            try { await loadAppConfig(); } catch (e) { console.warn('loadAppConfig ha fallat:', e); }
+
+            if (typeof adoptLegacyBackups === 'function') adoptLegacyBackups();
+
+            // Ara ja se sap qui pot pujar (p. ex. el delegat de multes): si hi ha canvis
+            // pendents de la vegada anterior, es pugen.
+            // Si la migració ha esborrat PIN antics, es puja la versió neta perquè no quedin al núvol.
+            if (typeof PIN_PURGED !== 'undefined' && PIN_PURGED) { PIN_PURGED = false; try { if (canPushSync()) saveState(); } catch (e) {} }
+            if (typeof pushSoon === 'function') pushSoon();
+            // Si s'ha entrat sense connexió, s'intenta reconnectar (i posar al dia) tot seguit.
+            if (window.CFSE_OFFLINE && typeof syncRecover === 'function') syncRecover({ auto: true });
         }
 
         async function showTeamPicker(rols) {
@@ -14703,6 +15009,7 @@
                 const results = await Promise.all(equipIds.map(id =>
                     sb.from('tauler_state').select('payload').eq('equip_id', id).maybeSingle()
                 ));
+                const contFallat = results.some(x => x && x.error);
                 equipIds.forEach((id, i) => {
                     const payload = results[i]?.data?.payload;
                     const players = (payload?.players || []).filter(p => p.actiu !== false);
@@ -14712,9 +15019,9 @@
                 const club = coordRols[0].equips.clubs;
                 document.getElementById('coord-club-nom').textContent = club?.nom || 'El teu club';
                 document.getElementById('coord-stat-equips').textContent = equipIds.length;
-                document.getElementById('coord-stat-jugadors').textContent = totalJugadors;
+                document.getElementById('coord-stat-jugadors').textContent = contFallat ? '—' : totalJugadors;
                 const crestEl = document.getElementById('coord-club-crest');
-                crestEl.innerHTML = club?.escut_url ? `<img src="${club.escut_url}" class="w-full h-full object-contain">` : '';
+                crestEl.innerHTML = club?.escut_url ? `<img src="${esc(club.escut_url)}" class="w-full h-full object-contain">` : '';
             }
 
             const grid = document.getElementById('team-picker-grid');
@@ -14728,15 +15035,15 @@
                         ${showCoordCard ? `
                         <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-granate-400 to-granate-950 shrink-0"></div>
                         <div class="min-w-0">
-                            <p class="font-bold text-white text-[14px] tracking-tight truncate">${r.equips.nom || 'Equip'}</p>
+                            <p class="font-bold text-white text-[14px] tracking-tight truncate">${esc(r.equips.nom || 'Equip')}</p>
                             <p class="text-[11.5px] text-slate-500 mt-0.5">${jc != null ? jc + (jc === 1 ? ' jugador' : ' jugadors') : ''}</p>
                         </div>` : `
                         <div class="w-14 h-14 flex items-center justify-center text-[9px] text-slate-500 shrink-0">
-                            ${r.equips.clubs?.escut_url ? `<img src="${r.equips.clubs.escut_url}" class="w-full h-full object-contain">` : 'Escut'}
+                            ${r.equips.clubs?.escut_url ? `<img src="${esc(r.equips.clubs.escut_url)}" class="w-full h-full object-contain">` : 'Escut'}
                         </div>
                         <div class="min-w-0">
-                            <p class="font-bold text-white text-[15px] tracking-tight truncate">${(r.equips.clubs?.nom || 'Club')}</p>
-                            <p class="text-[13px] text-slate-400 truncate mb-1.5">${r.equips.nom || 'Equip'}</p>
+                            <p class="font-bold text-white text-[15px] tracking-tight truncate">${esc((r.equips.clubs?.nom || 'Club'))}</p>
+                            <p class="text-[13px] text-slate-400 truncate mb-1.5">${esc(r.equips.nom || 'Equip')}</p>
                             <span class="inline-block text-[10px] font-bold uppercase tracking-wider text-granate-400 bg-granate-500/10 rounded-full px-2 py-0.5">${r.rol}</span>
                         </div>`}
                     </button>
@@ -14770,7 +15077,7 @@
                 return;
             }
             const sel = document.getElementById('add-team-club');
-            sel.innerHTML = clubs.map(c => `<option value="${c.id}">${c.nom}</option>`).join('');
+            sel.innerHTML = clubs.map(c => `<option value="${c.id}">${esc(c.nom)}</option>`).join('');
             document.getElementById('add-team-club-wrap').classList.toggle('hidden', clubs.length < 2);
             document.getElementById('add-team-nom').value = '';
             document.getElementById('add-team-msg').innerHTML = '';
@@ -14784,7 +15091,7 @@
             const nom = document.getElementById('add-team-nom').value.trim();
             if (!nom) { document.getElementById('add-team-msg').innerHTML = '<div class="text-xs text-rose-400">Cal un nom per a l\'equip.</div>'; return; }
             const { error } = await sb.rpc('afegir_equip_a_club', { p_club_id: clubId, p_nom_equip: nom });
-            if (error) { document.getElementById('add-team-msg').innerHTML = `<div class="text-xs text-rose-400">${error.message}</div>`; return; }
+            if (error) { document.getElementById('add-team-msg').innerHTML = `<div class="text-xs text-rose-400">${esc(error.message)}</div>`; return; }
             closeAddTeamModal();
             await agCheckSessionAndEnter();
         };
@@ -14815,16 +15122,16 @@
                 sb.from('clubs').update({ nom: clubNom }).eq('id', r.equips.club_id),
                 sb.from('equips').update({ nom: equipNom }).eq('id', r.equip_id)
             ]);
-            if (e1 || e2) { document.getElementById('edit-team-msg').innerHTML = `<div class="text-xs text-rose-400">${(e1 || e2).message}</div>`; return; }
+            if (e1 || e2) { document.getElementById('edit-team-msg').innerHTML = `<div class="text-xs text-rose-400">${esc((e1 || e2).message)}</div>`; return; }
             closeEditTeamModal();
             await agCheckSessionAndEnter();
         };
         window.submitDeleteTeam = async function () {
             if (editingTeamIdx == null) return;
             const r = cachedRols[editingTeamIdx];
-            if (!confirm(`Segur que vols eliminar l'equip "${r.equips.nom}"? S'esborraran tots els seus jugadors, partits i entrenaments. Aquesta acció NO es pot desfer.`)) return;
+            if (!confirm(`Segur que vols eliminar l'equip "${esc(r.equips.nom)}"? S'esborraran tots els seus jugadors, partits i entrenaments. Aquesta acció NO es pot desfer.`)) return;
             const { error } = await sb.from('equips').delete().eq('id', r.equip_id);
-            if (error) { document.getElementById('edit-team-msg').innerHTML = `<div class="text-xs text-rose-400">${error.message}</div>`; return; }
+            if (error) { document.getElementById('edit-team-msg').innerHTML = `<div class="text-xs text-rose-400">${esc(error.message)}</div>`; return; }
             closeEditTeamModal();
             await agCheckSessionAndEnter();
         };
@@ -14839,11 +15146,11 @@
             document.getElementById('admin-panel').classList.add('hidden');
             document.getElementById('admin-club-view-nom').textContent = club.nom;
             const crest = document.getElementById('admin-club-view-crest');
-            crest.innerHTML = club.escut ? `<img src="${club.escut}" class="w-full h-full object-contain">` : 'Escut';
+            crest.innerHTML = club.escut ? `<img src="${esc(club.escut)}" class="w-full h-full object-contain">` : 'Escut';
             const grid = document.getElementById('admin-club-view-grid');
             grid.innerHTML = club.equips.map(e => `
-                <button onclick='adminEnterEquip(${JSON.stringify(e.equip_id)}, ${JSON.stringify(e.equip_nom)}, ${JSON.stringify(club.id)}, ${JSON.stringify(club.nom)}, ${JSON.stringify(club.escut)})' class="text-left bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] hover:shadow-[0_12px_32px_-14px_rgba(0,0,0,0.7)] rounded-2xl p-5 transition-all hover:-translate-y-0.5">
-                    <p class="font-bold text-white text-[15px] tracking-tight">${e.equip_nom}</p>
+                <button onclick="adminEnterEquip(${jsArg(e.equip_id)}, ${jsArg(e.equip_nom)}, ${jsArg(club.id)}, ${jsArg(club.nom)}, ${jsArg(club.escut)})" class="text-left bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] hover:shadow-[0_12px_32px_-14px_rgba(0,0,0,0.7)] rounded-2xl p-5 transition-all hover:-translate-y-0.5">
+                    <p class="font-bold text-white text-[15px] tracking-tight">${esc(e.equip_nom)}</p>
                     <p class="text-[13px] text-slate-400 mt-1">${e.membres_count} jugador${e.membres_count === 1 ? '' : 's'}</p>
                 </button>`).join('') || '<p class="text-xs text-slate-500 col-span-full">Aquest club encara no té cap equip.</p>';
             document.getElementById('admin-club-view').classList.remove('hidden');
@@ -14870,13 +15177,13 @@
             lucide.createIcons();
             await refreshAdminTeamsList();
         };
-        window.closeAdminPanel = function () {
-            document.getElementById('admin-panel').classList.add('hidden');
-        };
 
         window.appSignOut = async function () {
             if (!confirm('Vols tancar la sessió?')) return;
-            await sb.auth.signOut();
+            try { localStorage.removeItem(CTX_KEY); } catch (e) {}
+            // Sense connexió el tancament "global" falla i la sessió es queda: es tanca almenys en aquest dispositiu.
+            try { const { error } = await sb.auth.signOut(); if (error) await sb.auth.signOut({ scope: 'local' }); }
+            catch (e) { try { await sb.auth.signOut({ scope: 'local' }); } catch (e2) {} }
             location.reload();
         };
 
@@ -14886,7 +15193,7 @@
             const wrap = document.getElementById('admin-teams-list');
             wrap.innerHTML = '<p class="text-xs text-slate-500">Carregant…</p>';
             const { data, error } = await sb.rpc('admin_listar_equips');
-            if (error) { wrap.innerHTML = `<p class="text-xs text-rose-400">${error.message}</p>`; return; }
+            if (error) { wrap.innerHTML = `<p class="text-xs text-rose-400">${esc(error.message)}</p>`; return; }
             if (!data.length) { wrap.innerHTML = '<p class="text-xs text-slate-500">Encara no hi ha cap club creat.</p>'; return; }
 
             // Agrupa per club
@@ -14906,38 +15213,38 @@
                     <div class="flex items-center gap-3.5 p-4 cursor-pointer" onclick="toggleAdminClub('${c.id}')">
                         <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 transition-transform shrink-0" id="chev-${c.id}"></i>
                         <div class="w-10 h-10 flex items-center justify-center text-[9px] text-slate-500 shrink-0">
-                            ${c.escut ? `<img src="${c.escut}" class="w-full h-full object-contain">` : 'Escut'}
+                            ${c.escut ? `<img src="${esc(c.escut)}" class="w-full h-full object-contain">` : 'Escut'}
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="font-bold text-[15px] text-white tracking-tight truncate">${c.nom}</p>
+                            <p class="font-bold text-[15px] text-white tracking-tight truncate">${esc(c.nom)}</p>
                             <p class="text-[11.5px] text-slate-500">${c.equips.length} equip${c.equips.length === 1 ? '' : 's'}</p>
                         </div>
-                        <button onclick='event.stopPropagation(); openAdminClubView(${JSON.stringify(c.id)})' title="Entra al club" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-emerald-400 hover:bg-slate-800 transition-colors"><i data-lucide="log-in" class="w-3.5 h-3.5"></i></button>
-                        <button onclick='event.stopPropagation(); openAdminEditClub(${JSON.stringify(c.id)}, ${JSON.stringify(c.nom)})' title="Edita el club" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition-colors"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                        <button onclick='event.stopPropagation(); adminDeleteClub(${JSON.stringify(c.id)}, ${JSON.stringify(c.nom)})' title="Elimina el club" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="event.stopPropagation(); openAdminClubView(${jsArg(c.id)})" title="Entra al club" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-emerald-400 hover:bg-slate-800 transition-colors"><i data-lucide="log-in" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="event.stopPropagation(); openAdminEditClub(${jsArg(c.id)}, ${jsArg(c.nom)})" title="Edita el club" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition-colors"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="event.stopPropagation(); adminDeleteClub(${jsArg(c.id)}, ${jsArg(c.nom)})" title="Elimina el club" class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                     </div>
                     <div id="club-body-${c.id}" class="hidden border-t border-slate-800/60 divide-y divide-slate-800/50">
                         ${c.equips.map((e, idx) => `
                             <div>
                             <div class="flex items-center flex-wrap gap-2 p-3 pl-8 sm:pl-14">
                                 <div class="flex flex-col gap-0.5 shrink-0">
-                                    <button onclick='event.stopPropagation(); adminMoveEquip(${JSON.stringify(c.equips)}, ${idx}, -1)' ${idx === 0 ? 'disabled' : ''} class="w-5 h-5 flex items-center justify-center text-slate-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none"><i data-lucide="chevron-up" class="w-3.5 h-3.5"></i></button>
-                                    <button onclick='event.stopPropagation(); adminMoveEquip(${JSON.stringify(c.equips)}, ${idx}, 1)' ${idx === c.equips.length - 1 ? 'disabled' : ''} class="w-5 h-5 flex items-center justify-center text-slate-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none"><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+                                    <button onclick="event.stopPropagation(); adminMoveEquip(${jsArg(c.equips)}, ${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-5 h-5 flex items-center justify-center text-slate-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none"><i data-lucide="chevron-up" class="w-3.5 h-3.5"></i></button>
+                                    <button onclick="event.stopPropagation(); adminMoveEquip(${jsArg(c.equips)}, ${idx}, 1)" ${idx === c.equips.length - 1 ? 'disabled' : ''} class="w-5 h-5 flex items-center justify-center text-slate-500 hover:text-white disabled:opacity-20 disabled:pointer-events-none"><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
                                 </div>
                                 <div class="min-w-0 flex-1 basis-24">
-                                    <p class="text-sm font-semibold text-slate-100 truncate">${e.equip_nom}</p>
+                                    <p class="text-sm font-semibold text-slate-100 truncate">${esc(e.equip_nom)}</p>
                                     <p class="text-[11px] text-slate-500">${e.membres_count} jugador${e.membres_count === 1 ? '' : 's'}</p>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0 ml-auto">
-                                    <button onclick='toggleAdminEquipUsers(${JSON.stringify(e.equip_id)})' title="Usuaris amb accés" class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg"><i data-lucide="users" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Usuaris</span></button>
-                                    <button onclick='openAdminInviteModal(${JSON.stringify(e.equip_id)}, ${JSON.stringify(c.nom + " · " + e.equip_nom)})' class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Convida</span></button>
-                                    <button onclick='openAdminEditEquip(${JSON.stringify(e.equip_id)}, ${JSON.stringify(e.equip_nom)})' title="Edita l'equip" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                                    <button onclick='adminDeleteEquip(${JSON.stringify(e.equip_id)}, ${JSON.stringify(e.equip_nom)})' title="Elimina l'equip" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                    <button onclick="toggleAdminEquipUsers(${jsArg(e.equip_id)})" title="Usuaris amb accés" class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg"><i data-lucide="users" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Usuaris</span></button>
+                                    <button onclick="openAdminInviteModal(${jsArg(e.equip_id)}, ${jsArg(c.nom + " · " + e.equip_nom)})" class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Convida</span></button>
+                                    <button onclick="openAdminEditEquip(${jsArg(e.equip_id)}, ${jsArg(e.equip_nom)})" title="Edita l'equip" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                                    <button onclick="adminDeleteEquip(${jsArg(e.equip_id)}, ${jsArg(e.equip_nom)})" title="Elimina l'equip" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                                 </div>
                             </div>
                             <div id="equip-users-${e.equip_id}" class="hidden pl-8 sm:pl-20 pr-3 pb-3 space-y-1.5"></div>
                             </div>`).join('')}
-                        <button onclick='openAdminAddEquip(${JSON.stringify(c.id)}, ${JSON.stringify(c.nom)})' class="w-full flex items-center gap-2 p-3 pl-14 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 text-xs font-semibold"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Afegeix un equip a aquest club</button>
+                        <button onclick="openAdminAddEquip(${jsArg(c.id)}, ${jsArg(c.nom)})" class="w-full flex items-center gap-2 p-3 pl-14 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 text-xs font-semibold"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Afegeix un equip a aquest club</button>
                     </div>
                 </div>`).join('');
             lucide.createIcons();
@@ -14967,22 +15274,22 @@
             const box = document.getElementById('equip-users-' + equipId);
             box.innerHTML = '<p class="text-[11px] text-slate-500">Carregant…</p>';
             const { data, error } = await sb.rpc('admin_llistar_usuaris_equip', { p_equip_id: equipId });
-            if (error) { box.innerHTML = `<p class="text-[11px] text-rose-400">${error.message}</p>`; return; }
+            if (error) { box.innerHTML = `<p class="text-[11px] text-rose-400">${esc(error.message)}</p>`; return; }
             if (!data.length) { box.innerHTML = '<p class="text-[11px] text-slate-500">Ningú hi té accés encara.</p>'; return; }
             box.innerHTML = data.map(u => `
                 <div class="flex items-center gap-2 bg-slate-950/60 border border-slate-800/70 rounded-lg px-2.5 py-2">
                     <div class="min-w-0 flex-1">
-                        <p class="text-xs font-semibold text-slate-200 truncate">${u.email}</p>
-                        ${u.nom ? `<p class="text-[10px] text-slate-500 truncate">${u.nom}</p>` : ''}
+                        <p class="text-xs font-semibold text-slate-200 truncate">${esc(u.email)}</p>
+                        ${u.nom ? `<p class="text-[10px] text-slate-500 truncate">${esc(u.nom)}</p>` : ''}
                     </div>
                     <select onchange='adminChangeRol(${JSON.stringify(u.usuari_id)}, ${JSON.stringify(equipId)}, this.value)' class="bg-slate-900 border border-slate-800 rounded-lg px-1.5 py-1 text-[11px] text-slate-200">
                         <option value="jugador" ${u.rol === 'jugador' ? 'selected' : ''}>Jugador</option>
                         <option value="entrenador" ${u.rol === 'entrenador' ? 'selected' : ''}>Entrenador</option>
                         <option value="coordinador" ${u.rol === 'coordinador' ? 'selected' : ''}>Coordinador</option>
                     </select>
-                    <button onclick='adminResetPassword(${JSON.stringify(u.email)})' title="Envia enllaç per canviar contrasenya" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800"><i data-lucide="key-round" class="w-3.5 h-3.5"></i></button>
-                    <button onclick='adminRevokeAccess(${JSON.stringify(u.usuari_id)}, ${JSON.stringify(equipId)}, ${JSON.stringify(u.email)})' title="Revoca l'accés a aquest equip" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-amber-400 hover:bg-slate-800"><i data-lucide="user-minus" class="w-3.5 h-3.5"></i></button>
-                    <button onclick='adminDeleteUserAccount(${JSON.stringify(u.usuari_id)}, ${JSON.stringify(u.email)})' title="Elimina el compte sencer" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="adminResetPassword(${jsArg(u.email)})" title="Envia enllaç per canviar contrasenya" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800"><i data-lucide="key-round" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="adminRevokeAccess(${jsArg(u.usuari_id)}, ${jsArg(equipId)}, ${jsArg(u.email)})" title="Revoca l'accés a aquest equip" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-amber-400 hover:bg-slate-800"><i data-lucide="user-minus" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="adminDeleteUserAccount(${jsArg(u.usuari_id)}, ${jsArg(u.email)})" title="Elimina el compte sencer" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>`).join('');
             lucide.createIcons();
         }
@@ -15094,7 +15401,7 @@
             const nomEquip = document.getElementById('admin-cc-equip').value.trim();
             if (!nomClub || !nomEquip) { document.getElementById('admin-cc-msg').innerHTML = '<div class="text-xs text-rose-400">Cal omplir tots dos noms.</div>'; return; }
             const { error } = await sb.rpc('crear_club_inicial', { p_nom_club: nomClub, p_escut_url: null, p_color_principal: '#c98a2b', p_nom_equip: nomEquip });
-            if (error) { document.getElementById('admin-cc-msg').innerHTML = `<div class="text-xs text-rose-400">${error.message}</div>`; return; }
+            if (error) { document.getElementById('admin-cc-msg').innerHTML = `<div class="text-xs text-rose-400">${esc(error.message)}</div>`; return; }
             closeAdminCreateClub();
             await refreshAdminTeamsList();
         };
@@ -15144,7 +15451,7 @@
                 document.getElementById('admin-invite-msg').innerHTML = '<div class="text-xs text-emerald-400">Invitació enviada correctament.</div>';
                 await refreshAdminTeamsList();
             } catch (e) {
-                document.getElementById('admin-invite-msg').innerHTML = `<div class="text-xs text-rose-400">${e.message}</div>`;
+                document.getElementById('admin-invite-msg').innerHTML = `<div class="text-xs text-rose-400">${esc(e.message)}</div>`;
             } finally {
                 btn.disabled = false;
             }
@@ -15177,11 +15484,21 @@
         }
 
         async function loadAppConfig() {
-            const [{ data: club }, { data: equip }, { data: usuari }] = await Promise.all([
+            const [rc, re, ru] = await Promise.all([
                 sb.from('clubs').select('nom, escut_url, color_principal').eq('id', window.CFSE_CLUB_ID).maybeSingle(),
                 sb.from('equips').select('moduls_actius, horaris_entrenament, multes_delegat_usuari_id, moduls_ocults_jugador').eq('id', window.CFSE_EQUIP_ID).maybeSingle(),
                 sb.from('usuaris').select('nom').eq('id', window.CFSE_USER_ID).maybeSingle()
             ]);
+            // Si algun ha fallat per la xarxa, es fa servir l'última configuració coneguda d'aquest equip
+            // (així un jugador sense connexió no veu mòduls que el coordinador li havia amagat).
+            let club = rc.data, equip = re.data, usuari = ru.data;
+            const cfgOld = loadCfgCache();
+            if (cfgOld) {
+                if (rc.error && sbIsTransient(rc)) club = cfgOld.club;
+                if (re.error && sbIsTransient(re)) equip = cfgOld.equip;
+                if (ru.error && sbIsTransient(ru)) usuari = cfgOld.usuari;
+            }
+            if (!rc.error && !re.error && !ru.error) saveCfgCache({ club, equip, usuari });
             cfgClubCache = club || { nom: '', escut_url: null, color_principal: null };
             applyClubColor(cfgClubCache.color_principal || '#992438');
             cfgEquipCache = equip || { moduls_actius: {}, horaris_entrenament: [] };
@@ -15395,7 +15712,7 @@
             cfgCrestFile = null;
             document.getElementById('cfg-crest-file').value = '';
             const preview = document.getElementById('cfg-crest-preview');
-            preview.innerHTML = cfgClubCache?.escut_url ? `<img src="${cfgClubCache.escut_url}" class="w-full h-full object-contain">` : 'Escut';
+            preview.innerHTML = cfgClubCache?.escut_url ? `<img src="${esc(cfgClubCache.escut_url)}" class="w-full h-full object-contain">` : 'Escut';
             document.getElementById('cfg-club-color').value = cfgClubCache?.color_principal || '#992438';
 
             const moduls = cfgEquipCache?.moduls_actius || {};
@@ -15489,7 +15806,7 @@
                 closeAppConfig();
             } catch (e) {
                 document.getElementById('cfg-msg').innerHTML =
-                    `<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">${e.message || 'No s\'ha pogut desar.'}</div>`;
+                    `<div class="text-xs rounded-lg px-3 py-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/25">${esc(e.message || 'No s\'ha pogut desar.')}</div>`;
             } finally {
                 btn.disabled = false;
             }
