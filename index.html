@@ -469,6 +469,10 @@
                     <i data-lucide="users" class="w-4 h-4"></i>
                     Plantilla
                 </button>
+                <button onclick="switchTab('inici')" id="btn-inici" class="player-only tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-semibold text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-all">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    Inici
+                </button>
                 <button onclick="switchTab('estadistica')" id="btn-estadistica" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-semibold text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-all">
                     <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                     Estadistica
@@ -616,9 +620,10 @@
                     <p class="text-[10px] text-slate-400">Vista de jugador</p>
                 </div>
             </div>
+            <button id="pv-exit-side" onclick="exitPlayerPreview()" class="hidden mt-3 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Torna al meu compte</button>
             <div class="flex gap-2 mt-3">
                 <button id="player-refresh-btn" onclick="manualPlayerRefresh()" title="Actualitza les dades" class="w-9 shrink-0 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-all flex items-center justify-center"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
-                <button onclick="appSignOut()" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i>Tanca sessió</button>
+                <button id="player-signout-btn" onclick="appSignOut()" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i>Tanca sessió</button>
             </div>
         </div>
     </aside>
@@ -836,9 +841,10 @@
                 </div>
             </section>
 
-            <!-- 2 · ESTADISTICA -->
-            <section id="tab-estadistica" class="tab-content hidden space-y-6">
-                <div id="player-stats" class="player-only hidden bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
+
+            <!-- 0 · INICI (només jugador) -->
+            <section id="tab-inici" class="tab-content hidden space-y-6">
+                <div id="player-home" class="player-only bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <div class="relative overflow-hidden bg-gradient-to-br from-granate-950/80 via-slate-900 to-slate-900 border-b border-slate-800 p-6">
                         <span id="ph-watermark" class="pointer-events-none select-none absolute -right-3 -top-8 text-[120px] font-black text-white/[0.04] leading-none"></span>
                         <div class="relative flex items-center gap-4">
@@ -858,6 +864,53 @@
                                 <p id="ph-next-match-sub" class="text-[11px] text-slate-400 mt-0.5"></p>
                             </div>
                         </div>
+                        <div id="ph-next-session" class="hidden bg-slate-950/40 border border-slate-800/60 rounded-xl px-4 py-3.5 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-800/60 flex items-center justify-center shrink-0"><i data-lucide="calendar-days" class="w-4 h-4 text-slate-300"></i></div>
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500" id="ph-ns-tag">Propera sessió</p>
+                                <p class="text-[12.5px] font-bold text-white" id="ph-ns-title"></p>
+                                <p class="text-[11px] text-slate-400 mt-0.5" id="ph-ns-sub"></p>
+                            </div>
+                        </div>
+                        <div id="ph-obj"></div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">El teu resum</p>
+                            <div id="ph-stats" class="grid grid-cols-5 gap-1.5 sm:gap-2.5"></div>
+                            <p id="ph-stats-empty" class="hidden text-xs text-slate-500 leading-relaxed"></p>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assistència als entrenaments</p>
+                                <select id="ph-micro-select" onchange="renderProfileAttendance('ph', playerSession)" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-200 focus:outline-none focus:border-emerald-500"></select>
+                            </div>
+                            <div id="ph-att-season" class="mb-3"></div>
+                            <div id="ph-attendance" class="space-y-2"></div>
+                        </div>
+                        <div id="ph-conv-wrap" class="hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Convocatòries</p>
+                            <div id="ph-conv"></div>
+                        </div>
+                        <div id="ph-fines-wrap" class="hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Multes</p>
+                            <div id="ph-fines"></div>
+                        </div>
+                        <div id="ph-video-wrap" class="hidden">
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Els meus moments de vídeo</p>
+                                <span id="ph-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
+                            </div>
+                            <div id="ph-video" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2 · ESTADISTICA -->
+            <section id="tab-estadistica" class="tab-content hidden space-y-6">
+                <div id="player-stats" class="player-only hidden bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
+                    
+                    <div class="p-6 space-y-6">
+                        
                         <div id="ph-results-wrap" class="space-y-3">
                             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5 flex-wrap">
@@ -870,7 +923,7 @@
                                     <button onclick="setStatsPeriod('lliga')" id="ph-team-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
                                 </div>
                             </div>
-                            <div class="overflow-x-auto"><div id="ph-comp-calendar" class="flex gap-3 pb-2 min-w-min"></div></div>
+                            <div class="overflow-x-auto -mx-1 px-1 py-1.5"><div id="ph-comp-calendar" class="flex gap-3 pb-1 min-w-min"></div></div>
                             <div id="ph-scope-bar" class="hidden flex items-center justify-between gap-3 bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-4 py-2.5">
                                 <p id="ph-scope-text" class="text-xs font-semibold text-emerald-300"></p>
                                 <button onclick="clearStatsMatch()" class="shrink-0 text-[11px] font-bold text-emerald-300 hover:text-emerald-200 underline">Torna a la temporada</button>
@@ -882,45 +935,22 @@
                             <div id="ph-indicators"></div>
                             <p id="ph-reading" class="mt-3 text-[11.5px] text-slate-400 leading-relaxed"></p>
                             <div id="ph-insights" class="mt-4"></div>
-                            <div id="ph-obj" class="mt-4"></div>
+                            
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Estadístiques principals</p>
-                            <div id="ph-stats" class="grid grid-cols-5 gap-1.5 sm:gap-2.5"></div>
-                            <p id="ph-stats-empty" class="hidden text-xs text-slate-500 leading-relaxed"></p>
-                        </div>
-                        <div id="ph-video-wrap" class="hidden">
-                            <div class="flex items-center justify-between gap-3 mb-3">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Els meus moments de vídeo</p>
-                                <span id="ph-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
-                            </div>
-                            <div id="ph-video" class="space-y-2"></div>
-                        </div>
+                        
+                        
                         <div id="ph-goals-wrap" class="hidden">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Gols per tipus</p>
                             <div id="ph-goals"></div>
                         </div>
-                        <div id="ph-conv-wrap" class="hidden">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Convocatòries</p>
-                            <div id="ph-conv"></div>
-                        </div>
-                        <div id="ph-fines-wrap" class="hidden">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Multes</p>
-                            <div id="ph-fines"></div>
-                        </div>
+                        
+                        
                         <div id="ph-progression-wrap" class="hidden">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Progressió a la temporada</p>
                             <p class="text-[11px] text-slate-500 mb-3">+/- per partit (a favor menys en contra amb tu a pista) &mdash; el criteri m&eacute;s objectiu per veure com evoluciona el teu impacte real, partit a partit.</p>
                             <div style="height:220px"><canvas id="ph-progression-chart"></canvas></div>
                         </div>
-                        <div>
-                            <div class="flex items-center justify-between gap-3 mb-3">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assistència als entrenaments</p>
-                                <select id="ph-micro-select" onchange="renderProfileAttendance('ph', playerSession)" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-200 focus:outline-none focus:border-emerald-500"></select>
-                            </div>
-                            <div id="ph-att-season" class="mb-3"></div>
-                            <div id="ph-attendance" class="space-y-2"></div>
-                        </div>
+                        
 
                         </div>
                         <div id="ph-match-panel" class="hidden space-y-6">
@@ -1003,7 +1033,7 @@
                                 <div id="stats-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
                             </div>
                         </div>
-                        <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-3 p-6 min-w-min"></div></div>
+                        <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-3 px-6 py-7 min-w-min"></div></div>
                         <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
                     </div>
 
@@ -2723,9 +2753,9 @@
         </div>
     </div>
 
-    <div id="preview-banner" class="hidden fixed top-2 left-1/2 -translate-x-1/2 z-[75] max-w-[calc(100vw-1rem)] bg-amber-500 text-slate-950 text-xs font-bold px-3 py-2 rounded-full shadow-2xl flex items-center gap-2">
+    <div id="pv-banner" class="hidden fixed top-2 left-1/2 -translate-x-1/2 z-[75] max-w-[calc(100vw-1rem)] bg-amber-500 text-slate-950 text-xs font-bold px-3 py-2 rounded-full shadow-2xl flex items-center gap-2">
         <i data-lucide="eye" class="w-4 h-4 shrink-0"></i>
-        <span class="truncate">Vista prèvia · com a <span id="preview-banner-name"></span> · només lectura</span>
+        <span class="truncate">Vista prèvia · com a <span id="pv-banner-name"></span> · només lectura</span>
         <button onclick="openPlayerPreviewPicker()" class="shrink-0 px-2 py-0.5 rounded-full bg-slate-950/15 hover:bg-slate-950/25 font-bold">Canvia</button>
         <button onclick="exitPlayerPreview()" class="shrink-0 px-2 py-0.5 rounded-full bg-slate-950 text-amber-300 hover:bg-slate-800 font-bold">Surt</button>
     </div>
@@ -2860,7 +2890,7 @@
         };
         if (document.body) show(); else window.addEventListener('DOMContentLoaded', show);
     })();
-    const APP_BUILD = '2026-09-21 · Fases C+D+E (resultats, comentaris, rivals)';
+    const APP_BUILD = '2026-09-21 · Fase F (Inici del jugador, gols per tipus, correccions)';
     const recentErrors = [];
 
     /* ---------------- (Fase B) Vista prèvia com a jugador: NOMÉS LECTURA ----------------
@@ -4603,6 +4633,21 @@
        MILLORA 4: CÀLCUL AUTOMÀTIC DE DADES DE SESSIÓ
        ------------------------------------------------------------ */
 
+    // Targeta compacta de la pantalla d'Inici del jugador: propera sessió (dia, durada i intensitat previstes).
+    function renderHomeNextSession() {
+        const box = document.getElementById('ph-next-session'); if (!box) return;
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const next = (state.sessions || []).filter(x => x.date && x.date >= today).sort((a, b) => a.date - b.date)[0];
+        if (!next) { box.classList.add('hidden'); return; }
+        const full = sessionLoadFull(next);
+        const bits = [next.date.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' })];
+        if (full.volum > 0) bits.push(full.volum + ' min');
+        if (full.intensitat > 0) bits.push('intensitat ' + full.intensitat.toFixed(1) + '/10');
+        document.getElementById('ph-ns-tag').textContent = isMatch(next.esdeveniment) ? 'Proper partit' : 'Propera sessió';
+        document.getElementById('ph-ns-title').textContent = next.esdeveniment || 'Sessió';
+        document.getElementById('ph-ns-sub').textContent = bits.join(' · ').replace(/^./, c => c.toUpperCase());
+        box.classList.remove('hidden');
+    }
     function renderNextSession() {
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const dated = state.sessions.filter(x => x.date);
@@ -5976,10 +6021,10 @@
         box.innerHTML = list.map((c, i) => {
             const tone = c.res === 'V' ? 'border-emerald-500/40 bg-emerald-500/5' : c.res === 'D' ? 'border-rose-500/40 bg-rose-500/5' : c.res === 'E' ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-800 bg-slate-950/40';
             const scoreTone = c.res === 'V' ? 'text-emerald-400' : c.res === 'D' ? 'text-rose-400' : c.res === 'E' ? 'text-amber-400' : 'text-slate-500';
-            const topLeft = c.jornada || (c.source === 'calendar' ? 'Previst' : (c.source === 'archive' ? 'Partit' : ''));
+            const topLeft = calTopLabel(c);
             const per = matchPeriod(c);
             const sel = c.archId && c.archId === statsMatchKey;
-            return `<button onclick="openStatsMatch(${i})" aria-pressed="${sel ? 'true' : 'false'}" class="shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-all ${sel ? 'ring-2 ring-emerald-500' : ''}">
+            return `<button onclick="openStatsMatch(${i})" aria-pressed="${sel ? 'true' : 'false'}" class="no-lift shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-colors ${sel ? 'ring-2 ring-emerald-500' : ''}">
                 <div class="flex items-center justify-between gap-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${esc(topLeft)}</span>
                     ${c.camp ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${c.camp === 'L' ? 'bg-slate-800 text-slate-300' : 'bg-slate-800/60 text-slate-400'}">${c.camp === 'L' ? 'Local' : 'Visitant'}</span>` : ''}
@@ -6202,7 +6247,7 @@
     function unifiedCalendar() {
         const homeKey = k => { k = key(k); return k.startsWith('l') || k.startsWith('casa'); };
         const slots = allMatches().map(m => ({
-            key: m.key, jornada: m.jornada || '', label: m.label, rival: m.rival || '', iso: m.iso || '',
+            key: m.key, jornada: m.jornada || '', label: m.label, rival: cleanRival(m.rival || ''), iso: m.iso || '',
             date: m.date || (m.iso ? toDate(m.iso) : null), camp: m.camp || '',
             gf: (typeof m.gf === 'number' ? m.gf : null), gc: (typeof m.gc === 'number' ? m.gc : null), res: m.res || null,
             source: m.source, played: false
@@ -6990,6 +7035,15 @@
     // per partit (que inclou la taula per jugador de l'Excel/acta).
     // (Fase C) Franja de RESULTATS a dalt de tot. Només mostra el resultat i l'equip rival; en tocar un partit
     // jugat, tota la pàgina passa a aquell partit.
+    // Etiqueta de dalt d'una targeta: jornada (J1…), "Amistós", "Partit" si ja s'ha jugat, "Previst" o "Sense resultat".
+    function calTopLabel(c) {
+        const raw = String(c.jornada || c.label || '').trim();
+        if (/^j(ornada)?\s*\d+/i.test(raw)) return raw;
+        if (/amist/i.test(raw)) return 'Amistós';
+        if (c.gf !== null) return 'Partit';
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        return (c.date && c.date < today) ? 'Sense resultat' : 'Previst';
+    }
     function renderPlayerCompetitionCalendar() {
         const box = document.getElementById('ph-comp-calendar');
         const rec = document.getElementById('ph-comp-record');
@@ -7008,7 +7062,7 @@
             return `<span class="px-2.5 py-1 rounded ${tone}">${t} ${n}</span>`;
         }).join('');
         const all = statsMatchKey == null;
-        const allCard = `<button onclick="clearStatsMatch()" aria-pressed="${all}" class="shrink-0 w-32 text-left border rounded-xl p-3.5 transition-all ${all ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/40 hover:border-emerald-500/40'}">
+        const allCard = `<button onclick="clearStatsMatch()" aria-pressed="${all}" class="no-lift shrink-0 w-32 text-left border rounded-xl p-3.5 transition-colors ${all ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/40 hover:border-emerald-500/40'}">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${statsPeriod === 'tot' ? 'Temporada' : esc(PERIOD_LABEL[statsPeriod])}</p>
                 <p class="text-xs font-bold text-white mt-2 leading-snug">Tots els partits</p>
                 <p class="text-xl font-black text-slate-200 mt-2">${played.length}<span class="text-[10px] font-semibold text-slate-500"> jugats</span></p>
@@ -7016,7 +7070,7 @@
         box.innerHTML = allCard + list.map(c => {
             const tone = c.res === 'V' ? 'border-emerald-500/40 bg-emerald-500/5' : c.res === 'D' ? 'border-rose-500/40 bg-rose-500/5' : c.res === 'E' ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-800 bg-slate-950/40';
             const scoreTone = c.res === 'V' ? 'text-emerald-400' : c.res === 'D' ? 'text-rose-400' : c.res === 'E' ? 'text-amber-400' : 'text-slate-500';
-            const topLeft = c.jornada || (c.source === 'calendar' ? 'Previst' : (c.source === 'archive' ? 'Partit' : ''));
+            const topLeft = calTopLabel(c);
             const per = matchPeriod(c);
             const clickable = !!c.archId;
             const sel = clickable && c.archId === statsMatchKey;
@@ -7032,7 +7086,7 @@
                 </div>
                 <p class="text-xl font-black ${scoreTone} mt-2">${c.gf !== null ? `${c.gf}<span class="text-slate-600 mx-0.5">-</span>${c.gc}` : '<span class="text-sm font-bold text-slate-500">Previst</span>'}</p>`;
             return clickable
-                ? `<button onclick="selectStatsMatch(${jsArg(c.archId)})" aria-pressed="${sel}" class="shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-all ${sel ? 'ring-2 ring-emerald-500' : ''}">${inner}</button>`
+                ? `<button onclick="selectStatsMatch(${jsArg(c.archId)})" aria-pressed="${sel}" class="no-lift shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-colors ${sel ? 'ring-2 ring-emerald-500' : ''}">${inner}</button>`
                 : `<div class="shrink-0 w-40 border ${tone} rounded-xl p-3.5 opacity-80">${inner}</div>`;
         }).join('');
         updateScopeChips();
@@ -9387,41 +9441,57 @@
 
     /* -- gols per tipus del jugador (marcats + encaixats a pista), de tots els partits -- */
     function playerGoalClass(pid) {
-        const scored = {}, conceded = {};
+        const id = String(pid);
+        const scored = {}, conceded = {}, forOn = {}, team = {};
         let scoredTotal = 0, concededOnCourt = 0, scoredUncl = 0, concededUncl = 0, assists = 0;
+        let forOnTotal = 0, forOnUncl = 0, teamGF = 0, teamGC = 0, teamAssisted = 0, teamUnclGF = 0, teamUnclGC = 0;
+        const T = c => (team[c] || (team[c] = { gf: 0, gc: 0 }));
         const scan = mm => (mm && mm.events ? mm.events : []).forEach(e => {
-            if (e.type === 'gf' && e.payload) {
-                if (String(e.payload.scorer) === String(pid)) { scoredTotal++; if (e.payload.cat) scored[e.payload.cat] = (scored[e.payload.cat] || 0) + 1; else scoredUncl++; }
-                if (String(e.payload.assist) === String(pid)) assists++;
-            }
-            if (e.type === 'gc' && e.payload && (e.payload.onCourt || []).map(String).includes(String(pid))) {
-                concededOnCourt++; if (e.payload.cat) conceded[e.payload.cat] = (conceded[e.payload.cat] || 0) + 1; else concededUncl++;
+            const pl = e.payload || {}; const onc = Array.isArray(pl.onCourt) ? pl.onCourt.map(String) : [];
+            if (e.type === 'gf') {
+                teamGF++; if (pl.assist) teamAssisted++;
+                if (pl.cat) T(pl.cat).gf++; else teamUnclGF++;
+                if (e.payload && String(pl.scorer) === id) { scoredTotal++; if (pl.cat) scored[pl.cat] = (scored[pl.cat] || 0) + 1; else scoredUncl++; }
+                if (e.payload && String(pl.assist) === id) assists++;
+                if (onc.includes(id)) { forOnTotal++; if (pl.cat) forOn[pl.cat] = (forOn[pl.cat] || 0) + 1; else forOnUncl++; }
+            } else if (e.type === 'gc') {
+                teamGC++; if (pl.cat) T(pl.cat).gc++; else teamUnclGC++;
+                if (onc.includes(id)) { concededOnCourt++; if (pl.cat) conceded[pl.cat] = (conceded[pl.cat] || 0) + 1; else concededUncl++; }
             }
         });
         if (state.match) scan(state.match);
         (state.matchArchive || []).forEach(a => scan(a.match));
-        return { scored, conceded, scoredTotal, concededOnCourt, scoredUncl, concededUncl, assists };
+        return { scored, conceded, forOn, team, scoredTotal, concededOnCourt, scoredUncl, concededUncl, assists, forOnTotal, forOnUncl, teamGF, teamGC, teamAssisted, teamUnclGF, teamUnclGC };
     }
+    // Cada xifra del jugador va acompanyada del total de l'equip (p. ex. 12/33): així es veu quina part hi té.
     function renderProfileGoals(p, prefix) {
         prefix = prefix || 'pm';
         const wrap = document.getElementById(prefix + '-goals-wrap');
         const box = document.getElementById(prefix + '-goals');
         if (!wrap || !box) return;
         const d = playerGoalClass(p.id);
-        if (!d.scoredTotal && !d.concededOnCourt) { wrap.classList.add('hidden'); box.innerHTML = ''; return; }
+        if (!d.scoredTotal && !d.concededOnCourt && !d.forOnTotal && !d.assists) { wrap.classList.add('hidden'); box.innerHTML = ''; return; }
         wrap.classList.remove('hidden');
-        const bar = (label, gf, gc) => `<div class="flex items-center justify-between text-[11px] py-0.5"><span class="text-slate-300 truncate pr-2">${esc(label)}</span><span class="font-bold shrink-0"><span class="text-emerald-400">${gf}</span> <span class="text-slate-600">/</span> <span class="text-rose-400">${gc}</span></span></div>`;
-        const rows = Object.keys(GOAL_CATS).map(ck => ({ label: GOAL_CATS[ck].label, gf: d.scored[ck] || 0, gc: d.conceded[ck] || 0 })).filter(r => r.gf || r.gc);
+        const tile = (label, v, tot, cls) => `<div class="bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2.5 text-center"><p class="text-[9px] font-bold uppercase tracking-wider text-slate-500">${label}</p><p class="text-xl font-extrabold ${cls} mt-0.5 tabular-nums">${v}<span class="text-sm font-bold text-slate-500"> / ${tot}</span></p></div>`;
+        const cell = (v, tot, cls) => tot ? `<span class="font-bold ${cls}">${v}</span><span class="text-slate-500">/${tot}</span>` : '<span class="text-slate-700">—</span>';
+        const row = (label, sc, fo, co, t) => `<tr><td class="py-1.5 pr-2 text-slate-300">${esc(label)}</td><td class="py-1.5 text-center tabular-nums">${cell(sc, t.gf, 'text-emerald-400')}</td><td class="py-1.5 text-center tabular-nums">${cell(fo, t.gf, 'text-emerald-400')}</td><td class="py-1.5 text-center tabular-nums">${cell(co, t.gc, 'text-rose-400')}</td></tr>`;
+        const rows = Object.keys(GOAL_CATS).map(ck => ({ ck, t: d.team[ck] || { gf: 0, gc: 0 } })).filter(r => r.t.gf || r.t.gc)
+            .map(r => row(GOAL_CATS[r.ck].label, d.scored[r.ck] || 0, d.forOn[r.ck] || 0, d.conceded[r.ck] || 0, r.t));
+        const uncl = (d.teamUnclGF || d.teamUnclGC) ? row('Sense classificar', d.scoredUncl, d.forOnUncl, d.concededUncl, { gf: d.teamUnclGF, gc: d.teamUnclGC }) : '';
         box.innerHTML = `
-            <div class="grid grid-cols-3 gap-2 mb-3">
-                <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-center"><p class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Marcats</p><p class="text-xl font-extrabold text-emerald-400 mt-0.5">${d.scoredTotal}</p></div>
-                <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-center"><p class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Assist.</p><p class="text-xl font-extrabold text-sky-400 mt-0.5">${d.assists}</p></div>
-                <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-center"><p class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Encaix. a pista</p><p class="text-xl font-extrabold text-rose-400 mt-0.5">${d.concededOnCourt}</p></div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                ${tile('Gols marcats', d.scoredTotal, d.teamGF, 'text-emerald-400')}
+                ${tile('Assistències', d.assists, d.teamAssisted, 'text-sky-400')}
+                ${tile('A favor amb tu a pista', d.forOnTotal, d.teamGF, 'text-emerald-400')}
+                ${tile('En contra amb tu a pista', d.concededOnCourt, d.teamGC, 'text-rose-400')}
             </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
-                ${rows.length ? rows.map(r => bar(r.label, r.gf, r.gc)).join('') : '<p class="text-[11px] text-slate-500">Encara no hi ha gols classificats.</p>'}
-                ${(d.scoredUncl || d.concededUncl) ? bar('Sense classificar', d.scoredUncl, d.concededUncl) : ''}
-                <p class="text-[9px] text-slate-600 mt-1.5">marcats / encaixats mentre era a pista · per família</p>
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3 overflow-x-auto">
+                <table class="w-full text-[11px]">
+                    <thead class="text-[9px] uppercase tracking-wider text-slate-500"><tr><th class="pb-1.5 text-left font-bold">Tipus de gol</th><th class="pb-1.5 text-center font-bold">Marcats per tu</th><th class="pb-1.5 text-center font-bold">A favor amb tu a pista</th><th class="pb-1.5 text-center font-bold">En contra amb tu a pista</th></tr></thead>
+                    <tbody class="divide-y divide-slate-800/50">${rows.join('') || ''}${uncl}</tbody>
+                </table>
+                ${(rows.length || uncl) ? '' : '<p class="text-[11px] text-slate-500">Encara no hi ha gols classificats.</p>'}
+                <p class="text-[9px] text-slate-600 mt-2">Cada xifra va acompanyada del total de l'equip: 3/12 vol dir 3 dels 12 gols de l'equip.</p>
             </div>`;
     }
 
@@ -11571,8 +11641,9 @@
 
     /* ------------------------------ navegació ----------------------------- */
     function switchTab(tabId) {
-        if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'estadistica';
-        if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'estadistica';
+        if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'inici';
+        if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'inici';
+        if (appRole !== 'player' && tabId === 'inici') tabId = 'plantilla';
         closeSidebar();
         document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
         const target = document.getElementById(`tab-${tabId}`);
@@ -11585,6 +11656,7 @@
         if (tabId === 'convocatories') renderConvocatories();
         if (tabId === 'rivals') renderRivals();
         if (tabId === 'calendari') { resetCalWeekToToday(); renderCalendar(); }
+        if (tabId === 'inici') renderPlayerHome();
         if (tabId === 'estadistica') { if (appRole === 'player') { renderPlayerHome(); renderStats(); setStatsMode('team'); } else renderStats(); }
         if (tabId === 'plantilla') renderSquad();
         if (tabId === 'carregues') { renderPlayerLoadTable(); renderPlayerLoads(); }
@@ -11602,6 +11674,7 @@
         }
 
         const titles = {
+            inici:       ['Inici', 'El teu resum: propera cita, objectius, assistència, multes i vídeo.'],
             plantilla:   ['Plantilla', "Fitxa dels jugadors tal com surt de la pestanya Plantilla."],
             estadistica: ['Estadística', 'Mètriques llegides de la pestanya Estadística.'],
             calendari:   ['Calendari', 'Periodització mensual. Fes clic en un dia amb sessió per veure el detall.'],
@@ -13152,6 +13225,7 @@
         if (season) season.classList.toggle('hidden', !!am);
         if (mp) mp.classList.toggle('hidden', !am);
         setHeadingText(document.getElementById('ph-team-title'), am ? 'Estadística de l\'equip en aquest partit' : 'Estadística d\'equip');
+        renderHomeNextSession();
         if (am) renderPlayerMatchPanel(p, am);
         updateScopeChips();
         lucide.createIcons();
@@ -15044,7 +15118,7 @@
           read: 'La barra s\'omple a mesura que et vas acostant a la xifra. Quan arribes a l\'objectiu apareix «Complert».',
           why: 'Per saber en què t\'has de fixar i veure com avances.',
           care: 'Només veus els objectius que l\'entrenador ha publicat.' },
-        { id: 'principals', root: '#player-stats', text: ['Estadístiques principals'], title: 'Estadístiques principals',
+        { id: 'principals', root: '#player-home', text: ['El teu resum'], title: 'El teu resum',
           what: 'La teva assistència als entrenaments, els partits jugats, els minuts, els gols i les assistències de tota la temporada.',
           read: 'L\'assistència és el percentatge de sessions registrades en què hi eres: compta present, amb retard i «sense entrenar». Les absències, justificades o no, no compten.',
           why: 'Un resum ràpid de la teva temporada.',
@@ -15054,8 +15128,8 @@
           read: 'Desplega un partit i toca un moment per obrir-lo al punt exacte del vídeo.',
           why: 'És la manera més ràpida de veure\'t i entendre què es vol millorar o repetir.' },
         { id: 'gols-tipus', root: '#ph-goals-wrap', text: ['Gols per tipus'], title: 'Gols per tipus',
-          what: 'Com s\'han marcat els teus gols i com s\'han encaixat els gols de l\'equip mentre eres a pista, segons el tipus de jugada: joc posicional, transició, pilota aturada (ABP), joc de 5, accions del porter i errors.',
-          read: 'Cada fila mostra «marcats / encaixats».',
+          what: 'Com t\'has implicat en els gols de l\'equip: els que has marcat i assistit, i els que ha marcat i rebut l\'equip mentre eres a pista. Cada xifra va acompanyada del total de l\'equip (12/33: 12 dels 33 gols).',
+          read: 'A la taula, cada fila és un tipus de jugada: joc posicional, transició, pilota aturada (ABP), joc de 5, accions del porter i errors.',
           why: 'Et diu en quines situacions ajudes més a l\'equip i en quines patim.',
           care: 'Els gols encaixats són de l\'equip mentre eres a pista: no vol dir que siguin culpa teva.' },
         { id: 'convocatories', root: '#ph-conv-wrap', text: ['Convocatòries'], title: 'Convocatòries',
@@ -15071,7 +15145,7 @@
           read: 'Cada punt és un partit. Per sobre de zero, l\'equip va guanyar el duel de gols amb tu a pista; per sota, el va perdre.',
           why: 'Per veure si vas millorant o si hi ha partits que s\'allunyen de la teva línia.',
           care: 'Un sol partit dolent pesa molt: fixa\'t en la tendència, no en un punt.' },
-        { id: 'assistencia', root: '#player-stats', text: ['Assistència als entrenaments'], title: 'Assistència als entrenaments',
+        { id: 'assistencia', root: '#player-home', text: ['Assistència als entrenaments'], title: 'Assistència als entrenaments',
           what: 'Les teves marques a cada sessió del microcicle (una setmana de treball) i el teu percentatge de la temporada.',
           read: 'P: present · R: amb retard · S: sense entrenar · J: absència justificada · A: absència no justificada. Es compta com a assistència P, R i S.',
           why: 'Perquè vegis la teva regularitat als entrenaments.' },
@@ -16529,11 +16603,15 @@
                 String(a.name).localeCompare(String(b.name), 'ca'));
         }
         function updatePreviewBanner() {
-            const el = document.getElementById('preview-banner'); if (!el) return;
+            const el = document.getElementById('pv-banner'); if (!el) return;
             document.body.classList.toggle('preview-on', !!previewMode);
+            const side = document.getElementById('pv-exit-side');
+            if (side) side.classList.toggle('hidden', !previewMode);
+            const so = document.getElementById('player-signout-btn');
+            if (so) so.classList.toggle('hidden', !!previewMode);   // dins la vista prèvia només hi ha una sortida: tornar al teu compte
             if (!previewMode || !previewInfo) { el.classList.add('hidden'); return; }
             const p = playerById(previewInfo.pid);
-            const nm = document.getElementById('preview-banner-name'); if (nm) nm.textContent = p ? p.name : 'jugador';
+            const nm = document.getElementById('pv-banner-name'); if (nm) nm.textContent = p ? p.name : 'jugador';
             el.classList.remove('hidden');
         }
         window.openPlayerPreviewPicker = function () {
@@ -16558,7 +16636,7 @@
             if (!playerById(pid)) { toast('No trobo aquest jugador.'); return; }
             if (previewMode && previewInfo) {                           // canvi de jugador dins la vista prèvia
                 previewInfo.pid = pid; playerSession = pid;
-                curStats = null; applyRoleUI(); renderAll(); switchTab('estadistica'); updatePreviewBanner();
+                curStats = null; applyRoleUI(); renderAll(); switchTab('inici'); updatePreviewBanner();
                 return;
             }
             flushPendingSave();                                         // res de pendent abans de començar
@@ -16574,7 +16652,7 @@
                 applyPlayerModuleRestrictions();
                 if (typeof closePlayerProfile === 'function') closePlayerProfile();
                 closeSidebar();
-                curStats = null; applyRoleUI(); renderAll(); switchTab('estadistica'); updatePreviewBanner(); enhanceHelp();
+                curStats = null; applyRoleUI(); renderAll(); switchTab('inici'); updatePreviewBanner(); enhanceHelp();
                 window.scrollTo(0, 0);
             } catch (e) {
                 console.error('Vista prèvia:', e);
