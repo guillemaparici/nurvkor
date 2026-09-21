@@ -509,6 +509,10 @@
                     <i data-lucide="clipboard-check" class="w-4 h-4"></i>
                     Convocatòries
                 </button>
+                <button onclick="switchTab('rivals')" id="btn-rivals" class="coach-only tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-semibold text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-all">
+                    <i data-lucide="binoculars" class="w-4 h-4"></i>
+                    Rivals
+                </button>
                 <button onclick="switchTab('video')" id="btn-video" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-semibold text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-all">
                     <i data-lucide="clapperboard" class="w-4 h-4"></i>
                     Vídeo
@@ -577,6 +581,9 @@
         </div>
 
         <div class="coach-only shrink-0 p-3 border-t border-slate-800 bg-slate-950/40">
+            <button onclick="openPlayerPreviewPicker()" title="Veure l'app com la veu un jugador" class="w-full mb-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i>Veure com a jugador
+            </button>
             <button onclick="openStaffModal()" title="Cos tècnic" class="w-full flex items-center gap-3 mb-2.5 -mx-1 px-1 py-1 rounded-lg hover:bg-slate-800/60 transition-colors text-left">
                 <div id="app-sidebar-user-initials" class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-granate-400 shrink-0">
                     ··
@@ -851,9 +858,29 @@
                                 <p id="ph-next-match-sub" class="text-[11px] text-slate-400 mt-0.5"></p>
                             </div>
                         </div>
+                        <div id="ph-results-wrap" class="space-y-3">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <p class="text-sm font-bold text-white">Resultats</p>
+                                    <div id="ph-comp-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
+                                </div>
+                                <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold self-start">
+                                    <button onclick="setStatsPeriod('tot')" id="ph-team-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
+                                    <button onclick="setStatsPeriod('pretemporada')" id="ph-team-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
+                                    <button onclick="setStatsPeriod('lliga')" id="ph-team-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto"><div id="ph-comp-calendar" class="flex gap-3 pb-2 min-w-min"></div></div>
+                            <div id="ph-scope-bar" class="hidden flex items-center justify-between gap-3 bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-4 py-2.5">
+                                <p id="ph-scope-text" class="text-xs font-semibold text-emerald-300"></p>
+                                <button onclick="clearStatsMatch()" class="shrink-0 text-[11px] font-bold text-emerald-300 hover:text-emerald-200 underline">Torna a la temporada</button>
+                            </div>
+                        </div>
+                        <div id="ph-season" class="space-y-6">
                         <div id="ph-hero-wrap" class="hidden">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">La teva temporada</p>
                             <div id="ph-indicators"></div>
+                            <p id="ph-reading" class="mt-3 text-[11.5px] text-slate-400 leading-relaxed"></p>
                             <div id="ph-insights" class="mt-4"></div>
                             <div id="ph-obj" class="mt-4"></div>
                         </div>
@@ -895,14 +922,29 @@
                             <div id="ph-attendance" class="space-y-2"></div>
                         </div>
 
+                        </div>
+                        <div id="ph-match-panel" class="hidden space-y-6">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">El teu partit</p>
+                                <p id="phm-title" class="text-base font-bold text-white"></p>
+                                <p id="phm-sub" class="text-[11px] text-slate-400 mt-0.5 mb-3"></p>
+                                <div id="phm-tiles" class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3"></div>
+                            </div>
+                            <div id="phm-video-wrap" class="hidden">
+                                <div class="flex items-center justify-between gap-3 mb-3">
+                                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Els meus moments de vídeo d'aquest partit</p>
+                                    <span id="phm-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
+                                </div>
+                                <div id="phm-video" class="space-y-2"></div>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Els gols del partit</p>
+                                <div id="phm-goals" class="space-y-1.5"></div>
+                            </div>
+                        </div>
                         <div class="border-t border-slate-800 pt-6">
                             <div class="flex items-center justify-between gap-3 flex-wrap mb-1">
-                                <p class="text-sm font-bold text-white">Estadística d'equip</p>
-                                <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
-                                    <button onclick="setStatsPeriod('tot')" id="ph-team-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
-                                    <button onclick="setStatsPeriod('pretemporada')" id="ph-team-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
-                                    <button onclick="setStatsPeriod('lliga')" id="ph-team-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
-                                </div>
+                                <p id="ph-team-title" class="text-sm font-bold text-white">Estadística d'equip</p>
                             </div>
                             <p class="text-[11px] text-slate-500 mb-4">Dades globals de l'equip &mdash; no de cap jugador en concret.</p>
 
@@ -932,13 +974,6 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-slate-800 pt-6">
-                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                                <p class="text-sm font-bold text-white">Calendari de competició</p>
-                                <div id="ph-comp-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
-                            </div>
-                            <div class="overflow-x-auto"><div id="ph-comp-calendar" class="flex gap-3 pb-2 min-w-min"></div></div>
-                        </div>
                     </div>
                 </div>
                 <div class="coach-only space-y-6">
@@ -949,13 +984,15 @@
                 </div>
 
                 <div id="stats-wrapper" class="hidden space-y-6">
-                    <div id="stats-kpis" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5"></div>
-
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                         <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div>
                                 <h4 class="font-bold text-white text-base">Calendari de competicio</h4>
-                                <p class="text-xs text-slate-400 mt-1">Toca un partit per veure'n el detall. Filtra per període.</p>
+                                <p class="text-xs text-slate-400 mt-1">Toca un partit per veure'n el detall: tota la vista passa a aquell partit. Filtra per període.</p>
+                                <div id="stats-scope-chip" class="hidden mt-2 inline-flex items-center gap-2 text-[11px] font-bold bg-emerald-500/15 text-emerald-300 px-2.5 py-1 rounded-full">
+                                    <span id="stats-scope-text"></span>
+                                    <button onclick="closeStatsMatch()" class="underline hover:text-emerald-200">Torna a la general</button>
+                                </div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
@@ -969,6 +1006,8 @@
                         <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-3 p-6 min-w-min"></div></div>
                         <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
                     </div>
+
+                    <div id="stats-kpis" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5"></div>
 
                     <!-- MILLORA 3: Selector d'estadístiques de jugadors vs equip -->
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-4">
@@ -1421,8 +1460,8 @@
                 <!-- MILLORA 5: Càrrega individual per jugador (període seleccionat) -->
                 <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
                     <div class="flex items-center gap-2 mb-1"><span class="text-[9px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded">Període seleccionat</span></div>
-                    <h4 class="font-bold text-white text-base mb-1">Càrrega del període seleccionat</h4>
-                    <p class="text-xs text-slate-400 mb-4">UC acumulades i mitjana per sessió <strong class="text-slate-300">dins la franja de dates triada a dalt</strong> (entrenaments amb assistència P/R + partits). Ordenat per UC total.</p>
+                    <h4 id="load-table-title" class="font-bold text-white text-base mb-1">Càrrega del període seleccionat</h4>
+                    <p id="load-table-desc" class="text-xs text-slate-400 mb-4">UC acumulades i mitjana per sessió <strong class="text-slate-300">dins la franja de dates triada a dalt</strong> (entrenaments amb assistència P/R + partits). Ordenat per UC total.</p>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead class="bg-slate-950/60 text-[10px] uppercase tracking-wider text-slate-400">
@@ -1932,6 +1971,31 @@
             </section>
 
             <!-- 7 · VÍDEO -->
+            <!-- RIVALS · només per a l'entrenador -->
+            <section id="tab-rivals" class="coach-only tab-content hidden space-y-6">
+                <div id="riv-privacy-note" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 text-xs text-amber-200 leading-relaxed">
+                    <strong>Abans d'escriure-hi res:</strong> la migració de privadesa v3 encara no consta com aplicada al servidor. Fins que ho estigui, els jugadors podrien arribar a llegir les fitxes de rival des del núvol. Aplica-la (o demana-ho a Claude) i aquest avís desapareixerà.
+                </div>
+                <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold flex-wrap">
+                    <button onclick="setRivView('rivals')" id="riv-btn-rivals" class="px-3.5 py-1.5 rounded-md transition-all">Rivals</button>
+                    <button onclick="setRivView('comp')" id="riv-btn-comp" class="px-3.5 py-1.5 rounded-md transition-all">Comparatives</button>
+                    <button onclick="setRivView('analysis')" id="riv-btn-analysis" class="px-3.5 py-1.5 rounded-md transition-all">Anàlisi</button>
+                </div>
+                <div id="riv-view-rivals" class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="xl:col-span-1 space-y-3">
+                        <div class="flex gap-2">
+                            <label for="riv-add-input" class="sr-only">Afegeix un rival</label>
+                            <input id="riv-add-input" type="text" placeholder="Afegeix un rival…" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-granate-500" onkeydown="if(event.key==='Enter')addRivalManual()">
+                            <button onclick="addRivalManual()" class="shrink-0 px-3 py-2 bg-granate-600 hover:bg-granate-700 text-white text-xs font-bold rounded-lg">Afegeix</button>
+                        </div>
+                        <div id="riv-list" class="space-y-2"></div>
+                    </div>
+                    <div id="riv-detail" class="xl:col-span-2"></div>
+                </div>
+                <div id="riv-view-comp" class="hidden space-y-6"></div>
+                <div id="riv-view-analysis" class="hidden space-y-6"></div>
+            </section>
+
             <section id="tab-video" class="tab-content hidden space-y-6">
                 <div class="coach-only bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5 md:p-6">
                     <div class="flex items-start gap-3">
@@ -2659,6 +2723,26 @@
         </div>
     </div>
 
+    <div id="preview-banner" class="hidden fixed top-2 left-1/2 -translate-x-1/2 z-[75] max-w-[calc(100vw-1rem)] bg-amber-500 text-slate-950 text-xs font-bold px-3 py-2 rounded-full shadow-2xl flex items-center gap-2">
+        <i data-lucide="eye" class="w-4 h-4 shrink-0"></i>
+        <span class="truncate">Vista prèvia · com a <span id="preview-banner-name"></span> · només lectura</span>
+        <button onclick="openPlayerPreviewPicker()" class="shrink-0 px-2 py-0.5 rounded-full bg-slate-950/15 hover:bg-slate-950/25 font-bold">Canvia</button>
+        <button onclick="exitPlayerPreview()" class="shrink-0 px-2 py-0.5 rounded-full bg-slate-950 text-amber-300 hover:bg-slate-800 font-bold">Surt</button>
+    </div>
+
+    <div id="preview-picker" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70" onclick="if(event.target===this)closePlayerPreviewPicker()">
+        <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-white mb-1">Veure l'app com a jugador</h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">Veuràs exactament el que veu aquest jugador (dades filtrades, mòduls tancats). És només lectura: no es desa ni es puja res, i pots sortir-ne quan vulguis.</p>
+            <label for="preview-picker-select" class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Jugador</label>
+            <select id="preview-picker-select" class="mt-1.5 mb-5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100"></select>
+            <div class="flex gap-2">
+                <button onclick="closePlayerPreviewPicker()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-lg">Cancel·la</button>
+                <button onclick="confirmPlayerPreview()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-bold rounded-lg">Entra</button>
+            </div>
+        </div>
+    </div>
+
     <div id="offline-banner" class="hidden fixed bottom-20 md:bottom-6 left-3 md:left-6 right-3 md:right-auto z-40 max-w-md bg-slate-900 border border-amber-500/40 text-slate-100 text-xs px-4 py-3 rounded-xl shadow-2xl flex items-start gap-3">
         <i data-lucide="wifi-off" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
         <span id="offline-banner-text" class="leading-relaxed flex-1"></span>
@@ -2675,6 +2759,9 @@
             <div class="sticky top-0 z-10 bg-gradient-to-b from-slate-900 to-slate-900/95 border-b border-slate-800 p-6">
                 <button onclick="closePlayerProfile()" class="absolute top-4 right-4 w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-100 transition-all">
                     <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <button onclick="enterPlayerPreview(pmPlayerId)" title="Veure l'app com aquest jugador" class="coach-only absolute top-4 right-28 w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-amber-400 transition-all">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
                 </button>
                 <button onclick="exportPlayerPDF()" title="Descarrega informe en PDF" class="coach-only absolute top-4 right-16 w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-emerald-400 transition-all">
                     <i data-lucide="file-down" class="w-4 h-4"></i>
@@ -2773,8 +2860,34 @@
         };
         if (document.body) show(); else window.addEventListener('DOMContentLoaded', show);
     })();
-    const APP_BUILD = '2026-09-21 · Fases 1-4 completes';
+    const APP_BUILD = '2026-09-21 · Fases C+D+E (resultats, comentaris, rivals)';
     const recentErrors = [];
+
+    /* ---------------- (Fase B) Vista prèvia com a jugador: NOMÉS LECTURA ----------------
+       Mentre dura, res es desa al navegador ni es puja al núvol (totes les vies d'escriptura
+       i sincronització es tallen amb `previewMode`), i l'app treballa amb una CÒPIA filtrada
+       igual que la que rep un jugador del servidor. En sortir, es recuperen les dades reals. */
+    let previewMode = false;
+    let previewInfo = null;
+    // Ha de coincidir amb el que treu al servidor la funció `tauler_llegir` per a un jugador
+    // (vegeu supabase_migracio_privadesa*.sql). Un test compara les dues implementacions.
+    const PLAYER_VIEW_STRIP = {
+        top: ['playerNotes', 'scouting', 'convPlans', 'rivals'],
+        sociograma: ['responses'],
+        stats: ['resum', 'matrices'],
+        players: ['pin', 'pinHash', 'phone'],
+        staff: ['phone']
+    };
+    function filterPayloadForPlayer(p) {
+        const S = PLAYER_VIEW_STRIP;
+        S.top.forEach(k => { delete p[k]; });
+        const strip = (o, keys) => { if (o && typeof o === 'object' && !Array.isArray(o)) keys.forEach(k => { delete o[k]; }); };
+        strip(p.sociograma, S.sociograma);
+        strip(p.stats, S.stats);
+        if (Array.isArray(p.players)) p.players.forEach(x => strip(x, S.players));
+        if (Array.isArray(p.staff)) p.staff.forEach(x => strip(x, S.staff));
+        return p;
+    }
     function logDiagError(msg) {
         recentErrors.unshift({ at: Date.now(), msg: String(msg).slice(0, 300) });
         if (recentErrors.length > 8) recentErrors.length = 8;
@@ -2858,9 +2971,25 @@
     /* ---------------------------- utilitats ------------------------------- */
     const norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     const key  = s => norm(s).replace(/[^a-z0-9]/g, '');
+    // Nom NET de l'equip rival. Els partits arxivats guarden el text del calendari ("| Amistós vs PIA SABADELL",
+    // "Partit | Amistós vs …") i això es veia a les targetes: aquí es queda només amb l'equip que ve després de "vs".
+    function cleanRival(raw) {
+        let t = String(raw == null ? '' : raw).trim();
+        const m = t.match(/^.*\bvs\.?\s+(.+?)(?:\s*\(\d+\s*-\s*\d+\))?\s*$/i);
+        if (m) t = m[1];
+        t = t.replace(/^[\s|\-–—]+/, '').replace(/^partit\s*[|:–—-]?\s*/i, '').trim();
+        return t;
+    }
     const esc  = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     // Valor JS per posar dins d'un atribut HTML entre cometes dobles (onclick="f(${jsArg(x)})"): JSON + escapament HTML.
     // Així un nom amb apòstrof o cometes ("L'Hospitalet") ja no trenca el botó ni permet injectar atributs.
+    // Canvia el text d'un títol conservant el botó d'ajuda "?" si en té.
+    function setHeadingText(el, text) {
+        if (!el) return;
+        const btn = el.querySelector(':scope > .help-btn');
+        el.textContent = text;
+        if (btn) el.appendChild(btn);
+    }
     const jsArg = v => esc(JSON.stringify(v === undefined ? null : v));
 
     const DAY_NAMES = ['dilluns','dimarts','dimecres','dijous','divendres','dissabte','diumenge'];
@@ -3010,6 +3139,7 @@
     }
 
     function undoLastChange() {
+        if (previewMode) { toast('Vista prèvia: només lectura.'); return; }
         if (!undoStack.length) { toast('No hi ha res per desfer.'); return; }
         const prev = undoStack.pop();
         try {
@@ -3034,6 +3164,7 @@
     }
 
     function saveState() {
+        if (previewMode) return;   // vista prèvia: mai es desa
         if (!state.loaded) return;
         if (inIframe || !storageOK()) { checkEnvironment(); return; }
         try {
@@ -3065,7 +3196,7 @@
             microOrder: d.microOrder || [], weekly: d.weekly || [], indicators: d.indicators || [],
             model: d.model || [], micros: d.micros || {}, months: d.months || [],
             stats: d.stats || null, match: d.match || null, video: d.video || null, matchArchive: d.matchArchive || [],
-            sheetsFound: d.sheetsFound || [], routines: d.routines || DEFAULT_RUTINES(), routineCats: Array.isArray(d.routineCats) ? d.routineCats : null, competition: d.competition || null, competitions: d.competitions || null, fines: d.fines || null, sociograma: d.sociograma || null, convocatories: d.convocatories || null, convPlans: (d.convPlans && typeof d.convPlans === 'object') ? d.convPlans : {}, playerNotes: (d.playerNotes && typeof d.playerNotes === 'object') ? d.playerNotes : {}, scouting: (d.scouting && typeof d.scouting === 'object') ? d.scouting : {}, matchCards: (d.matchCards && typeof d.matchCards === 'object') ? d.matchCards : {}, staff: Array.isArray(d.staff) ? d.staff : [], sv: d.sv || 0, loaded: true
+            sheetsFound: d.sheetsFound || [], routines: d.routines || DEFAULT_RUTINES(), routineCats: Array.isArray(d.routineCats) ? d.routineCats : null, competition: d.competition || null, competitions: d.competitions || null, fines: d.fines || null, sociograma: d.sociograma || null, convocatories: d.convocatories || null, convPlans: (d.convPlans && typeof d.convPlans === 'object') ? d.convPlans : {}, playerNotes: (d.playerNotes && typeof d.playerNotes === 'object') ? d.playerNotes : {}, scouting: (d.scouting && typeof d.scouting === 'object') ? d.scouting : {}, matchCards: (d.matchCards && typeof d.matchCards === 'object') ? d.matchCards : {}, staff: Array.isArray(d.staff) ? d.staff : [], rivals: (d.rivals && typeof d.rivals === 'object' && !Array.isArray(d.rivals)) ? d.rivals : {}, sv: d.sv || 0, loaded: true
         });
         normalizePlayers();
         migrateState();
@@ -3228,12 +3359,13 @@
             weekly: state.weekly, indicators: state.indicators, model: state.model,
             micros: state.micros, months: state.months, stats: state.stats,
             match: state.match, video: state.video, matchArchive: state.matchArchive,
-            sheetsFound: state.sheetsFound, routines: state.routines, routineCats: state.routineCats, competition: state.competition, competitions: state.competitions, fines: state.fines, sociograma: state.sociograma, convocatories: state.convocatories, convPlans: state.convPlans, playerNotes: state.playerNotes, scouting: state.scouting, matchCards: state.matchCards, staff: state.staff
+            sheetsFound: state.sheetsFound, routines: state.routines, routineCats: state.routineCats, competition: state.competition, competitions: state.competitions, fines: state.fines, sociograma: state.sociograma, convocatories: state.convocatories, convPlans: state.convPlans, playerNotes: state.playerNotes, scouting: state.scouting, matchCards: state.matchCards, staff: state.staff, rivals: state.rivals
         };
     }
 
     const LAST_EXPORT_KEY = 'cfse-last-manual-export';
     function exportBackup() {
+        if (previewMode) { toast('Surt de la vista prèvia per exportar (ara veus dades filtrades).'); return; }
         if (!state.loaded) { backupStatus('Encara no hi ha dades per exportar.', true); return; }
         const json = JSON.stringify(currentPayload(), dateReplacer, 2);
         const blob = new Blob([json], { type: 'application/json' });
@@ -3296,6 +3428,7 @@
         return false;
     }
     function maybeAutoSnapshot(json) {
+        if (previewMode) return;
         try {
             const hist = backupHistoryList();
             const lastDaily = hist.find(h => h.kind !== 'safety');
@@ -3310,6 +3443,7 @@
     // Amb `json`: aquella versió concreta (p. ex. la del núvol, abans de sobreescriure-la).
     // Retorna true si queda guardada (o ja hi era), false si no s'ha pogut.
     function takeSafetySnapshot(reason, json) {
+        if (previewMode) return true;
         try {
             if (!json) { if (!state.loaded) return true; json = JSON.stringify(currentPayload(), dateReplacer); }
             const hist = backupHistoryList();
@@ -3362,6 +3496,7 @@
             : '<p class="text-[9px] text-slate-600">Encara no hi ha còpies automàtiques (se\'n desa una tota sola, com a molt un cop al dia, i una de seguretat abans de qualsevol acció que sobreescrigui dades).</p>';
     }
     function restoreAutoSnapshot(i) {
+        if (previewMode) { toast('Surt de la vista prèvia per restaurar còpies.'); return; }
         const hist = backupHistoryList();
         const h = hist[i]; if (!h) return;
         const quan = new Date(h.savedAt).toLocaleString('ca-ES');
@@ -3401,6 +3536,7 @@
             '',
             '--- Sincronització ---',
             'Activada: ' + (syncEnabled() ? 'sí' : 'no'),
+            'Vista prèvia com a jugador: ' + (previewMode ? 'ACTIVA (només lectura)' : 'no'),
             'Equip: ' + String(window.CFSE_EQUIP_ID || '—').slice(0, 8) + ' · rol: ' + (window.CFSE_ROL || '—'),
             'Lectura del núvol: ' + (window.__TL_LLEGIR === 'ok' ? 'per funció segura (filtra dades privades per rol)' : window.__TL_LLEGIR === 'missing' ? 'DIRECTA (migració de seguretat SQL encara no aplicada)' : 'encara no comprovada'),
             'Llibreries que no han carregat: ' + ((window.__libsMissing || []).join(', ') || 'cap'),
@@ -3453,6 +3589,7 @@
         const file = event.target.files && event.target.files[0];
         event.target.value = '';
         if (!file) return;
+        if (previewMode) { toast('Surt de la vista prèvia per importar.'); return; }
         const reader = new FileReader();
         reader.onload = e => applyImportedData(e.target.result, backupStatus);
         reader.onerror = () => backupStatus('Error llegint el fitxer.', true);
@@ -3510,6 +3647,7 @@
     const setDirtyAt = ts => { try { localStorage.setItem(storageKey(DIRTY_KEY), String(ts || 0)); } catch (e) {} try { updateOfflineBanner(); } catch (e) {} };
     // Només compta si aquest usuari pot pujar (un jugador de només lectura no té "pendents").
     function markLocalChange(ts) {
+        if (previewMode) return;
         let can = true;
         try { can = canPushSync(); } catch (e) { can = true; }   // en cas de dubte, prudència: marcar
         if (can) setDirtyAt(ts || Date.now());
@@ -3632,6 +3770,7 @@
     }
 
     function applyRemote(remoteData) {
+        if (previewMode) return;
         // Si aquí hi havia canvis locals sense pujar, aquesta baixada els descarta: primer en guardem una còpia.
         if (state.loaded && getDirtyAt() > 0 && !takeSafetySnapshot('Els teus canvis d\'aquest dispositiu, abans de baixar el núvol')) {
             toast('ATENCIÓ: no s\'ha pogut guardar la còpia de seguretat prèvia (poc espai al navegador). Convé baixar una còpia manual.');
@@ -3678,7 +3817,7 @@
     // o l'usuari ha decidit explícitament sobreescriure.
     async function pushToRemote(opts) {
         opts = opts || {};
-        if (!canPushSync()) return;
+        if (previewMode || !canPushSync()) return;
         if (!opts.skipCheck) {
             const remoteAt = await fetchRemoteSavedAt();
             if (remoteAt !== null && remoteAt !== getSyncedAt()) {
@@ -3721,6 +3860,7 @@
     // Sincronització manual completa (botó de la fletxa o en desar la config).
     // Decideix sola si cal baixar, pujar, o avisar de conflicte.
     async function syncNow() {
+        if (previewMode) return;
         if (!syncEnabled()) { syncStatus('Sense equip actiu.', 'error'); return; }
         if (syncing) return;
         syncing = true;
@@ -3768,6 +3908,7 @@
 
     // En obrir el tauler: baixa sol el que hi hagi de nou al núvol.
     async function autoSyncOnOpen() {
+        if (previewMode) return;
         if (!syncEnabled()) { refreshSyncUI(); return; }
         syncNetFail = false;
         syncStatus('Comprovant el núvol...', 'busy');
@@ -3848,6 +3989,7 @@
     // auto: cridat per un temporitzador o pel navegador; manual: l'usuari ha premut "Reintenta".
     async function syncRecover(opts) {
         opts = opts || {};
+        if (previewMode) return;
         if (syncRecovering || syncing || !syncEnabled()) { if (opts.manual && syncRecovering) toast('Ja s\'està provant de reconnectar…'); return; }
         syncRecovering = true;
         try {
@@ -3880,7 +4022,7 @@
     // Pujada automàtica mentre treballes, uns segons després del darrer canvi.
     let cloudTimer = null;
     function pushSoon() {
-        if (!syncEnabled() || !canPushSync()) return;
+        if (previewMode || !syncEnabled() || !canPushSync()) return;
         if (syncConflict) { syncStatus('Conflicte: prem la fletxa per resoldre.', 'warn'); return; }
         clearTimeout(cloudTimer);
         cloudTimer = setTimeout(async () => {
@@ -3895,6 +4037,7 @@
 
     let saveTimer = null, savePending = false;
     const saveSoon = () => {
+        if (previewMode) return;
         clearTimeout(saveTimer);
         savePending = true;
         saveTimer = setTimeout(() => { savePending = false; saveState(); pushSoon(); }, 400);
@@ -3903,7 +4046,7 @@
     // o en canviar d'equip. La pujada al núvol no es pot fer aquí (les peticions "keepalive" admeten
     // com a molt 64 KB i la còpia en fa ~400): queda marcada com a pendent i es puja en tornar.
     function flushPendingSave() {
-        if (!savePending) return;
+        if (previewMode || !savePending) return;
         clearTimeout(saveTimer); savePending = false;
         try { saveState(); } catch (e) { console.warn('flushPendingSave:', e); }
     }
@@ -3966,6 +4109,7 @@
     }
 
     function readWorkbook(file) {
+        if (previewMode) { toast('Surt de la vista prèvia per carregar fitxers.'); return; }
         // Si ja hi ha dades (potser modificades a mà), avisem: l'import
         // reconstrueix plantilla, model i calendari des de l'Excel. El canvi
         // es podrà desfer amb el botó «Desfés» perquè en guardem una fotografia.
@@ -4399,6 +4543,7 @@
 
     /* ------------------------------ render -------------------------------- */
     function renderAll() {
+        curStats = null;   // (A2) les estadístiques es recalculen a partir dels partits arxivats a cada pintat
         applyRoleUI();
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('app-content').classList.remove('hidden');
@@ -4687,8 +4832,17 @@
             return { p, total, done, avg };
         }).sort((a, b) => b.total - a.total);
 
-        const maxTotal = Math.max(1, ...rows.map(r => r.total));
-        const maxAvg = Math.max(1, ...rows.map(r => r.avg));
+        // (A1) El jugador només veu la SEVA càrrega, mai la dels companys.
+        const own = appRole === 'player';
+        const shown = own ? rows.filter(r => String(r.p.id) === String(playerSession)) : rows;
+        const heading = document.getElementById('load-table-title');
+        const desc = document.getElementById('load-table-desc');
+        setHeadingText(heading, own ? 'La teva càrrega del període seleccionat' : 'Càrrega del període seleccionat');
+        if (desc) desc.innerHTML = own
+            ? 'Les teves UC acumulades i la mitjana per sessió <strong class="text-slate-300">dins la franja de dates triada a dalt</strong> (entrenaments als quals has assistit + partits jugats).'
+            : 'UC acumulades i mitjana per sessió <strong class="text-slate-300">dins la franja de dates triada a dalt</strong> (entrenaments amb assistència P/R + partits). Ordenat per UC total.';
+        const maxTotal = Math.max(1, ...shown.map(r => r.total));
+        const maxAvg = Math.max(1, ...shown.map(r => r.avg));
         const bar = (val, max, color) => `
             <div class="flex items-center gap-2">
                 <div class="flex-1 min-w-[60px] bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -4696,14 +4850,17 @@
                 </div>
                 <span class="font-extrabold tabular-nums w-12 text-right ${val > 0 ? 'text-slate-100' : 'text-slate-600'}">${val}</span>
             </div>`;
-        const anyLoad = rows.some(r => r.total > 0);
-        tbody.innerHTML = (rows.length && anyLoad) ? rows.map(r => `
+        const ownNum = val => `<span class="font-extrabold tabular-nums text-lg ${val > 0 ? 'text-slate-100' : 'text-slate-600'}">${val}</span>`;
+        const anyLoad = shown.some(r => r.total > 0);
+        tbody.innerHTML = (shown.length && anyLoad) ? shown.map(r => `
             <tr class="hover:bg-slate-800/30" title="${r.done} ${r.done === 1 ? 'sessió' : 'sessions'} en aquesta franja">
                 <td class="p-3 text-left font-semibold text-slate-200 sticky left-0 bg-slate-900/60 z-10 whitespace-nowrap">${esc(r.p.name)}</td>
-                <td class="p-3">${bar(r.total, maxTotal, 'bg-emerald-500')}</td>
-                <td class="p-3">${bar(r.avg, maxAvg, 'bg-sky-500')}</td>
+                <td class="p-3">${own ? ownNum(r.total) : bar(r.total, maxTotal, 'bg-emerald-500')}</td>
+                <td class="p-3">${own ? ownNum(r.avg) : bar(r.avg, maxAvg, 'bg-sky-500')}</td>
             </tr>`).join('')
-            : `<tr><td colspan="3" class="p-6 text-center text-slate-500 text-xs">Cap càrrega en aquesta franja. Passa assistència als entrenaments (Plantilla &rsaquo; Control d'assistència) o amplia el rang de dates amb «Totes».</td></tr>`;
+            : (own
+                ? `<tr><td colspan="3" class="p-6 text-center text-slate-500 text-xs">Encara no tens càrrega en aquesta franja. Amplia el rang de dates amb «Totes».</td></tr>`
+                : `<tr><td colspan="3" class="p-6 text-center text-slate-500 text-xs">Cap càrrega en aquesta franja. Passa assistència als entrenaments (Plantilla &rsaquo; Control d'assistència) o amplia el rang de dates amb «Totes».</td></tr>`);
     }
 
     function renderCharts() {
@@ -4934,6 +5091,7 @@
                 <td class="p-4 text-center text-slate-300 font-semibold">${age !== null ? age : '—'}</td>
                 <td class="coach-only p-4 whitespace-nowrap text-center">
                     <div class="inline-flex items-center gap-1">
+                        <button onclick="enterPlayerPreview(${jsArg(p.id)})" title="Veure l'app com aquest jugador" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-amber-400 inline-flex items-center justify-center transition-all"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
                         <button onclick="openPlayerEditor(${jsArg(p.id)})" title="Edita" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-emerald-400 inline-flex items-center justify-center transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
                         <button onclick="togglePlayerActive(${jsArg(p.id)})" title="${baixa ? 'Reincorpora' : 'Dona de baixa'}" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-amber-400 inline-flex items-center justify-center transition-all"><i data-lucide="${baixa ? 'user-check' : 'user-minus'}" class="w-3.5 h-3.5"></i></button>
                         <button onclick="deletePlayer(${jsArg(p.id)})" title="Elimina definitivament" class="w-7 h-7 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-rose-400 inline-flex items-center justify-center transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -5250,7 +5408,8 @@
     // l'Excel com a alternativa. Centralitza l'accés perquè tots els helpers
     // llegeixin la mateixa cosa.
     let curStats = null;
-    const statsData = () => curStats || state.stats;
+    // (A2) Font única: els partits arxivats. L'Excel ja no és font d'estadístiques (només aporta el calendari de jornades).
+    const statsData = () => curStats || (curStats = effectiveStats());
 
     const statCol = (...ks) => {
         const r = statsData() && statsData().resum;
@@ -5705,7 +5864,7 @@
         const st = statsData();
         // Filtra el calendari pel periode actiu perque els KPI reflecteixin
         // el mateix subconjunt (pretemporada/lliga) que la resta de la vista.
-        const cal = (st.calendar || []).filter(c => statsPeriod === 'tot' || matchPeriod(c) === statsPeriod);
+        const cal = (st.calendar || []).filter(c => (statsPeriod === 'tot' || matchPeriod(c) === statsPeriod) && (statsMatchKey == null || c.archId === statsMatchKey));
         const played = cal.filter(c => c.gf !== null);
         const w = played.filter(c => c.res === 'V').length;
         const e = played.filter(c => c.res === 'E').length;
@@ -5737,6 +5896,39 @@
     }
 
     let statsPeriod = 'tot';
+    /* (Fase C) Àmbit de les estadístiques = període + (opcionalment) UN partit arxivat.
+       statsMatchKey = id del partit arxivat seleccionat; null = tota la temporada / el període. */
+    let statsMatchKey = null;
+    function inScopeArch(a) {
+        if (!a || !a.match) return false;
+        if (statsMatchKey != null) return a.id === statsMatchKey;
+        return statsPeriod === 'tot' || matchPeriod(a.match) === statsPeriod;
+    }
+    const archById = id => (ensureMatchArchive() || []).find(a => a && a.id === id) || null;
+    function archLabel(a) {
+        const m = (a && a.match) || {};
+        const d = m.date ? toDate(m.date) : null;
+        return (cleanRival(m.rival || (a && a.name) || '') || 'Partit') + (d ? ' · ' + d.toLocaleDateString('ca-ES', { day: '2-digit', month: 'short' }) : '');
+    }
+    function updateScopeChips() {
+        const a = statsMatchKey != null ? archById(statsMatchKey) : null;
+        const chip = document.getElementById('stats-scope-chip');
+        if (chip) { chip.classList.toggle('hidden', !a); const t = document.getElementById('stats-scope-text'); if (t) t.textContent = a ? 'Veient: ' + archLabel(a) : ''; }
+        const bar = document.getElementById('ph-scope-bar');
+        if (bar) { bar.classList.toggle('hidden', !a); const t = document.getElementById('ph-scope-text'); if (t) t.textContent = a ? 'Estàs veient el partit contra ' + archLabel(a) : ''; }
+    }
+    // Re-pinta tot el que depèn de l'àmbit (entrenador i jugador).
+    function refreshScopedViews() {
+        if (statsMatchKey != null && !archById(statsMatchKey)) statsMatchKey = null;   // el partit ja no existeix
+        renderStats();
+        if (statsMode === 'team') renderTeamStats();
+        renderPlayerTeamAggregate();
+        renderPlayerCompetitionCalendar();
+        if (appRole === 'player' && playerSession) renderPlayerHome();
+        updateScopeChips();
+    }
+    function selectStatsMatch(id) { if (statsMatchKey === id) return; statsMatchKey = id; refreshScopedViews(); }
+    function clearStatsMatch() { if (statsMatchKey == null) return; statsMatchKey = null; refreshScopedViews(); }
     let statsCalList = [];
     // Re-renderitza TOTES les seccions d'estadistica amb el periode actiu.
     // (Abans es cridava pero no estava definida: clic a Pretemporada/Lliga petava.)
@@ -5746,6 +5938,7 @@
     }
     function setStatsPeriod(p) { 
         statsPeriod = p; 
+        statsMatchKey = null;
         closeStatsMatch(); 
         renderStatsCalendar(); 
         // MILLORA 2: Refresca les altres seccions d'estadístiques
@@ -5785,7 +5978,8 @@
             const scoreTone = c.res === 'V' ? 'text-emerald-400' : c.res === 'D' ? 'text-rose-400' : c.res === 'E' ? 'text-amber-400' : 'text-slate-500';
             const topLeft = c.jornada || (c.source === 'calendar' ? 'Previst' : (c.source === 'archive' ? 'Partit' : ''));
             const per = matchPeriod(c);
-            return `<button onclick="openStatsMatch(${i})" class="shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-all">
+            const sel = c.archId && c.archId === statsMatchKey;
+            return `<button onclick="openStatsMatch(${i})" aria-pressed="${sel ? 'true' : 'false'}" class="shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-all ${sel ? 'ring-2 ring-emerald-500' : ''}">
                 <div class="flex items-center justify-between gap-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${esc(topLeft)}</span>
                     ${c.camp ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${c.camp === 'L' ? 'bg-slate-800 text-slate-300' : 'bg-slate-800/60 text-slate-400'}">${c.camp === 'L' ? 'Local' : 'Visitant'}</span>` : ''}
@@ -5813,26 +6007,14 @@
         }) || null;
     }
     // Detall per jornada llegit de les matrius de l'Excel (només lectura de valors existents).
-    function excelJornadaDetail(jkey) {
-        const sd = state.stats;
-        if (!sd || !Array.isArray(sd.matrices) || !sd.matrices.length || !jkey) return null;
-        const mats = sd.matrices.filter(m => (m.jornades || []).includes(jkey));
-        if (!mats.length) return null;
-        const names = (sd.matrices[0].rows || []).map(r => r.name);
-        const rows = names.map(name => ({
-            name,
-            vals: mats.map(m => { const r = (m.rows || []).find(x => x.name === name); return r && r.values ? r.values[jkey] : undefined; })
-        })).filter(r => r.vals.some(v => v !== undefined));
-        if (!rows.length) return null;
-        return { cols: mats.map(m => m.name), rows };
-    }
 
     function openStatsMatch(i) {
         const c = statsCalList[i]; if (!c) return;
+        const newKey = c.archId || null;
+        if (newKey !== statsMatchKey) { statsMatchKey = newKey; refreshScopedViews(); }   // tota la vista passa a aquest partit
         const panel = document.getElementById('stats-match-detail'); if (!panel) return;
         const per = matchPeriod(c);
         const arch = findArchiveForCal(c);
-        const excel = excelJornadaDetail(c.jornada);
         let html = `<div class="flex items-start justify-between gap-3 mb-4">
             <div>
                 <div class="flex items-center gap-2 flex-wrap">
@@ -5845,16 +6027,6 @@
             <button onclick="closeStatsMatch()" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg transition-all"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Torna a la general</button>
         </div>`;
         let any = false;
-        if (excel) {
-            any = true;
-            html += `<div class="mb-4">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Dades de la jornada (Excel)</p>
-                <div class="overflow-x-auto rounded-lg border border-slate-800/60"><table class="w-full text-[11px]">
-                    <thead class="bg-slate-950/60 text-[9px] uppercase tracking-wider text-slate-400"><tr><th class="p-2 text-left font-semibold">Jugador</th>${excel.cols.map(cn => `<th class="p-2 text-center font-semibold whitespace-nowrap">${esc(cn)}</th>`).join('')}</tr></thead>
-                    <tbody class="divide-y divide-slate-800/40">${excel.rows.map(r => `<tr class="hover:bg-slate-800/30"><td class="p-2 text-left font-semibold text-slate-200 whitespace-nowrap">${esc(r.name)}</td>${r.vals.map(v => `<td class="p-2 text-center text-slate-300 tabular-nums">${v === undefined ? '·' : fmt(v)}</td>`).join('')}</tr>`).join('')}</tbody>
-                </table></div>
-            </div>`;
-        }
         if (arch) {
             any = true;
             html += `<div>
@@ -5870,7 +6042,10 @@
         lucide.createIcons();
         panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    function closeStatsMatch() { const p = document.getElementById('stats-match-detail'); if (p) { p.classList.add('hidden'); p.innerHTML = ''; } }
+    function closeStatsMatch() {
+        const p = document.getElementById('stats-match-detail'); if (p) { p.classList.add('hidden'); p.innerHTML = ''; }
+        if (statsMatchKey != null) { statsMatchKey = null; refreshScopedViews(); }   // "Torna a la general"
+    }
 
     function toggleStatsColumns() {
         statsShowAll = !statsShowAll;
@@ -5918,7 +6093,7 @@
             if (!a || !a.match) return;
             const m = a.match;
             // MILLORA 2: Filtra per període seleccionat (pretemporada/lliga)
-            if (statsPeriod !== 'tot' && matchPeriod(m) !== statsPeriod) return;
+            if (!inScopeArch(a)) return;
             const snapshotNames = m.playerNames || (a.playerNames) || null;
 
             // Reuneix TOTS els ids que apareixen en aquest partit.
@@ -6027,7 +6202,7 @@
     function unifiedCalendar() {
         const homeKey = k => { k = key(k); return k.startsWith('l') || k.startsWith('casa'); };
         const slots = allMatches().map(m => ({
-            jornada: m.jornada || '', label: m.label, rival: m.rival || '', iso: m.iso || '',
+            key: m.key, jornada: m.jornada || '', label: m.label, rival: m.rival || '', iso: m.iso || '',
             date: m.date || (m.iso ? toDate(m.iso) : null), camp: m.camp || '',
             gf: (typeof m.gf === 'number' ? m.gf : null), gc: (typeof m.gc === 'number' ? m.gc : null), res: m.res || null,
             source: m.source, played: false
@@ -6042,15 +6217,15 @@
             let slot = null;
             if (m.jornada) slot = slots.find(s => !used.has(s) && (s.jornada === m.jornada || s.label === m.jornada));
             if (!slot && m.date) slot = slots.find(s => !used.has(s) && s.iso && s.iso === m.date);
-            if (!slot && m.rival) slot = slots.find(s => !used.has(s) && s.rival && s.rival.toLowerCase() === String(m.rival).toLowerCase());
+            if (!slot && m.rival) slot = slots.find(s => !used.has(s) && s.rival && cleanRival(s.rival).toLowerCase() === cleanRival(m.rival).toLowerCase());
             if (slot) {
                 used.add(slot);
-                slot.gf = gf; slot.gc = gc; slot.res = res; slot.played = true;
+                slot.gf = gf; slot.gc = gc; slot.res = res; slot.played = true; slot.archId = a.id || null;
                 if (camp) slot.camp = camp;
-                if (m.rival) slot.rival = m.rival;
+                if (m.rival) slot.rival = cleanRival(m.rival);
                 if (m.date) { slot.iso = m.date; slot.date = toDate(m.date); }
             } else {
-                slots.push({ jornada: m.jornada || '', label: m.jornada || m.rival || a.name || 'Partit', rival: m.rival || a.name || '', iso: m.date || '', date: m.date ? toDate(m.date) : null, camp, gf, gc, res, source: 'archive', played: true });
+                slots.push({ jornada: m.jornada || '', label: m.jornada || m.rival || a.name || 'Partit', rival: cleanRival(m.rival || a.name || ''), iso: m.date || '', date: m.date ? toDate(m.date) : null, camp, gf, gc, res, source: 'archive', played: true, archId: a.id || null });
             }
         });
         slots.sort((a, b) => { if (a.date && b.date) return a.date - b.date; if (a.date) return -1; if (b.date) return 1; return 0; });
@@ -6073,8 +6248,8 @@
                 jornada: m.jornada || ('J' + (arch.length - idx)),
                 iso: m.date || null,
                 date: m.date ? toDate(m.date) : null,
-                rival: m.rival || a.name || '',
-                camp, gf, gc, res
+                rival: cleanRival(m.rival || a.name || ''),
+                camp, gf, gc, res, archId: a.id || null
             };
         }).sort((a, b) => {
             if (a.date && b.date) return a.date - b.date;
@@ -6084,13 +6259,6 @@
 
     // Origen de l'estadística: 'auto' (des de Minutatge) o 'excel' (pestanya importada).
     // Per defecte auto si hi ha partits arxivats.
-    function statsSource() {
-        const hasArchive = ensureMatchArchive().length > 0;
-        const pref = localStorage.getItem('cfse-stats-source');
-        if (pref === 'excel' && state.stats && state.stats.resum) return 'excel';
-        if (pref === 'auto') return 'auto';
-        return hasArchive ? 'auto' : (state.stats ? 'excel' : 'auto');
-    }
 
     /* ============================================================
        MILLORA 3: ESTADÍSTIQUES D'EQUIP
@@ -6140,7 +6308,7 @@
         arch.forEach(a => {
             if (!a || !a.match) return;
             const m = a.match;
-            if (statsPeriod !== 'tot' && matchPeriod(m) !== statsPeriod) return;
+            if (!inScopeArch(a)) return;
             const gf = (typeof m.gf === 'number') ? m.gf : null, gc = (typeof m.gc === 'number') ? m.gc : null;
             if (gf !== null && gc !== null) { stats.matchesPlayed++; stats.totalGF += gf; stats.totalGC += gc; }
             // Els gols viuen a m.events (type 'gf'/'gc'), NO a cap m.timeline.
@@ -6168,9 +6336,9 @@
     // Igual que computePlusMinus() però amb el periode com a paràmetre explícit,
     // perquè es pugui calcular per a UN jugador concret (fitxa personal) sense
     // dependre ni alterar el periode que l'entrenador tingui seleccionat a Equip.
-    function computePlusMinusFor(period) {
+    function computePlusMinusFor(period, matchKey) {
         const filtered = (ensureMatchArchive() || []).filter(a =>
-            a && a.match && (period === 'tot' || matchPeriod(a.match) === period));
+            a && a.match && (matchKey != null ? a.id === matchKey : (period === 'tot' || matchPeriod(a.match) === period)));
         const players = {}, units = {};
         const P = pid => (players[pid] || (players[pid] = { pid: String(pid), gf: 0, gc: 0, mins: 0 }));
         filtered.forEach(a => {
@@ -6197,7 +6365,7 @@
         });
         return { players, units };
     }
-    function computePlusMinus() { return computePlusMinusFor(statsPeriod); }
+    function computePlusMinus() { return computePlusMinusFor(statsPeriod, statsMatchKey); }
 
     /* ============== FITXA DEL JUGADOR: mètriques, mitjanes, objectius ============== */
 
@@ -6424,7 +6592,7 @@
     // s'atribueix a l'estat del marcador JUST ABANS de marcar-se.
     function computeScoreState() {
         const filtered = (ensureMatchArchive() || []).filter(a =>
-            a && a.match && (statsPeriod === 'tot' || matchPeriod(a.match) === statsPeriod));
+            inScopeArch(a));
         const minutesByState = { win: 0, draw: 0, lose: 0 };
         const goalsByState = { win: { gf: 0, gc: 0 }, draw: { gf: 0, gc: 0 }, lose: { gf: 0, gc: 0 } };
         const stateOf = (gf, gc) => gf > gc ? 'win' : gf < gc ? 'lose' : 'draw';
@@ -6497,7 +6665,7 @@
     // que coincideixen amb les del Model de joc.
     function computeGoalTypology() {
         const filtered = (ensureMatchArchive() || []).filter(a =>
-            a && a.match && (statsPeriod === 'tot' || matchPeriod(a.match) === statsPeriod));
+            inScopeArch(a));
         const cats = {}; let totalGF = 0, totalGC = 0;
         const ensureCat = k => (cats[k] || (cats[k] = { gf: 0, gc: 0, subs: {} }));
         filtered.forEach(a => {
@@ -6557,7 +6725,7 @@
     // m.minutes (minutatge minut a minut); atribució ON/OFF de cada gol via onCourt.
     function computeOnOff() {
         const filtered = (ensureMatchArchive() || []).filter(a =>
-            a && a.match && (statsPeriod === 'tot' || matchPeriod(a.match) === statsPeriod));
+            inScopeArch(a));
         const P = {};
         const ensure = pid => (P[pid] || (P[pid] = { onMin: 0, offMin: 0, onGF: 0, onGC: 0, offGF: 0, offGC: 0 }));
         filtered.forEach(a => {
@@ -6644,7 +6812,7 @@
     // combinació de `size` jugadors. Filtrat pel període.
     function computeChemistry(size) {
         const filtered = (ensureMatchArchive() || []).filter(a =>
-            a && a.match && (statsPeriod === 'tot' || matchPeriod(a.match) === statsPeriod));
+            inScopeArch(a));
         const units = {};
         const U = members => { const key = members.join('|'); return units[key] || (units[key] = { members, min: 0, gf: 0, gc: 0, goals: 0 }); };
         filtered.forEach(a => {
@@ -6732,7 +6900,17 @@
         const avgGF = stats.matchesPlayed > 0 ? (stats.totalGF / stats.matchesPlayed).toFixed(2) : '0';
         const avgGC = stats.matchesPlayed > 0 ? (stats.totalGC / stats.matchesPlayed).toFixed(2) : '0';
         const diff = stats.totalGF - stats.totalGC;
+        const oneMatch = statsMatchKey != null;
         const card = (icon, label, value, cls) => `<div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-4"><div class="flex items-center gap-2 text-slate-500 mb-2"><i data-lucide="${icon}" class="w-4 h-4"></i><p class="text-[10px] font-bold uppercase tracking-wider">${label}</p></div><p class="text-3xl font-extrabold ${cls}">${value}</p></div>`;
+        if (oneMatch) {
+            const res = diff > 0 ? 'Victòria' : diff < 0 ? 'Derrota' : 'Empat';
+            trendsBox.innerHTML =
+                card('target', 'Gols a favor', String(stats.totalGF), 'text-emerald-400') +
+                card('shield', 'Gols en contra', String(stats.totalGC), 'text-rose-400') +
+                card('trending-up', 'Diferència', `${diff > 0 ? '+' : ''}${diff}`, diff > 0 ? 'text-emerald-400' : diff < 0 ? 'text-rose-400' : 'text-slate-300') +
+                card('flag', 'Resultat', res, diff > 0 ? 'text-emerald-400' : diff < 0 ? 'text-rose-400' : 'text-amber-400');
+            return;
+        }
         trendsBox.innerHTML =
             card('target', 'Gols per partit', avgGF, 'text-emerald-400') +
             card('shield', 'Gols rebuts/partit', avgGC, 'text-rose-400') +
@@ -6810,6 +6988,8 @@
     // Calendari de competició del jugador: mateixa font que la vista de
     // l'entrenador (unifiedCalendar + període), però sense obrir el detall
     // per partit (que inclou la taula per jugador de l'Excel/acta).
+    // (Fase C) Franja de RESULTATS a dalt de tot. Només mostra el resultat i l'equip rival; en tocar un partit
+    // jugat, tota la pàgina passa a aquell partit.
     function renderPlayerCompetitionCalendar() {
         const box = document.getElementById('ph-comp-calendar');
         const rec = document.getElementById('ph-comp-record');
@@ -6827,12 +7007,20 @@
             const tone = t === 'V' ? 'bg-emerald-500/15 text-emerald-400' : t === 'E' ? 'bg-amber-500/15 text-amber-400' : 'bg-rose-500/15 text-rose-400';
             return `<span class="px-2.5 py-1 rounded ${tone}">${t} ${n}</span>`;
         }).join('');
-        box.innerHTML = list.map(c => {
+        const all = statsMatchKey == null;
+        const allCard = `<button onclick="clearStatsMatch()" aria-pressed="${all}" class="shrink-0 w-32 text-left border rounded-xl p-3.5 transition-all ${all ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/40 hover:border-emerald-500/40'}">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${statsPeriod === 'tot' ? 'Temporada' : esc(PERIOD_LABEL[statsPeriod])}</p>
+                <p class="text-xs font-bold text-white mt-2 leading-snug">Tots els partits</p>
+                <p class="text-xl font-black text-slate-200 mt-2">${played.length}<span class="text-[10px] font-semibold text-slate-500"> jugats</span></p>
+            </button>`;
+        box.innerHTML = allCard + list.map(c => {
             const tone = c.res === 'V' ? 'border-emerald-500/40 bg-emerald-500/5' : c.res === 'D' ? 'border-rose-500/40 bg-rose-500/5' : c.res === 'E' ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-800 bg-slate-950/40';
             const scoreTone = c.res === 'V' ? 'text-emerald-400' : c.res === 'D' ? 'text-rose-400' : c.res === 'E' ? 'text-amber-400' : 'text-slate-500';
             const topLeft = c.jornada || (c.source === 'calendar' ? 'Previst' : (c.source === 'archive' ? 'Partit' : ''));
             const per = matchPeriod(c);
-            return `<div class="shrink-0 w-40 border ${tone} rounded-xl p-3.5">
+            const clickable = !!c.archId;
+            const sel = clickable && c.archId === statsMatchKey;
+            const inner = `
                 <div class="flex items-center justify-between gap-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${esc(topLeft)}</span>
                     ${c.camp ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${c.camp === 'L' ? 'bg-slate-800 text-slate-300' : 'bg-slate-800/60 text-slate-400'}">${c.camp === 'L' ? 'Local' : 'Visitant'}</span>` : ''}
@@ -6842,10 +7030,70 @@
                     <p class="text-[10px] text-slate-500">${c.date ? c.date.toLocaleDateString('ca-ES', { day: '2-digit', month: 'short' }) : 'Sense data'}</p>
                     ${per !== 'altre' ? `<span class="text-[8px] font-bold px-1.5 py-0.5 rounded ${periodBadgeCls[per]}">${PERIOD_LABEL[per]}</span>` : ''}
                 </div>
-                <p class="text-xl font-black ${scoreTone} mt-2">${c.gf !== null ? `${c.gf}<span class="text-slate-600 mx-0.5">-</span>${c.gc}` : '<span class="text-sm font-bold text-slate-500">Previst</span>'}</p>
-            </div>`;
+                <p class="text-xl font-black ${scoreTone} mt-2">${c.gf !== null ? `${c.gf}<span class="text-slate-600 mx-0.5">-</span>${c.gc}` : '<span class="text-sm font-bold text-slate-500">Previst</span>'}</p>`;
+            return clickable
+                ? `<button onclick="selectStatsMatch(${jsArg(c.archId)})" aria-pressed="${sel}" class="shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-all ${sel ? 'ring-2 ring-emerald-500' : ''}">${inner}</button>`
+                : `<div class="shrink-0 w-40 border ${tone} rounded-xl p-3.5 opacity-80">${inner}</div>`;
         }).join('');
+        updateScopeChips();
     }
+
+    // ---- Vista d'UN partit per al jugador: l'equip + la seva pròpia participació (cap dada individual de companys) ----
+    function playerMatchLine(a, pid) {
+        const m = (a && a.match) || {}; const id = String(pid);
+        const min = minutesInArchive(m, id);
+        let gols = 0, assist = 0, gf = 0, gc = 0;
+        (m.events || []).forEach(e => {
+            if (e.type !== 'gf' && e.type !== 'gc') return;
+            const onc = (e.payload && Array.isArray(e.payload.onCourt)) ? e.payload.onCourt.map(String) : [];
+            if (onc.includes(id)) { if (e.type === 'gf') gf++; else gc++; }
+            if (e.type === 'gf' && e.payload) {
+                if (String(e.payload.scorer) === id) gols++;
+                if (String(e.payload.assist) === id) assist++;
+            }
+        });
+        return { min, gols, assist, gf, gc, pm: gf - gc };
+    }
+    // Cronologia de gols amb golejador i assistent (públic dins l'equip). Res més de cap company.
+    function matchGoalsRows(a) {
+        const m = (a && a.match) || {}; const names = m.playerNames || (a && a.playerNames) || {};
+        const nm = id => { if (id == null || id === '') return ''; const p = playerById(id); return p ? p.name : (names[String(id)] || ''); };
+        const evs = (m.events || []).filter(e => e.type === 'gf' || e.type === 'gc')
+            .slice().sort((x, y) => (evGlobalMin(m, x) - evGlobalMin(m, y)) || ((x.at || 0) - (y.at || 0)));
+        let sgf = 0, sgc = 0;
+        return evs.map(e => {
+            const isGF = e.type === 'gf'; if (isGF) sgf++; else sgc++;
+            const pl = e.payload || {};
+            return { gf: isGF, min: evGlobalMin(m, e), score: sgf + '-' + sgc, scorer: isGF ? nm(pl.scorer) : '', assist: isGF ? nm(pl.assist) : '', cat: goalClassLabel(pl.cat, pl.sub) };
+        });
+    }
+    function videoGroupIsMatch(g, a) {
+        const m = (a && a.match) || {};
+        const gn = norm(g.name || ''), an = norm((a && a.name) || ''), rv = norm(cleanRival(m.rival || ''));
+        return (!!an && gn === an) || (rv.length >= 3 && gn.includes(rv));
+    }
+    function renderPlayerMatchPanel(p, a) {
+        const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+        const m = a.match || {};
+        const d = m.date ? toDate(m.date) : null;
+        set('phm-title', esc((cleanRival(m.rival || a.name || '') || 'Partit') + (typeof m.gf === 'number' && typeof m.gc === 'number' ? ' · ' + m.gf + '-' + m.gc : '')));
+        set('phm-sub', esc((d ? d.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Sense data') + (m.camp ? ' · ' + (homeKeyOf(m.camp) ? 'Local' : 'Visitant') : '')));
+        const l = playerMatchLine(a, p.id);
+        const tile = (label, value, cls) => `<div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3"><p class="text-[9px] font-bold uppercase tracking-wider text-slate-500">${label}</p><p class="text-2xl font-extrabold ${cls} mt-1">${value}</p></div>`;
+        set('phm-tiles', (l.min > 0 || l.gols || l.assist)
+            ? tile('Minuts', l.min, 'text-white') + tile('Gols', l.gols, 'text-emerald-400') + tile('Assistències', l.assist, 'text-emerald-400') +
+              tile('Gols amb tu a pista', `<span class="text-emerald-400">${l.gf}</span><span class="text-slate-600"> / </span><span class="text-rose-400">${l.gc}</span>`, 'text-white')
+            : `<p class="col-span-full text-xs text-slate-500">No consta que hagis jugat minuts en aquest partit.</p>`);
+        const rows = matchGoalsRows(a);
+        set('phm-goals', rows.length ? rows.map(r => `<div class="flex items-start gap-3 bg-slate-950/40 border border-slate-800/60 rounded-lg px-3 py-2">
+                <span class="w-9 shrink-0 text-[10px] font-bold text-slate-500 pt-0.5">${r.min}'</span>
+                <span class="shrink-0 w-10 text-center text-[11px] font-extrabold ${r.gf ? 'text-emerald-400' : 'text-rose-400'}">${esc(r.score)}</span>
+                <div class="min-w-0 flex-1"><p class="text-xs font-semibold text-white">${r.gf ? (r.scorer ? 'Gol de ' + esc(r.scorer) : 'Gol de l\'equip') : 'Gol encaixat'}</p>
+                <p class="text-[10px] text-slate-500">${r.assist ? 'Assistència: ' + esc(r.assist) + (r.cat ? ' · ' : '') : ''}${esc(r.cat)}</p></div></div>`).join('')
+            : `<p class="text-xs text-slate-500">Cap gol registrat en aquest partit.</p>`);
+        renderProfileVideo(p, 'phm');
+    }
+    const homeKeyOf = k => { k = key(k); return k.startsWith('l') || k.startsWith('casa'); };
 
     function renderTeamCharts(stats, prefix) {
         if (typeof Chart === 'undefined') return;
@@ -6914,10 +7162,7 @@
 
     // Estadística efectiva que faran servir els renderers.
     function effectiveStats() {
-        if (statsSource() === 'auto') {
-            return { resum: computeSeasonStats(), calendar: computeSeasonCalendar(), matrices: [], _auto: true };
-        }
-        return state.stats;
+        return { resum: computeSeasonStats(), calendar: computeSeasonCalendar(), matrices: [], _auto: true };
     }
 
     function renderStatsResum() {
@@ -6928,13 +7173,13 @@
         if (!r || !r.rows.length) {
             document.getElementById('stats-count-label').innerText = eff && eff._auto
                 ? 'Encara no hi ha partits arxivats. Arxiva un partit des de Minutatge per veure l\'estadística acumulada.'
-                : 'No s\'ha trobat el bloc RESUM DE LA TEMPORADA.';
+                : 'Encara no hi ha partits arxivats.';
             document.getElementById('stats-head-row').innerHTML = '';
             document.getElementById('stats-table-body').innerHTML = '';
             sel.innerHTML = '';
             return;
         }
-        document.getElementById('stats-count-label').innerText = `${r.rows.length} jugadors · ${r.columns.length} mètriques calculades a l'Excel`;
+        document.getElementById('stats-count-label').innerText = `${r.rows.length} jugadors · ${r.columns.length} mètriques calculades amb els partits arxivats`;
 
         const prev = sel.value;
         sel.innerHTML = r.numeric.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
@@ -8816,7 +9061,7 @@
             // Ignora les jornades buides del calendari (files J1..J30 sense rival, data ni resultat).
             if (!(c.rival || c.date || typeof c.gf === 'number')) return;
             const label = (c.jornada ? c.jornada : 'Partit') + (c.rival ? ' · ' + c.rival : '');
-            out.push({ key: c.jornada || c.iso || label, jornada: c.jornada || '', rival: c.rival || '', iso: c.iso || '', date: c.date || null, camp: c.camp || '', gf: c.gf, gc: c.gc, res: c.res, source: 'stats', label, selValue: c.jornada || c.iso || label, selText: label });
+            out.push({ key: c.jornada || c.iso || label, jornada: c.jornada || '', rival: c.rival || '', iso: c.iso || '', date: c.date || null, camp: c.camp || '', gf: null, gc: null, res: null, source: 'stats', label, selValue: c.jornada || c.iso || label, selText: label });
             if (c.iso) byIso.add(c.iso);
         });
         (state.sessions || []).forEach(s => {
@@ -8944,6 +9189,7 @@
     }
 
     function openPlayerProfile(id) {
+        curStats = null;
         const p = playerById(id);
         if (!p) return;
         pmPlayerId = String(id);
@@ -9269,6 +9515,20 @@
     // "La temporada": indicadors (Ofensiu/Defensiu/Impacte/Forma) comparats amb
     // l'equip + conclusions automàtiques + objectius. Compartit entre la fitxa
     // de l'entrenador (Plantilla) i la del jugador (el seu propi perfil).
+    // (Fase D · D3) Frase calculada amb les dades del jugador. Sempre diu quants partits hi ha darrere.
+    function playerReading(pmet, team, ga40, gc40, pm40) {
+        if (!pmet || !pmet.partits) return 'Encara no tens partits arxivats. Quan n\'hi hagi, aquí trobaràs una lectura del teu rendiment.';
+        const f1 = n => Number(n).toFixed(1).replace('.', ',');
+        const cmp = (v, avg, higherIsBetter) => { const d = higherIsBetter ? v - avg : avg - v; return d > 0.05 ? 'millor que' : d < -0.05 ? 'pitjor que' : 'en la línia de'; };
+        const out = [`Has jugat ${pmet.partits} partit${pmet.partits === 1 ? '' : 's'} (${pmet.minuts} minuts).`];
+        if (pmet.partits < 3) out.push('És una mostra petita: les xifres poden canviar molt amb un sol partit.');
+        if (team && team.n > 0) {
+            out.push(`En atac (gols + assistències cada 40'): ${f1(ga40)}, ${cmp(ga40, team.ga40, true)} la mitjana de l'equip (${f1(team.ga40)}).`);
+            out.push(`En defensa, amb tu a pista l'equip ha rebut ${f1(gc40)} gols cada 40', ${cmp(gc40, team.gc40, false)} la mitjana (${f1(team.gc40)}; com més baix, millor).`);
+        }
+        out.push(`El balanç de gols amb tu a pista és ${pm40 >= 0 ? '+' : ''}${f1(pm40)} cada 40'.`);
+        return out.join(' ');
+    }
     function renderProfileHero(p, prefix) {
         prefix = prefix || 'pm';
         const wrap = document.getElementById(prefix + '-hero-wrap');
@@ -9312,6 +9572,9 @@
                 ${formHTML}
             </div>
         </div>`;
+
+        const rd = document.getElementById(prefix + '-reading');
+        if (rd) rd.textContent = playerReading(pmet, team, ga40, gc40, pm40);
 
         if (insEl) {
             const insights = playerInsights(p.id);
@@ -9396,7 +9659,8 @@
         const box = document.getElementById(prefix + '-video');
         const badge = document.getElementById(prefix + '-video-badge');
         if (!wrap || !box) return;
-        const groups = playerVideoGroups(p.id);
+        let groups = playerVideoGroups(p.id);
+        if (prefix === 'phm') { const am = statsMatchKey != null ? archById(statsMatchKey) : null; groups = am ? groups.filter(g => videoGroupIsMatch(g, am)) : []; }
         if (!groups.length) { wrap.classList.add('hidden'); box.innerHTML = ''; pmMoments = []; return; }
         // Tots els partits plegats d'inici; l'usuari desplega el que vulgui.
         let total = 0, goals = 0;
@@ -11307,7 +11571,7 @@
 
     /* ------------------------------ navegació ----------------------------- */
     function switchTab(tabId) {
-        if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories')) tabId = 'estadistica';
+        if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'estadistica';
         if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'estadistica';
         closeSidebar();
         document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
@@ -11319,12 +11583,14 @@
         if (tabId === 'multes') { renderFines(); pullLatestQuietly(); }
         if (tabId === 'sociograma') renderSociograma();
         if (tabId === 'convocatories') renderConvocatories();
+        if (tabId === 'rivals') renderRivals();
         if (tabId === 'calendari') { resetCalWeekToToday(); renderCalendar(); }
         if (tabId === 'estadistica') { if (appRole === 'player') { renderPlayerHome(); renderStats(); setStatsMode('team'); } else renderStats(); }
         if (tabId === 'plantilla') renderSquad();
         if (tabId === 'carregues') { renderPlayerLoadTable(); renderPlayerLoads(); }
         if (tabId === 'model') renderModel();
 
+        enhanceHelp();
         document.querySelectorAll('.tab-btn').forEach(b => {
             b.classList.remove('bg-granate-600', 'text-white', 'shadow-lg', 'shadow-granate-900/40');
             b.classList.add('text-slate-400', 'hover:text-slate-100', 'hover:bg-slate-800/60');
@@ -11347,6 +11613,7 @@
             competicio:  ['Competició interna', 'Classificació entre jugadors segons els punts dels entrenaments.'],
             multes:      ['Multes', 'Normes de convivència i registre de multes de l\'equip.'],
             sociograma:  ['Sociograma', 'Estat de les relacions interpersonals de l\'equip a partir de formularis i eleccions entre companys.'],
+            rivals:      ['Rivals', 'Fitxa de cada rival, comparatives i anàlisi dels nostres partits. Només per a l\'entrenador.'],
             convocatories: ['Convocatòries', 'Registre de convocats i no convocats per jornada, amb el motiu i l\'històric per preparar les properes.']
         };
         if (titles[tabId]) {
@@ -12172,6 +12439,7 @@
     let quietPulling = false;
     async function pullLatestQuietly(opts) {
         opts = opts || {};
+        if (previewMode) return;
         if (!syncEnabled()) { updateFinesSyncBadge(null); if (opts.manual) toast('La sincronització no està activada per aquest tauler.'); return; }
         if (quietPulling) return;
         quietPulling = true;
@@ -12843,6 +13111,7 @@
     }
 
     function renderPlayerHome() {
+        curStats = null;
         const card = document.getElementById('player-stats');
         if (!card) return;
         const p = playerSession ? playerById(playerSession) : null;
@@ -12877,7 +13146,16 @@
         renderProfileAttendance('ph', p.id);
         renderPlayerTeamAggregate();
         renderPlayerCompetitionCalendar();
+        // (Fase C) Amb un partit seleccionat: es veu el partit; sense, la temporada.
+        const am = statsMatchKey != null ? archById(statsMatchKey) : null;
+        const season = document.getElementById('ph-season'), mp = document.getElementById('ph-match-panel');
+        if (season) season.classList.toggle('hidden', !!am);
+        if (mp) mp.classList.toggle('hidden', !am);
+        setHeadingText(document.getElementById('ph-team-title'), am ? 'Estadística de l\'equip en aquest partit' : 'Estadística d\'equip');
+        if (am) renderPlayerMatchPanel(p, am);
+        updateScopeChips();
         lucide.createIcons();
+        enhanceHelp();
     }
 
 
@@ -14518,10 +14796,439 @@
         } catch (e) { /* mai ha de trencar l'app */ }
     }
     function setupA11y() {
-        enhanceA11y();
+        enhanceA11y(); enhanceHelp();
         if (typeof MutationObserver === 'undefined' || !document.body) return;
-        new MutationObserver(() => { clearTimeout(a11yTimer); a11yTimer = setTimeout(() => enhanceA11y(), 500); })
+        new MutationObserver(() => { clearTimeout(a11yTimer); a11yTimer = setTimeout(() => { enhanceA11y(); enhanceHelp(); }, 500); })
             .observe(document.body, { childList: true, subtree: true });
+    }
+
+    /* ======================= (Fase E) RIVALS · comparatives · anàlisi (només entrenador) =======================
+       Res d'aquí viatja als jugadors: la clau `rivals` la treu el servidor (tauler_llegir) i el mòdul és sempre tancat als jugadors. */
+    const ensureRivals = () => { if (!state.rivals || typeof state.rivals !== 'object' || Array.isArray(state.rivals)) state.rivals = {}; return state.rivals; };
+    /* Posa-ho a true quan la migració SQL v3 (que tanca la clau `rivals` als jugadors) estigui aplicada a Supabase. */
+    const RIVALS_PRIVACY_MIGRATION_APPLIED = true;
+    let rivView = 'rivals', rivSelected = null;
+    const RIV_FIELDS = [
+        ['sistema', 'Sistema de joc', 'Ex.: 4-0 rotatiu, 3-1, pivot fix…'],
+        ['estil', 'Com juga', 'Ritme, pressió, transicions, fortaleses…'],
+        ['jugadorsClau', 'Jugadors clau', 'Dorsals o noms i què fan bé'],
+        ['abp', 'Pilota aturada (ABP)', 'Córners, bandes, faltes: com les executen'],
+        ['porter', 'Porter', 'Punts forts i febles, joc amb els peus…'],
+        ['fortes', 'Punts forts', ''],
+        ['febles', 'Punts febles', ''],
+        ['notes', 'Notes', '']
+    ];
+    function playedMatchesCal() { return unifiedCalendar().filter(c => c.gf !== null && c.gc !== null); }
+    function rivalsIndex() {
+        const map = {};
+        unifiedCalendar().forEach(c => {
+            const nm = cleanRival(c.rival); if (!nm) return;
+            const k = key(nm); if (!k) return;
+            (map[k] = map[k] || { key: k, name: nm, matches: [] }).matches.push(c);
+        });
+        Object.entries(ensureRivals()).forEach(([k, v]) => {
+            const r = (map[k] = map[k] || { key: k, name: (v && v.name) || k, matches: [] });
+            if (v && v.name) r.name = v.name;
+        });
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const list = Object.values(map).map(r => {
+            const played = r.matches.filter(c => c.gf !== null && c.gc !== null);
+            const upcoming = r.matches.filter(c => !(c.gf !== null && c.gc !== null) && c.date && c.date >= today).sort((a, b) => a.date - b.date);
+            const rec = { V: 0, E: 0, D: 0 }; played.forEach(c => { if (rec[c.res] != null) rec[c.res]++; });
+            return Object.assign(r, { played, upcoming, rec, next: upcoming[0] || null });
+        });
+        list.sort((a, b) => (a.next ? 0 : 1) - (b.next ? 0 : 1) || (a.next && b.next ? a.next.date - b.next.date : 0) || (b.played.length - a.played.length) || a.name.localeCompare(b.name, 'ca'));
+        return list;
+    }
+    const fmtRivDate = d => d ? d.toLocaleDateString('ca-ES', { day: '2-digit', month: 'short' }) : 'Sense data';
+    const fmt1 = n => (Math.round(n * 10) / 10).toString().replace('.', ',');
+    const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt1(Math.abs(n));
+    function setRivView(v) { rivView = v; renderRivals(); }
+    function selectRival(k) { rivSelected = k; renderRivals(); }
+    function addRivalManual() {
+        const inp = document.getElementById('riv-add-input'); if (!inp) return;
+        const name = cleanRival(inp.value); if (!name) { toast('Escriu el nom del rival.'); return; }
+        const k = key(name); if (!k) return;
+        const r = ensureRivals();
+        if (!r[k]) r[k] = { name, updatedAt: Date.now() };
+        inp.value = ''; rivSelected = k; saveSoon(); renderRivals();
+    }
+    function setRivalField(k, field, val) {
+        const r = ensureRivals();
+        const cur = r[k] || (r[k] = { name: (rivalsIndex().find(x => x.key === k) || {}).name || k });
+        cur[field] = String(val || '').trim(); cur.updatedAt = Date.now();
+        saveSoon();
+    }
+    // ---- anàlisi d'un conjunt de partits arxivats (independent del filtre de l'Estadística) ----
+    function analyzeArchives(arr) {
+        const out = { n: 0, gf: 0, gc: 0, cat: {}, per: { '0-10': { gf: 0, gc: 0 }, '10-20': { gf: 0, gc: 0 }, '20-30': { gf: 0, gc: 0 }, '30-40': { gf: 0, gc: 0 } }, half: { 1: { gf: 0, gc: 0 }, 2: { gf: 0, gc: 0 } } };
+        (arr || []).forEach(a => {
+            const m = a && a.match; if (!m) return; out.n++;
+            (m.events || []).forEach(e => {
+                if (!e || (e.type !== 'gf' && e.type !== 'gc')) return;
+                const isGF = e.type === 'gf'; const side = isGF ? 'gf' : 'gc';
+                out[side]++;
+                const cat = (e.payload && e.payload.cat) || 'sense'; (out.cat[cat] = out.cat[cat] || { gf: 0, gc: 0 })[side]++;
+                const g = eventGlobalMinute(m, e); const per = g <= 10 ? '0-10' : g <= 20 ? '10-20' : g <= 30 ? '20-30' : '30-40'; out.per[per][side]++;
+                out.half[(Number(e.half) === 2) ? 2 : 1][side]++;
+            });
+        });
+        return out;
+    }
+    const catLabel = k => (k === 'sense' ? 'Sense classificar' : (GOAL_CATS[k] ? GOAL_CATS[k].label : k));
+    const smallTag = n => n < 3 ? `<span class="ml-1.5 text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">mostra petita · ${n} partit${n === 1 ? '' : 's'}</span>` : '';
+    // Punts a treballar (màxim 3), sempre amb la mostra al costat. Regles simples i explícites.
+    function analysisInsights(an) {
+        const out = []; if (!an.n || (an.gf + an.gc) === 0) return out;
+        const sh = (n, t) => Math.round(n / t * 100);
+        if (an.gc >= 3) {
+            const top = Object.entries(an.cat).filter(([k]) => k !== 'sense').sort((a, b) => b[1].gc - a[1].gc)[0];
+            if (top && top[1].gc >= 3 && sh(top[1].gc, an.gc) >= 30) out.push({ tone: 'rose', text: `El ${sh(top[1].gc, an.gc)}% dels gols encaixats (${top[1].gc} de ${an.gc}) són de «${catLabel(top[0])}». Pot valer la pena treballar-ho.` });
+        }
+        if (an.gf >= 3) {
+            const top = Object.entries(an.cat).filter(([k]) => k !== 'sense').sort((a, b) => b[1].gf - a[1].gf)[0];
+            if (top && top[1].gf >= 3 && sh(top[1].gf, an.gf) >= 30) out.push({ tone: 'emerald', text: `El ${sh(top[1].gf, an.gf)}% dels gols marcats (${top[1].gf} de ${an.gf}) són de «${catLabel(top[0])}»: és el que millor ens funciona.` });
+        }
+        if (an.gc >= 4) {
+            const w = Object.entries(an.per).sort((a, b) => b[1].gc - a[1].gc)[0];
+            if (w && w[1].gc >= 3) out.push({ tone: 'amber', text: `La franja dels minuts ${w[0].replace('-', ' a ')} és on més gols encaixem (${w[1].gc} de ${an.gc}).` });
+        }
+        return out.slice(0, 3);
+    }
+    // ---- pintat ----
+    function renderRivals() {
+        const btn = (id, on) => { const b = document.getElementById('riv-btn-' + id); if (b) b.className = `px-3.5 py-1.5 rounded-md transition-all ${on ? 'bg-emerald-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-100'}`; };
+        ['rivals', 'comp', 'analysis'].forEach(v => { btn(v, rivView === v); const el = document.getElementById('riv-view-' + v); if (el) el.classList.toggle('hidden', rivView !== v); });
+        const pn = document.getElementById('riv-privacy-note'); if (pn) pn.classList.toggle('hidden', RIVALS_PRIVACY_MIGRATION_APPLIED);
+        if (rivView === 'rivals') renderRivalList();
+        else if (rivView === 'comp') renderComparatives();
+        else renderAnalysis();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        enhanceA11y();
+    }
+    function renderRivalList() {
+        const list = rivalsIndex();
+        if (rivSelected && !list.some(r => r.key === rivSelected)) rivSelected = null;
+        if (!rivSelected && list.length) rivSelected = list[0].key;
+        const box = document.getElementById('riv-list'); if (!box) return;
+        box.innerHTML = list.length ? list.map(r => {
+            const f = ensureRivals()[r.key] || {}; const filled = RIV_FIELDS.filter(x => f[x[0]]).length;
+            const sel = r.key === rivSelected;
+            return `<button onclick="selectRival(${jsArg(r.key)})" aria-pressed="${sel}" class="w-full text-left rounded-xl border p-3.5 transition-all ${sel ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-slate-800 bg-slate-900/70 hover:border-slate-600'}">
+                <div class="flex items-center justify-between gap-2"><p class="text-sm font-bold text-white truncate">${esc(r.name)}</p>${filled ? `<span class="shrink-0 w-2 h-2 rounded-full bg-emerald-400" title="Fitxa amb dades"></span>` : ''}</div>
+                <p class="text-[11px] text-slate-400 mt-1">${r.played.length ? `${r.played.length} jugat${r.played.length === 1 ? '' : 's'} · V${r.rec.V} E${r.rec.E} D${r.rec.D}` : 'Encara no hi hem jugat'}${r.next ? ` · proper: ${fmtRivDate(r.next.date)}` : ''}</p>
+            </button>`;
+        }).join('') : `<p class="text-xs text-slate-500">Encara no hi ha rivals. Afegeix-ne un a dalt o arxiva partits.</p>`;
+        renderRivalDetail(list.find(r => r.key === rivSelected));
+    }
+    function renderRivalDetail(r) {
+        const box = document.getElementById('riv-detail'); if (!box) return;
+        if (!r) { box.innerHTML = `<div class="bg-slate-900/80 rounded-2xl p-8 text-center text-sm text-slate-500">Selecciona un rival.</div>`; return; }
+        const f = ensureRivals()[r.key] || {};
+        const arch = r.played.map(c => c.archId ? archById(c.archId) : null).filter(Boolean);
+        const an = analyzeArchives(arch);
+        const panel = (title, inner) => `<div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">${title}</p>${inner}</div>`;
+        const tone = t => t === 'V' ? 'text-emerald-400' : t === 'D' ? 'text-rose-400' : 'text-amber-400';
+        // historial
+        const hist = r.played.length ? `<div class="space-y-1.5">${r.played.map(c => `<div class="flex items-center gap-3 bg-slate-950/40 border border-slate-800/60 rounded-lg px-3 py-2">
+                <span class="w-14 shrink-0 text-[11px] text-slate-400">${fmtRivDate(c.date)}</span>
+                <span class="w-14 shrink-0 text-[10px] font-bold text-slate-400">${c.camp === 'L' ? 'Local' : c.camp === 'V' ? 'Visitant' : ''}</span>
+                <span class="flex-1 text-sm font-extrabold ${tone(c.res)}">${c.gf}<span class="text-slate-600 mx-0.5">-</span>${c.gc}</span>
+                ${c.archId ? `<button onclick="selectStatsMatch(${jsArg(c.archId)}); switchTab('estadistica')" class="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 underline">Veure el partit</button>` : ''}</div>`).join('')}</div>` : `<p class="text-xs text-slate-500">Encara no hi hem jugat.</p>`;
+        // com ens fa mal / com li fem mal
+        let how = '';
+        if (an.n) {
+            const rows = Object.entries(an.cat).sort((a, b) => (b[1].gf + b[1].gc) - (a[1].gf + a[1].gc));
+            how = `<div class="overflow-x-auto"><table class="w-full text-xs"><thead class="text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="py-1.5 text-left">Tipus de gol</th><th class="py-1.5 text-center">A favor</th><th class="py-1.5 text-center">En contra</th></tr></thead><tbody class="divide-y divide-slate-800/60">${rows.map(([k, v]) => `<tr><td class="py-1.5 text-slate-300">${esc(catLabel(k))}</td><td class="py-1.5 text-center font-bold text-emerald-400">${v.gf}</td><td class="py-1.5 text-center font-bold text-rose-400">${v.gc}</td></tr>`).join('')}</tbody></table></div>
+                <p class="text-[11px] text-slate-500 mt-2">${an.gf} marcats · ${an.gc} encaixats en ${an.n} partit${an.n === 1 ? '' : 's'}${smallTag(an.n)}</p>`;
+        } else how = `<p class="text-xs text-slate-500">Quan hi hagi partits arxivats contra aquest rival, aquí veuràs com ens ha fet mal i com li hem fet mal.</p>`;
+        // preparació del proper partit
+        let prep = '';
+        if (r.next) {
+            const c = r.next; const k = c.key || c.iso;
+            const mc = (state.matchCards && state.matchCards[k]) || {}; const pl = (state.convPlans && state.convPlans[k]) || null; const sc = (state.scouting && state.scouting[k]) || null;
+            const line = (l, v) => v ? `<div><p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${l}</p><p class="text-xs text-slate-200 mt-0.5 whitespace-pre-wrap">${esc(v)}</p></div>` : '';
+            const arr = a => (Array.isArray(a) ? a.filter(Boolean).join(' · ') : '');
+            prep = `<p class="text-sm font-bold text-white">${fmtRivDate(c.date)} · ${c.camp === 'L' ? 'Local' : c.camp === 'V' ? 'Visitant' : 'Camp per confirmar'}${mc.horaConv ? ' · convocatòria a les ' + esc(mc.horaConv) : ''}${mc.pavello ? ' · ' + esc(mc.pavello) : ''}</p>
+                <div class="space-y-2.5 mt-3">${line('Context', pl && pl.context)}${line('Sobre el rival (pla)', pl && pl.rival)}${line('Rotacions', pl && [pl.rot1, pl.rot2, pl.rot3].filter(Boolean).join(' · '))}${line('Objectius en atac', pl && arr(pl.atk))}${line('Objectius en defensa', pl && arr(pl.def))}
+                ${sc && Array.isArray(sc.points) && sc.points.length ? `<div><p class="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Scouting</p><ul class="mt-1 space-y-1">${sc.points.map(p => `<li class="text-xs text-slate-200 flex gap-2"><span class="text-indigo-400">•</span>${esc(p)}</li>`).join('')}</ul></div>` : ''}</div>
+                <button onclick="convActiveJornada = ${jsArg(k)}; switchTab('convocatories')" class="mt-3 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 underline">Edita el pla i el scouting a Convocatòries</button>`;
+        } else prep = `<p class="text-xs text-slate-500">No hi ha cap partit previst contra aquest rival al calendari.</p>`;
+        const fields = RIV_FIELDS.map(([fk, label, ph]) => `<div><label for="riv-f-${fk}" class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${label}</label>
+            <textarea id="riv-f-${fk}" rows="${fk === 'notes' ? 3 : 2}" placeholder="${esc(ph)}" onchange="setRivalField(${jsArg(r.key)}, ${jsArg(fk)}, this.value)" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-granate-500 resize-none">${esc(f[fk] || '')}</textarea></div>`).join('');
+        box.innerHTML = `<div class="space-y-4">
+            <div class="bg-slate-900/80 rounded-2xl p-5"><h3 class="text-lg font-extrabold text-white">${esc(r.name)}</h3><p class="text-xs text-slate-400 mt-1">${r.played.length ? `${r.played.length} partit${r.played.length === 1 ? '' : 's'} jugat${r.played.length === 1 ? '' : 's'} · V${r.rec.V} E${r.rec.E} D${r.rec.D}` : 'Encara no hi hem jugat'}${r.next ? ` · proper partit: ${fmtRivDate(r.next.date)}` : ''}</p></div>
+            ${panel('Preparació del proper partit', prep)}
+            ${panel('Historial contra aquest rival', hist)}
+            ${panel('Com ens ha fet mal i com li hem fet mal', how)}
+            ${panel('La teva fitxa del rival (només per a tu)', `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${fields}</div>`)}
+        </div>`;
+    }
+    function renderComparatives() {
+        const box = document.getElementById('riv-view-comp'); if (!box) return;
+        const list = playedMatchesCal().sort((a, b) => (a.date && b.date ? a.date - b.date : 0));
+        if (!list.length) { box.innerHTML = `<div class="bg-slate-900/80 rounded-2xl p-8 text-center text-sm text-slate-500">Encara no hi ha partits jugats per comparar.</div>`; return; }
+        const n = list.length, avgGF = list.reduce((a, c) => a + c.gf, 0) / n, avgGC = list.reduce((a, c) => a + c.gc, 0) / n;
+        const half = c => { const a = c.archId ? archById(c.archId) : null; if (!a) return null; const an = analyzeArchives([a]); return an.half; };
+        const cell = (v, cls) => `<td class="p-2.5 text-center tabular-nums ${cls || 'text-slate-200'}">${v}</td>`;
+        const dlt = (d, higherIsBetter) => { if (n < 2 || Math.abs(d) < 0.05) return '<span class="text-slate-500">—</span>'; const good = higherIsBetter ? d > 0 : d < 0; return `<span class="${good ? 'text-emerald-400' : 'text-rose-400'} font-bold">${signed(d)}</span>`; };
+        const rows = list.map(c => { const h = half(c); return `<tr>
+            <td class="p-2.5 text-left whitespace-nowrap"><span class="font-semibold text-slate-100">${esc(c.rival || '—')}</span><span class="block text-[10px] text-slate-500">${fmtRivDate(c.date)}</span></td>
+            ${cell(c.camp === 'L' ? 'Local' : c.camp === 'V' ? 'Visitant' : '—', 'text-slate-400')}
+            ${cell(`<span class="font-extrabold ${c.res === 'V' ? 'text-emerald-400' : c.res === 'D' ? 'text-rose-400' : 'text-amber-400'}">${c.gf}-${c.gc}</span>`)}
+            ${cell(h ? `${h[1].gf}-${h[1].gc}` : '—', 'text-slate-400')}${cell(h ? `${h[2].gf}-${h[2].gc}` : '—', 'text-slate-400')}
+            ${cell(dlt(c.gf - avgGF, true))}${cell(dlt(c.gc - avgGC, false))}${cell(dlt((c.gf - c.gc) - (avgGF - avgGC), true))}</tr>`; }).join('');
+        // local / visitant
+        const grp = camp => { const g = list.filter(c => c.camp === camp); const p = g.length; const gf = g.reduce((a, c) => a + c.gf, 0), gc = g.reduce((a, c) => a + c.gc, 0); const rec = t => g.filter(c => c.res === t).length; return { p, gf, gc, v: rec('V'), e: rec('E'), d: rec('D') }; };
+        const L = grp('L'), V = grp('V'); const unk = list.filter(c => c.camp !== 'L' && c.camp !== 'V').length;
+        const per = (x, p) => p ? fmt1(x / p) : '—';
+        const lvRow = (name, g) => `<tr><td class="p-2.5 text-left font-semibold text-slate-100">${name}${smallTag(g.p)}</td>${cell(g.p)}${cell(`${g.v}-${g.e}-${g.d}`)}${cell(g.gf)}${cell(g.gc)}${cell(per(g.gf, g.p), 'text-emerald-400')}${cell(per(g.gc, g.p), 'text-rose-400')}${cell(g.p ? signed((g.gf - g.gc) / g.p) : '—')}</tr>`;
+        const head = arr => `<thead class="bg-slate-950/60 text-[10px] uppercase tracking-wider text-slate-400"><tr>${arr.map((h, i) => `<th class="p-2.5 ${i === 0 ? 'text-left' : 'text-center'}">${h}</th>`).join('')}</tr></thead>`;
+        box.innerHTML = `
+            <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
+                <div class="p-5 border-b border-slate-800"><h4 class="font-bold text-white text-base">Cada partit contra la mitjana de la temporada ${smallTag(n)}</h4>
+                    <p class="text-xs text-slate-400 mt-1">Mitjana: ${fmt1(avgGF)} gols a favor i ${fmt1(avgGC)} en contra per partit (${n} partit${n === 1 ? '' : 's'}). Verd = millor que la mitjana, vermell = pitjor. La mitjana inclou el mateix partit, per això amb pocs partits les diferències són petites.</p></div>
+                <div class="overflow-x-auto"><table class="w-full text-sm">${head(['Partit', 'Camp', 'Resultat', '1a part', '2a part', 'GF vs mitjana', 'GC vs mitjana', 'Dif. vs mitjana'])}<tbody class="divide-y divide-slate-800/60">${rows}</tbody></table></div>
+            </div>
+            <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
+                <div class="p-5 border-b border-slate-800"><h4 class="font-bold text-white text-base">Local contra visitant</h4><p class="text-xs text-slate-400 mt-1">Els mateixos números, separats segons on juguem.${unk ? ` ${unk} partit${unk === 1 ? '' : 's'} sense camp indicat no es compta${unk === 1 ? '' : 'n'}.` : ''}</p></div>
+                <div class="overflow-x-auto"><table class="w-full text-sm">${head(['', 'PJ', 'V-E-D', 'GF', 'GC', 'GF/partit', 'GC/partit', 'Dif./partit'])}<tbody class="divide-y divide-slate-800/60">${lvRow('Local', L)}${lvRow('Visitant', V)}</tbody></table></div>
+            </div>`;
+    }
+    function renderAnalysis() {
+        const box = document.getElementById('riv-view-analysis'); if (!box) return;
+        const an = analyzeArchives(ensureMatchArchive());
+        if (!an.n) { box.innerHTML = `<div class="bg-slate-900/80 rounded-2xl p-8 text-center text-sm text-slate-500">Encara no hi ha partits arxivats per analitzar.</div>`; return; }
+        const ins = analysisInsights(an);
+        const tones = { rose: 'bg-rose-500/10 border-rose-500/25 text-rose-200', emerald: 'bg-emerald-500/10 border-emerald-500/25 text-emerald-200', amber: 'bg-amber-500/10 border-amber-500/25 text-amber-200' };
+        const cats = Object.entries(an.cat).sort((a, b) => (b[1].gf + b[1].gc) - (a[1].gf + a[1].gc));
+        const maxC = Math.max(1, ...cats.map(([, v]) => Math.max(v.gf, v.gc)));
+        const bars = cats.map(([k, v]) => `<div class="py-1.5"><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-300">${esc(catLabel(k))}</span><span class="font-bold"><span class="text-emerald-400">${v.gf}</span> <span class="text-slate-600">/</span> <span class="text-rose-400">${v.gc}</span></span></div>
+            <div class="flex gap-1 h-2"><div class="bg-emerald-500 rounded-full" style="width:${Math.round(v.gf / maxC * 50)}%"></div><div class="bg-rose-500 rounded-full" style="width:${Math.round(v.gc / maxC * 50)}%"></div></div></div>`).join('');
+        const pr = Object.entries(an.per).map(([k, v]) => `<tr><td class="p-2.5 text-left text-slate-300">${k.replace('-', ' a ')} min</td><td class="p-2.5 text-center font-bold text-emerald-400">${v.gf}</td><td class="p-2.5 text-center font-bold text-rose-400">${v.gc}</td><td class="p-2.5 text-center font-bold ${v.gf - v.gc > 0 ? 'text-emerald-400' : v.gf - v.gc < 0 ? 'text-rose-400' : 'text-slate-400'}">${v.gf - v.gc > 0 ? '+' : ''}${v.gf - v.gc}</td></tr>`).join('');
+        box.innerHTML = `
+            <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5">
+                <h4 class="font-bold text-white text-base">Què destaca ${smallTag(an.n)}</h4>
+                <p class="text-xs text-slate-400 mt-1">Sobre ${an.n} partit${an.n === 1 ? '' : 's'} arxivat${an.n === 1 ? '' : 's'} (${an.gf} gols marcats i ${an.gc} encaixats). Són pistes, no sentències: amb poques dades, un sol gol ho pot canviar.</p>
+                <div class="mt-4 space-y-2">${ins.length ? ins.map(i => `<div class="border rounded-xl px-4 py-3 text-sm leading-relaxed ${tones[i.tone]}">${esc(i.text)}</div>`).join('') : `<p class="text-xs text-slate-500">Encara no hi ha prou gols per destacar res.</p>`}</div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5"><h4 class="font-bold text-white text-base mb-1">Com marquem i com encaixem</h4><p class="text-[11px] text-slate-500 mb-3">Per tipus de jugada · <span class="text-emerald-400">a favor</span> / <span class="text-rose-400">en contra</span></p>${bars}</div>
+                <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden"><div class="p-5 border-b border-slate-800"><h4 class="font-bold text-white text-base">Per franges de 10 minuts</h4></div>
+                    <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-950/60 text-[10px] uppercase tracking-wider text-slate-400"><tr><th class="p-2.5 text-left">Franja</th><th class="p-2.5 text-center">GF</th><th class="p-2.5 text-center">GC</th><th class="p-2.5 text-center">Dif.</th></tr></thead><tbody class="divide-y divide-slate-800/60">${pr}</tbody></table></div></div>
+            </div>`;
+    }
+
+    /* ---------------- (Fase D) Comentaris explicatius: icona "?" que desplega una explicació ----------------
+       Tots els textos són aquí (un sol lloc). Estructura de cada entrada:
+         què mostra · com es llegeix · per què serveix · (opcional) compte.
+       Mentre EXPLAIN_APPROVED sigui false, els jugadors NO els veuen: només l'entrenador i la vista prèvia
+       com a jugador (per revisar-los en context). Quan estiguin aprovats, es posa a true. */
+    const EXPLAIN_APPROVED = true;
+    const helpVisible = () => appRole !== 'player' || previewMode || EXPLAIN_APPROVED;
+    // Els textos marcats `unverified` descriuen finestres que no he pogut comprovar del tot: només els veu l'entrenador.
+    const helpItemVisible = it => appRole !== 'player' || previewMode || (EXPLAIN_APPROVED && !it.unverified);
+    const HELP_ITEMS = [
+        { id: 'resultats', root: '#ph-results-wrap', text: ['Resultats'], title: 'Resultats',
+          what: 'Els partits de l\'equip: rival, data, si és local o visitant i el resultat. V, E i D són les victòries, els empats i les derrotes.',
+          read: 'Toca un partit jugat per veure\'n el detall: tota la pàgina passa a aquell partit. «Tots els partits» torna a la temporada. Tot / Pretemporada / Lliga filtra la llista.',
+          why: 'Perquè vegis com ha anat cada partit i el puguis entendre, no només el total de la temporada.',
+          care: 'Els partits marcats «Previst» encara no s\'han jugat: només els jugats tenen detall.' },
+        { id: 'temporada', root: '#ph-hero-wrap', text: ['La teva temporada'], title: 'La teva temporada',
+          what: 'El teu rendiment als partits jugats, en quatre blocs, comparat amb la mitjana de l\'equip (verd = millor, vermell = pitjor).',
+          read: 'Ofensiu: gols + assistències teves cada 40 minuts. Defensiu: gols rebuts per l\'equip amb tu a pista cada 40 minuts (com més baix, millor). Impacte (+/-): gols a favor menys en contra amb tu a pista cada 40 minuts. Forma: el +/- dels últims 3 partits. «Punt fort» i «A treballar» són frases automàtiques.',
+          why: 'Es calcula «cada 40 minuts» per poder-te comparar tot i haver jugat més o menys minuts.',
+          care: 'Amb menys de 3 partits les xifres canvien molt: són una orientació. El +/- depèn de tot l\'equip.' },
+        { id: 'objectius', root: '#ph-obj', text: ['Objectius'], title: 'Objectius',
+          what: 'Els objectius que l\'entrenador t\'ha compartit, d\'aquest mes i de tota la temporada, amb el teu progrés (actual / objectiu).',
+          read: 'La barra s\'omple a mesura que et vas acostant a la xifra. Quan arribes a l\'objectiu apareix «Complert».',
+          why: 'Per saber en què t\'has de fixar i veure com avances.',
+          care: 'Només veus els objectius que l\'entrenador ha publicat.' },
+        { id: 'principals', root: '#player-stats', text: ['Estadístiques principals'], title: 'Estadístiques principals',
+          what: 'La teva assistència als entrenaments, els partits jugats, els minuts, els gols i les assistències de tota la temporada.',
+          read: 'L\'assistència és el percentatge de sessions registrades en què hi eres: compta present, amb retard i «sense entrenar». Les absències, justificades o no, no compten.',
+          why: 'Un resum ràpid de la teva temporada.',
+          care: 'Surten només dels partits i sessions que l\'entrenador ha registrat a l\'aplicació.' },
+        { id: 'video', root: '#ph-video-wrap', text: ['Els meus moments de vídeo'], title: 'Els meus moments de vídeo',
+          what: 'Els talls de vídeo dels partits on apareixes (gols, accions per millorar…), agrupats per partit.',
+          read: 'Desplega un partit i toca un moment per obrir-lo al punt exacte del vídeo.',
+          why: 'És la manera més ràpida de veure\'t i entendre què es vol millorar o repetir.' },
+        { id: 'gols-tipus', root: '#ph-goals-wrap', text: ['Gols per tipus'], title: 'Gols per tipus',
+          what: 'Com s\'han marcat els teus gols i com s\'han encaixat els gols de l\'equip mentre eres a pista, segons el tipus de jugada: joc posicional, transició, pilota aturada (ABP), joc de 5, accions del porter i errors.',
+          read: 'Cada fila mostra «marcats / encaixats».',
+          why: 'Et diu en quines situacions ajudes més a l\'equip i en quines patim.',
+          care: 'Els gols encaixats són de l\'equip mentre eres a pista: no vol dir que siguin culpa teva.' },
+        { id: 'convocatories', root: '#ph-conv-wrap', text: ['Convocatòries'], title: 'Convocatòries',
+          what: 'A quants partits t\'han convocat i, quan no, el motiu que ha indicat l\'entrenador.',
+          read: 'La barra és el percentatge de convocatòries; a sota, els motius i els partits en què no hi eres.',
+          why: 'Perquè tinguis clar el teu historial de convocatòries.' },
+        { id: 'multes-personals', root: '#ph-fines-wrap', text: ['Multes'], title: 'Les teves multes',
+          what: 'Les multes que tens segons el reglament de l\'equip, i quines estan pagades.',
+          read: 'Total, pagat i pendent. El detall és a sota.',
+          why: 'Per portar el compte al dia.' },
+        { id: 'progressio', root: '#ph-progression-wrap', text: ['Progressió a la temporada'], title: 'Progressió a la temporada',
+          what: 'El teu +/- (gols a favor menys gols en contra amb tu a pista) partit a partit, en ordre cronològic.',
+          read: 'Cada punt és un partit. Per sobre de zero, l\'equip va guanyar el duel de gols amb tu a pista; per sota, el va perdre.',
+          why: 'Per veure si vas millorant o si hi ha partits que s\'allunyen de la teva línia.',
+          care: 'Un sol partit dolent pesa molt: fixa\'t en la tendència, no en un punt.' },
+        { id: 'assistencia', root: '#player-stats', text: ['Assistència als entrenaments'], title: 'Assistència als entrenaments',
+          what: 'Les teves marques a cada sessió del microcicle (una setmana de treball) i el teu percentatge de la temporada.',
+          read: 'P: present · R: amb retard · S: sense entrenar · J: absència justificada · A: absència no justificada. Es compta com a assistència P, R i S.',
+          why: 'Perquè vegis la teva regularitat als entrenaments.' },
+        { id: 'equip', root: '#ph-team-title', sel: '#ph-team-title', text: [], title: 'Estadística d\'equip',
+          what: 'Dades globals de l\'equip, no de cap jugador: gols per partit, gols rebuts, diferència, partits i gols totals. En veure un sol partit, en canvi: gols a favor, en contra, diferència i resultat.',
+          read: 'Depèn del filtre triat a dalt (Tot / Pretemporada / Lliga) o del partit que hagis seleccionat.',
+          why: 'Per entendre com va l\'equip abans de mirar-te a tu.' },
+        { id: 'franges', root: '#player-stats', text: ['Dinàmica de gols per període (10 min)'], title: 'Dinàmica de gols per període',
+          what: 'Quants gols marca i encaixa l\'equip a cada franja de 10 minuts del partit (0-10, 10-20, 20-30, 30-40).',
+          read: 'GF: gols a favor. GC: gols en contra. Dif.: diferència. % GF: quina part dels gols de la franja els marca l\'equip.',
+          why: 'Mostra en quins moments del partit l\'equip és més fort i en quins és més vulnerable.',
+          care: 'Amb pocs partits, un sol gol pot canviar molt una franja.' },
+        { id: 'marcador', root: '#player-stats', text: ['Rendiment segons el marcador'], title: 'Rendiment segons el marcador',
+          what: 'Quant temps juga l\'equip guanyant, empatant i perdent, i quants gols marca i encaixa en cada situació.',
+          read: 'La barra reparteix els minuts jugats entre les tres situacions. Cada gol s\'assigna a la situació del marcador just abans de marcar-se.',
+          why: 'Diu com reacciona l\'equip: si aguanta quan guanya o si remunta quan perd.' },
+        { id: 'tipologia', root: '#player-stats', text: ['Tipologia de gol de l\'equip'], title: 'Tipologia de gol de l\'equip',
+          what: 'Com marca i com encaixa l\'equip, segons el tipus de jugada: joc posicional, transició, pilota aturada (ABP), situació especial (joc de 5), accions del porter i errors.',
+          read: 'Compara els gols a favor i en contra de cada tipus.',
+          why: 'Per saber què fem bé i què hem de treballar als entrenaments.',
+          care: 'Amb pocs partits, els percentatges poden enganyar: mira també els números.' },
+        { id: 'el-teu-partit', root: '#ph-match-panel', text: ['El teu partit'], title: 'El teu partit',
+          what: 'La teva participació en aquest partit: minuts, gols, assistències i gols a favor / en contra mentre eres a pista.',
+          read: '«Gols amb tu a pista» són els de l\'equip mentre hi eres: primer els que hem marcat i després els que hem rebut.',
+          why: 'Per revisar el teu partit sense barrejar-lo amb la resta de la temporada.',
+          care: 'Els gols amb tu a pista mesuren l\'equip, no només tu.' },
+        { id: 'gols-partit', root: '#ph-match-panel', text: ['Els gols del partit'], title: 'Els gols del partit',
+          what: 'La cronologia dels gols: el minut, el marcador en aquell moment (primer el nostre), qui va marcar, qui va assistir i el tipus de jugada.',
+          read: 'En verd, els gols nostres; en vermell, els que hem encaixat.',
+          why: 'Per recordar com va anar el partit.',
+          care: 'Els gols encaixats no porten nom: només el tipus de jugada.' },
+        { id: 'video-partit', root: '#ph-match-panel', text: ['Els meus moments de vídeo d\'aquest partit'], title: 'Vídeo d\'aquest partit',
+          what: 'Els teus moments de vídeo lligats a aquest partit pel nom del rival.',
+          read: 'Toca un moment per veure\'l.',
+          why: 'Per revisar les teves accions d\'aquest partit.',
+          care: 'Si un vídeo no surt aquí, pot estar arxivat amb un altre nom: el trobaràs a la llista general de la teva temporada.' },
+        { id: 'carrega-periode', root: '#tab-carregues', sel: '#load-table-title', text: [], title: 'Càrrega del període seleccionat',
+          what: 'Les unitats de càrrega (UC) acumulades dins la franja de dates triada i la mitjana per sessió. Cada jugador només veu la seva.',
+          read: 'UC total = la suma de la càrrega de cada entrenament al qual has assistit (present o amb retard) més cada partit jugat (minuts × intensitat del partit). La mitjana és aquest total dividit pel nombre de sessions.',
+          why: 'Et diu quant treball has acumulat: ajuda a entendre setmanes més dures o més suaus.',
+          care: 'És una estimació a partir de la intensitat planificada, no del que has notat tu.' },
+        { id: 'carrega-sessio', root: '#tab-carregues', text: ['Carrega i intensitat per sessio'], title: 'Càrrega i intensitat per sessió',
+          what: 'Cada barra és una sessió del període amb la seva càrrega planificada (UC); la línia és la intensitat planificada (RPE).',
+          read: 'Barres altes = sessions exigents. La línia diu com d\'intensa estava prevista cada sessió.',
+          why: 'Per veure com es reparteix l\'esforç al llarg de la setmana.',
+          care: 'Són valors planificats per l\'entrenador.' },
+        { id: 'carrega-micro', root: '#tab-carregues', text: ['Carrega per microcicle'], title: 'Càrrega per microcicle',
+          what: 'La suma de la càrrega (UC) de cada microcicle, és a dir, de cada setmana de treball.',
+          read: 'Barres altes = setmanes de molta càrrega; barres baixes = setmanes de descàrrega.',
+          why: 'Per veure l\'evolució de la càrrega durant la temporada.' },
+        { id: 'carrega-sessions', unverified: true, root: '#tab-carregues', text: ['Totes les sessions'], title: 'Totes les sessions',
+          what: 'La llista de totes les sessions planificades amb el seu contingut i la seva càrrega.',
+          read: 'Pots buscar per nom i desplegar cada microcicle.',
+          why: 'Per saber què toca fer cada dia.' },
+        { id: 'propera-sessio', unverified: true, root: '#tab-calendari', text: ['Propera sessio'], title: 'Propera sessió',
+          what: 'La propera sessió planificada: el dia, la durada, la intensitat prevista i el contingut.',
+          read: 'La resta del calendari mostra el mes, setmana a setmana.',
+          why: 'Per saber què t\'espera i arribar preparat.' },
+        { id: 'normativa', unverified: true, root: '#tab-competicio', text: ['Normativa de la competició'], title: 'Normativa de la competició',
+          what: 'Les regles de la competició interna de l\'equip: com es puntua.',
+          read: 'Llegeix-les abans de mirar la classificació.',
+          why: 'Perquè sàpigues què compta i què no.' },
+        { id: 'classificacio', unverified: true, root: '#tab-competicio', text: ['Classificació'], title: 'Classificació',
+          what: 'Els punts de cada jugador a la competició interna, segons les regles i les sessions puntuades.',
+          read: 'Més punts, més amunt a la taula.',
+          why: 'És un joc entre companys per motivar-se als entrenaments.' },
+        { id: 'model-of', unverified: true, root: '#tab-model', text: ['Continguts ofensius'], title: 'Continguts ofensius',
+          what: 'Els principis i les consignes de l\'equip quan tenim la pilota.',
+          read: 'Amb «Detall» i «Pissarres» veus els principis explicats i les jugades dibuixades.',
+          why: 'Perquè tothom tingui clar com volem atacar.' },
+        { id: 'model-df', unverified: true, root: '#tab-model', text: ['Continguts defensius'], title: 'Continguts defensius',
+          what: 'Els principis i les consignes de l\'equip quan no tenim la pilota.',
+          read: 'Amb «Detall» i «Pissarres» veus els principis explicats i les jugades dibuixades.',
+          why: 'Perquè tothom tingui clar com volem defensar.' },
+        { id: 'model-abp', unverified: true, root: '#tab-model', text: ['Estratègia (ABP)'], title: 'Estratègia (ABP)',
+          what: 'Les jugades i consignes de pilota aturada: córners, bandes, faltes i penals.',
+          read: 'Amb «Pissarres» veus cada jugada dibuixada.',
+          why: 'Perquè les jugades d\'estratègia surtin sempre igual.' },
+        { id: 'rutines', unverified: true, root: '#tab-rutines', text: ['Rutines de mobilitat i activació'], title: 'Rutines de mobilitat i activació',
+          what: 'Exercicis de mobilitat i activació, agrupats per categoria, per fer abans o després d\'entrenar.',
+          read: 'Desplega una categoria per veure\'n els exercicis.',
+          why: 'Per preparar el cos i cuidar-lo.' },
+        { id: 'reglament', unverified: true, root: '#tab-multes', text: ['Constitució CFSE SAM 26-27'], title: 'El reglament de l\'equip',
+          what: 'El reglament intern: quines conductes es multen i quant.',
+          read: 'Desplega cada apartat per veure\'n el detall.',
+          why: 'Perquè les normes siguin clares per a tothom.' },
+        { id: 'multes-equip', unverified: true, root: '#tab-multes', text: ['Multes'], title: 'Multes de l\'equip',
+          what: 'Les multes registrades a l\'equip i si estan pagades.',
+          read: 'A dalt hi ha el total; a sota, cada multa amb l\'estat de pagament.',
+          why: 'Perquè el compte de l\'equip sigui transparent.' },
+        { id: 'formularis', unverified: true, root: '#tab-sociograma', text: ['Els teus formularis'], title: 'Els teus formularis',
+          what: 'Els qüestionaris que l\'entrenador et proposa per conèixer com veus l\'equip i les relacions dins del grup.',
+          read: 'Tria un formulari i respon les preguntes.',
+          why: 'Perquè l\'entrenador entengui millor el grup.' }
+    ];
+    const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').replace(/\s+/g, ' ').trim();
+    function enhanceHelp() {
+        try {
+            if (typeof document === 'undefined' || !document.body) return;
+            if (!helpVisible()) {
+                document.querySelectorAll('.help-btn').forEach(b => b.remove());
+                closeHelp();
+                return;
+            }
+            HELP_ITEMS.forEach(it => {
+                if (!helpItemVisible(it)) { document.querySelectorAll('.help-btn[data-help="' + it.id + '"]').forEach(b => b.remove()); return; }
+                document.querySelectorAll(it.root).forEach(root => {
+                    const cands = it.sel ? (root.matches(it.sel) ? [root] : [...root.querySelectorAll(it.sel)]) : [...root.querySelectorAll('p,h2,h3,h4,h5')];
+                    for (const el of cands) {
+                        if (!it.sel && !it.text.some(t => norm(ownText(el)) === norm(t))) continue;
+                        if (el.querySelector(':scope > .help-btn[data-help="' + it.id + '"]')) break;
+                        const b = document.createElement('button');
+                        b.type = 'button'; b.className = 'help-btn ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-700/80 text-slate-300 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold normal-case tracking-normal align-middle';
+                        b.setAttribute('data-help', it.id); b.setAttribute('aria-label', 'Què és això? ' + it.title); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
+                        b.textContent = '?';
+                        b.addEventListener('click', ev => { ev.stopPropagation(); ev.preventDefault(); toggleHelp(it.id, b); });
+                        el.appendChild(b);
+                        break;
+                    }
+                });
+            });
+        } catch (e) { /* mai ha de trencar l'app */ }
+    }
+    let helpOpenBtn = null;
+    function closeHelp() {
+        const pop = document.getElementById('help-pop'); if (pop) pop.classList.add('hidden');
+        if (helpOpenBtn) { helpOpenBtn.setAttribute('aria-expanded', 'false'); const b = helpOpenBtn; helpOpenBtn = null; try { b.focus(); } catch (e) {} }
+    }
+    function toggleHelp(id, btn) {
+        if (helpOpenBtn === btn) { closeHelp(); return; }
+        const it = HELP_ITEMS.find(x => x.id === id); if (!it) return;
+        let pop = document.getElementById('help-pop');
+        if (!pop) {
+            pop = document.createElement('div'); pop.id = 'help-pop';
+            pop.className = 'hidden fixed z-[85] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-4 text-left';
+            pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-modal', 'false');
+            document.body.appendChild(pop);
+        }
+        const sec = (label, txt, cls) => txt ? `<p class="text-[10px] font-bold uppercase tracking-wider ${cls || 'text-emerald-400'} mt-3">${label}</p><p class="text-xs text-slate-300 leading-relaxed mt-1">${esc(txt)}</p>` : '';
+        pop.setAttribute('aria-label', it.title);
+        pop.innerHTML = `<div class="flex items-start justify-between gap-3"><p class="text-sm font-bold text-white">${esc(it.title)}</p><button type="button" id="help-pop-close" aria-label="Tanca" class="shrink-0 w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">✕</button></div>` +
+            sec('Què mostra', it.what) + sec('Com es llegeix', it.read) + sec('Per què serveix', it.why) + sec('Compte', it.care, 'text-amber-400');
+        pop.classList.remove('hidden');
+        if (helpOpenBtn && helpOpenBtn !== btn) helpOpenBtn.setAttribute('aria-expanded', 'false');
+        helpOpenBtn = btn; btn.setAttribute('aria-expanded', 'true');
+        const vw = window.innerWidth || 360, vh = window.innerHeight || 640;
+        const w = Math.min(352, vw - 16); pop.style.width = w + 'px';
+        const r = btn.getBoundingClientRect(); const ph = pop.offsetHeight || 220;
+        let left = Math.max(8, Math.min(r.left, vw - w - 8));
+        let top = r.bottom + 8; if (top + ph > vh - 8) top = Math.max(8, r.top - ph - 8);
+        pop.style.left = left + 'px'; pop.style.top = top + 'px';
+        const c = document.getElementById('help-pop-close'); if (c) c.addEventListener('click', ev => { ev.stopPropagation(); closeHelp(); });
+    }
+    if (typeof document !== 'undefined') {
+        document.addEventListener('click', ev => { const pop = document.getElementById('help-pop'); if (helpOpenBtn && pop && !pop.contains(ev.target)) closeHelp(); });
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && helpOpenBtn) closeHelp(); });
+        window.addEventListener('resize', () => { if (helpOpenBtn) closeHelp(); });
     }
 
     /* ------------------------------ inici --------------------------------- */
@@ -14903,6 +15610,7 @@
         }
 
         async function enterTeamContext(r) {
+            if (previewMode && typeof exitPlayerPreview === 'function') exitPlayerPreview();   // en canviar d'equip, es surt de la vista prèvia
             if (typeof flushPendingSave === 'function' && window.CFSE_EQUIP_ID) flushPendingSave();   // desat pendent de l'equip anterior
             window.CFSE_CLUB_ID = r.equips.club_id;
             window.CFSE_EQUIP_ID = r.equip_id;
@@ -15471,6 +16179,7 @@
             { id: 'sociograma', label: 'Sociograma' },
             { id: 'minutatge', label: 'Minutatge i dades' },
             { id: 'convocatories', label: 'Convocatòries' },
+            { id: 'rivals', label: 'Rivals' },
             { id: 'video', label: 'Vídeo' }
         ];
 
@@ -15546,7 +16255,7 @@
         // Sobre la visibilitat general, aplica el que un jugador concret pot
         // veure: Plantilla, Minutatge i Convocatòries sempre tancades (fix),
         // més el que el coordinador hagi amagat expressament per a jugadors.
-        const MODULS_SEMPRE_TANCATS_JUGADOR = ['plantilla', 'minutatge', 'convocatories'];
+        const MODULS_SEMPRE_TANCATS_JUGADOR = ['plantilla', 'minutatge', 'convocatories', 'rivals'];
         function applyPlayerModuleRestrictions() {
             const ocults = window.CFSE_MODULS_OCULTS_JUGADOR || [];
             MODULE_DEFS.forEach(m => {
@@ -15810,6 +16519,79 @@
             } finally {
                 btn.disabled = false;
             }
+        };
+
+        /* ================= (Fase B) Vista prèvia com a jugador ================= */
+        function previewPlayersList() {
+            return (state.players || []).slice().sort((a, b) =>
+                ((a.actiu === false) - (b.actiu === false)) ||
+                ((Number(a.dorsal) || 999) - (Number(b.dorsal) || 999)) ||
+                String(a.name).localeCompare(String(b.name), 'ca'));
+        }
+        function updatePreviewBanner() {
+            const el = document.getElementById('preview-banner'); if (!el) return;
+            document.body.classList.toggle('preview-on', !!previewMode);
+            if (!previewMode || !previewInfo) { el.classList.add('hidden'); return; }
+            const p = playerById(previewInfo.pid);
+            const nm = document.getElementById('preview-banner-name'); if (nm) nm.textContent = p ? p.name : 'jugador';
+            el.classList.remove('hidden');
+        }
+        window.openPlayerPreviewPicker = function () {
+            if (window.CFSE_ROL === 'jugador') return;
+            if (!state.loaded) { toast('Encara no hi ha dades carregades.'); return; }
+            const sel = document.getElementById('preview-picker-select'); if (!sel) return;
+            sel.innerHTML = previewPlayersList().map(p =>
+                `<option value="${esc(p.id)}">${esc(p.name)}${p.dorsal != null ? ' · ' + esc(p.dorsal) : ''}${p.actiu === false ? ' (baixa)' : ''}${p.extern ? ' (convidat)' : ''}</option>`).join('');
+            if (previewMode && previewInfo) sel.value = String(previewInfo.pid);
+            document.getElementById('preview-picker').classList.remove('hidden');
+        };
+        window.closePlayerPreviewPicker = function () { document.getElementById('preview-picker').classList.add('hidden'); };
+        window.confirmPlayerPreview = function () {
+            const v = document.getElementById('preview-picker-select').value;
+            closePlayerPreviewPicker();
+            if (v) enterPlayerPreview(v);
+        };
+        window.enterPlayerPreview = function (pid) {
+            pid = String(pid == null ? '' : pid);
+            if (window.CFSE_ROL === 'jugador') return;                 // només qui gestiona l'equip
+            if (!state.loaded) { toast('Encara no hi ha dades carregades.'); return; }
+            if (!playerById(pid)) { toast('No trobo aquest jugador.'); return; }
+            if (previewMode && previewInfo) {                           // canvi de jugador dins la vista prèvia
+                previewInfo.pid = pid; playerSession = pid;
+                curStats = null; applyRoleUI(); renderAll(); switchTab('estadistica'); updatePreviewBanner();
+                return;
+            }
+            flushPendingSave();                                         // res de pendent abans de començar
+            const real = currentPayload();                              // referències a les dades REALS (mai es toquen)
+            const copy = JSON.parse(JSON.stringify(real, dateReplacer), dateReviver);   // còpia profunda
+            filterPayloadForPlayer(copy);                               // el mateix filtre que aplica el servidor
+            previewInfo = { pid, real, savedAt: state.savedAt, savedKB: state.savedKB, prevSession: playerSession, prevPeriod: statsPeriod, prevMode: statsMode };
+            previewMode = true;
+            try {
+                applySaved(copy);
+                appRole = 'player'; playerSession = pid; statsPeriod = 'tot'; statsMatchKey = null;
+                applyModuleVisibility((cfgEquipCache && cfgEquipCache.moduls_actius) || {});
+                applyPlayerModuleRestrictions();
+                if (typeof closePlayerProfile === 'function') closePlayerProfile();
+                closeSidebar();
+                curStats = null; applyRoleUI(); renderAll(); switchTab('estadistica'); updatePreviewBanner(); enhanceHelp();
+                window.scrollTo(0, 0);
+            } catch (e) {
+                console.error('Vista prèvia:', e);
+                exitPlayerPreview();
+                toast('No s\'ha pogut obrir la vista prèvia.');
+            }
+        };
+        window.exitPlayerPreview = function () {
+            if (!previewMode || !previewInfo) { previewMode = false; previewInfo = null; updatePreviewBanner(); return; }
+            const info = previewInfo;
+            previewMode = false; previewInfo = null;                    // primer s'obren les escriptures, després es restaura
+            applySaved(info.real);
+            state.savedAt = info.savedAt; state.savedKB = info.savedKB;
+            appRole = 'coach'; playerSession = info.prevSession || null;
+            statsPeriod = info.prevPeriod || 'tot'; statsMode = info.prevMode || statsMode; statsMatchKey = null;
+            applyModuleVisibility((cfgEquipCache && cfgEquipCache.moduls_actius) || {});
+            curStats = null; applyRoleUI(); renderAll(); switchTab('plantilla'); updatePreviewBanner(); enhanceHelp();
         };
 
         window.startFreshTeam = function () {
