@@ -1658,14 +1658,6 @@
 
             <!-- 5c · MULTES -->
             <section id="tab-multes" class="tab-content hidden space-y-6">
-                <div class="coach-only flex items-center gap-2 flex-wrap bg-slate-900/40 border border-slate-800/60 rounded-xl px-3 py-2.5">
-                    <i data-lucide="user-check" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
-                    <label class="text-[11px] font-semibold text-slate-400 shrink-0">Delegat de multes</label>
-                    <select id="fines-delegate-select" onchange="setFinesDelegate(this.value)" class="flex-1 min-w-[140px] bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
-                        <option value="">Cap (només l'entrenador)</option>
-                    </select>
-                    <p class="text-[10px] text-slate-600 basis-full">A més de tu, aquest jugador podrà afegir, marcar com a pagades i eliminar multes.</p>
-                </div>
                 <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <button onclick="toggleFineRulebookCard()" class="w-full flex items-center justify-between gap-3 p-5 border-b border-slate-800 text-left hover:bg-slate-900/40 transition-all">
                         <div class="flex items-center gap-3 min-w-0"><div class="w-9 h-9 rounded-xl bg-granate-500/10 border border-granate-500/30 flex items-center justify-center text-granate-400 shrink-0"><i data-lucide="scroll-text" class="w-4 h-4"></i></div><div class="min-w-0"><p class="text-sm font-bold text-white">Constitució CFSE SAM 26-27</p><p class="text-[10px] text-slate-500">Normativa oficial de multes de l'equip</p></div></div>
@@ -1685,6 +1677,7 @@
                     </div>
                     <div class="p-5"><p id="fine-rules" class="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed"></p></div>
                 </div>
+                <div id="fine-summary"></div>
                 <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <div class="flex items-center justify-between gap-3 p-5 border-b border-slate-800">
                         <div class="flex items-center gap-3">
@@ -1697,6 +1690,7 @@
                         <button id="fine-pdf-btn" onclick="exportFinesPDF()" title="Descarrega un resum en PDF per compartir" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all"><i data-lucide="file-down" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">PDF</span></button>
                         </div>
                     </div>
+                    <div id="fine-filters" class="px-4 pt-4 space-y-3"></div>
                     <div id="fine-list" class="p-4 space-y-2"></div>
                 </div>
             </section>
@@ -2354,14 +2348,14 @@
     </div>
 
     <!-- MODALS MULTES -->
-    <div id="fine-rules-modal" class="coach-only hidden fixed inset-0 z-[65] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div id="fine-rules-modal" class="hidden fixed inset-0 z-[65] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)this.classList.add('hidden')">
         <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 space-y-3">
             <p class="text-sm font-bold text-white">Normes de convivència</p>
             <textarea id="fine-rules-text" rows="8" class="w-full resize-none bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-granate-500"></textarea>
             <div class="flex gap-2"><button onclick="saveFineRules()" class="flex-1 py-2.5 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-sm font-bold rounded-lg">Desa</button><button onclick="document.getElementById('fine-rules-modal').classList.add('hidden')" class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold rounded-lg">Cancel&middot;la</button></div>
         </div>
     </div>
-    <div id="fine-modal" class="coach-only hidden fixed inset-0 z-[65] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)closeFine()">
+    <div id="fine-modal" class="hidden fixed inset-0 z-[65] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)closeFine()">
         <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 space-y-3">
             <p class="text-sm font-bold text-white">Nova multa</p>
             <div><label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Jugador</label><select id="fine-player" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-granate-500"></select></div>
@@ -12005,7 +11999,6 @@
         if (!Array.isArray(state.fines.rulebook)) state.fines.rulebook = FINE_RULEBOOK_DEFAULT;
         if (!Array.isArray(state.fines.rulebookCollapsed)) state.fines.rulebookCollapsed = state.fines.rulebook.map(s => s.id);
         if (state.fines.rulebookCardOpen === undefined) state.fines.rulebookCardOpen = false;
-        if (state.fines.delegateId === undefined) state.fines.delegateId = null;
     }
     function toggleFineRulebookCard() {
         ensureFines();
@@ -12068,22 +12061,13 @@
         }
         lucide.createIcons();
     }
-    // L'entrenador sempre pot editar Multes; a més, pot triar UN jugador delegat
-    // (state.fines.delegateId) que també podrà editar-ho des de la seva sessió.
+    // L'entrenador sempre pot editar Multes; també el jugador delegat definit a Configuració (Supabase).
     function canEditFines() {
         if (appRole === 'coach') return true;
         // Delegat real de Supabase: pot editar (i sincronitzar) encara que
         // sigui jugador, si l'entrenador/coordinador l'ha triat com a tal.
         if (window.CFSE_ROL === 'jugador' && window.CFSE_USER_ID && window.CFSE_MULTES_DELEGAT_ID && window.CFSE_USER_ID === window.CFSE_MULTES_DELEGAT_ID) return true;
-        ensureFines();
-        return appRole === 'player' && !!playerSession && state.fines.delegateId != null && String(state.fines.delegateId) === String(playerSession);
-    }
-    function setFinesDelegate(playerId) {
-        if (appRole !== 'coach') return;
-        ensureFines();
-        state.fines.delegateId = playerId ? String(playerId) : null;
-        renderFines(); saveSoon();
-        toast(state.fines.delegateId ? 'Delegat de multes actualitzat.' : 'Delegat de multes desactivat.');
+        return false;
     }
     function renderFines() {
         ensureFines();
@@ -12097,32 +12081,141 @@
         if (rulesBtn) { rulesBtn.classList.toggle('hidden', !editable); rulesBtn.classList.toggle('flex', editable); }
         const addBtn = document.getElementById('fine-add-btn');
         if (addBtn) { addBtn.classList.toggle('hidden', !editable); addBtn.classList.toggle('flex', editable); }
-        // Selector de delegat: només l'entrenador el veu (coach-only al contenidor), però
-        // el mantenim actualitzat sempre per si canvia de rol dins la mateixa sessió.
-        const delSel = document.getElementById('fines-delegate-select');
-        if (delSel) {
-            const cur = state.fines.delegateId ? String(state.fines.delegateId) : '';
-            delSel.innerHTML = '<option value="">Cap (només l\'entrenador)</option>' +
-                squadPlayers().map(p => `<option value="${esc(p.id)}" ${String(p.id) === cur ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
-            delSel.value = cur;
-        }
         const items = state.fines.items;
         const totalPend = items.filter(x => !x.paid).reduce((a, x) => a + (Number(x.amount) || 0), 0);
         const totEl = document.getElementById('fine-total'); if (totEl) totEl.innerText = totalPend.toFixed(2).replace('.', ',') + ' €';
+        renderFineSummary();
+        renderFineFilters();
+        renderFineList(editable);
+        lucide.createIcons();
+    }
+    /* ---- Multes: resum, filtres i llista per dies ---- */
+    let fineFilter = { player: '', status: 'all' };
+    let fineDayOpen = {};   // dayKey -> true/false (manual); per defecte només el dia més recent
+    const eur = n => (Number(n) || 0).toFixed(2).replace('.', ',') + ' €';
+    function fineDayKey(d) {
+        const m = String(d || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (!m) return { key: '0000-00-00', label: 'Sense data', ts: 0 };
+        const ts = new Date(+m[3], +m[2] - 1, +m[1]).getTime();
+        const key = m[3] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[1]).padStart(2, '0');
+        let label = new Date(ts).toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        label = label.charAt(0).toUpperCase() + label.slice(1);
+        return { key, label, ts };
+    }
+    function fineStats() {
+        const byP = {};
+        state.fines.items.forEach(x => {
+            const k = String(x.playerId);
+            const o = byP[k] || (byP[k] = { id: k, paid: 0, pend: 0, n: 0, nPend: 0 });
+            const a = Number(x.amount) || 0;
+            o.n++; if (x.paid) o.paid += a; else { o.pend += a; o.nPend++; }
+        });
+        return Object.values(byP).map(o => { const p = personById(o.id); o.name = p ? p.name : 'Jugador'; o.total = o.paid + o.pend; return o; });
+    }
+    function fineBarRow(o, val, max, color, filterable) {
+        const pct = max > 0 ? Math.max(3, Math.round(val / max * 100)) : 0;
+        return `<button onclick="setFinePlayer('${esc(o.id)}')" class="w-full text-left group">
+            <div class="flex items-center justify-between gap-2 text-xs mb-1"><span class="font-semibold text-slate-200 truncate group-hover:text-white">${esc(o.name)}</span><span class="font-extrabold tabular-nums ${color.text}">${eur(val)}</span></div>
+            <div class="h-2 rounded-full bg-slate-800 overflow-hidden"><div class="h-full rounded-full ${color.bar}" style="width:${pct}%"></div></div></button>`;
+    }
+    function renderFineSummary() {
+        const box = document.getElementById('fine-summary'); if (!box) return;
+        const items = state.fines.items;
+        if (!items.length) { box.innerHTML = ''; return; }
+        const paid = items.filter(x => x.paid).reduce((a, x) => a + (Number(x.amount) || 0), 0);
+        const pend = items.filter(x => !x.paid).reduce((a, x) => a + (Number(x.amount) || 0), 0);
+        const total = paid + pend, pct = total > 0 ? Math.round(paid / total * 100) : 0;
+        const st = fineStats();
+        const topPaid = st.filter(o => o.paid > 0).sort((a, b) => b.paid - a.paid).slice(0, 5);
+        const topDebt = st.filter(o => o.pend > 0).sort((a, b) => b.pend - a.pend).slice(0, 5);
+        const topTotal = st.slice().sort((a, b) => b.total - a.total)[0];
+        const concepts = {}; items.forEach(x => { const c = (x.concept || '').trim(); if (c) concepts[c] = (concepts[c] || 0) + 1; });
+        const topC = Object.entries(concepts).sort((a, b) => b[1] - a[1])[0];
+        const cPaid = { text: 'text-emerald-400', bar: 'bg-emerald-500' }, cDebt = { text: 'text-rose-400', bar: 'bg-rose-500' };
+        const ring = `<svg viewBox="0 0 36 36" class="w-24 h-24 -rotate-90 shrink-0"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e293b" stroke-width="3.5"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${pct} ${100 - pct}"/></svg>`;
+        box.innerHTML = `<div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5 mb-4 space-y-5">
+            <div class="flex items-center gap-5 flex-wrap">
+                <div class="relative shrink-0">${ring}<div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-xl font-extrabold text-white leading-none">${pct}%</span><span class="text-[9px] text-slate-500 mt-0.5">cobrat</span></div></div>
+                <div class="grid grid-cols-3 gap-2 flex-1 min-w-[240px]">
+                    <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-3"><p class="text-[10px] font-semibold text-emerald-300/80">Recollit</p><p class="text-lg font-extrabold text-emerald-400 tabular-nums">${eur(paid)}</p></div>
+                    <div class="rounded-xl bg-rose-500/10 border border-rose-500/25 p-3"><p class="text-[10px] font-semibold text-rose-300/80">Pendent</p><p class="text-lg font-extrabold text-rose-400 tabular-nums">${eur(pend)}</p></div>
+                    <div class="rounded-xl bg-slate-800/60 border border-slate-700/60 p-3"><p class="text-[10px] font-semibold text-slate-400">Previsió total</p><p class="text-lg font-extrabold text-white tabular-nums">${eur(total)}</p></div>
+                </div>
+            </div>
+            <div><div class="flex justify-between text-[10px] text-slate-500 mb-1"><span>Cobrat ${eur(paid)}</span><span>Quan es pagui tot: ${eur(total)}</span></div>
+                <div class="h-3 rounded-full bg-slate-800 overflow-hidden flex"><div class="h-full bg-emerald-500" style="width:${pct}%"></div><div class="h-full bg-rose-500/50" style="width:${100 - pct}%"></div></div></div>
+            <div class="grid md:grid-cols-2 gap-5">
+                <div><p class="text-xs font-bold text-white mb-2 flex items-center gap-1.5"><i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>Qui ha aportat més</p><div class="space-y-2.5">${topPaid.length ? topPaid.map(o => fineBarRow(o, o.paid, topPaid[0].paid, cPaid)).join('') : '<p class="text-xs text-slate-500">Encara no hi ha cap multa pagada.</p>'}</div></div>
+                <div><p class="text-xs font-bold text-white mb-2 flex items-center gap-1.5"><i data-lucide="hourglass" class="w-3.5 h-3.5 text-rose-400"></i>Qui deu més</p><div class="space-y-2.5">${topDebt.length ? topDebt.map(o => fineBarRow(o, o.pend, topDebt[0].pend, cDebt)).join('') : '<p class="text-xs text-emerald-400">Tothom està al dia! 🎉</p>'}</div></div>
+            </div>
+            <div class="flex flex-wrap gap-2 text-[10px] text-slate-400">
+                <span class="px-2 py-1 rounded-full bg-slate-800/70">${items.length} multes</span>
+                <span class="px-2 py-1 rounded-full bg-slate-800/70">Mitjana ${eur(total / items.length)}</span>
+                ${topTotal ? `<span class="px-2 py-1 rounded-full bg-slate-800/70">Més multat: <b class="text-slate-200">${esc(topTotal.name)}</b> (${eur(topTotal.total)})</span>` : ''}
+                ${topC ? `<span class="px-2 py-1 rounded-full bg-slate-800/70">Motiu més repetit: <b class="text-slate-200">${esc(topC[0])}</b> (×${topC[1]})</span>` : ''}
+            </div></div>`;
+    }
+    function setFinePlayer(id) { fineFilter.player = fineFilter.player === String(id) ? '' : String(id); renderFines(); }
+    function setFineStatus(v) { fineFilter.status = v; renderFines(); }
+    function toggleFineDay(k) { fineDayOpen[k] = !(k in fineDayOpen ? fineDayOpen[k] : (k === fineDayOpen.__default)); renderFines(); }
+    function renderFineFilters() {
+        const box = document.getElementById('fine-filters'); if (!box) return;
+        const items = state.fines.items;
+        if (!items.length) { box.innerHTML = ''; return; }
+        const st = fineStats().sort((a, b) => a.name.localeCompare(b.name, 'ca'));
+        if (fineFilter.player && !st.some(o => o.id === fineFilter.player)) fineFilter.player = '';
+        const nAll = items.length, nPend = items.filter(x => !x.paid).length, nPaid = nAll - nPend;
+        const chip = (on, cls, label, onclick) => `<button onclick="${onclick}" class="px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ${on ? cls : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-200'}">${label}</button>`;
+        const sel = fineFilter.player ? st.find(o => o.id === fineFilter.player) : null;
+        box.innerHTML = `<div class="flex flex-wrap gap-1.5">
+                ${chip(fineFilter.status === 'all', 'bg-granate-600 border-granate-500 text-white', `Totes (${nAll})`, "setFineStatus('all')")}
+                ${chip(fineFilter.status === 'pend', 'bg-rose-500/20 border-rose-500/50 text-rose-300', `Pendents (${nPend})`, "setFineStatus('pend')")}
+                ${chip(fineFilter.status === 'paid', 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300', `Pagades (${nPaid})`, "setFineStatus('paid')")}
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+                ${chip(!fineFilter.player, 'bg-slate-200 border-slate-200 text-slate-900', 'Tothom', "setFinePlayer('')")}
+                ${st.map(o => chip(fineFilter.player === o.id, 'bg-slate-200 border-slate-200 text-slate-900', `${esc(o.name)} <span class="opacity-70">${o.n}</span>${o.pend > 0 ? ' <span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500 align-middle"></span>' : ''}`, `setFinePlayer('${esc(o.id)}')`)).join('')}
+            </div>
+            ${sel ? `<div class="rounded-xl bg-slate-950/50 border border-slate-800 px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs"><b class="text-white">${esc(sel.name)}</b><span class="text-slate-400">${sel.n} multes</span><span class="text-emerald-400 font-bold">Pagat ${eur(sel.paid)}</span><span class="text-rose-400 font-bold">Pendent ${eur(sel.pend)}</span></div>` : ''}`;
+    }
+    function renderFineList(editable) {
         const body = document.getElementById('fine-list'); if (!body) return;
-        body.innerHTML = items.length ? items.slice().reverse().map(x => {
-            const p = personById(x.playerId);
-            const amt = (Number(x.amount) || 0).toFixed(2).replace('.', ',');
-            return `<div class="flex items-center gap-3 bg-slate-950/40 border ${x.paid ? 'border-slate-800/50' : 'border-rose-500/20'} rounded-lg px-3 py-2">
+        const all = state.fines.items;
+        if (!all.length) { body.innerHTML = `<p class="p-6 text-center text-xs text-slate-500">Cap multa registrada.</p>`; return; }
+        const list = all.filter(x => (!fineFilter.player || String(x.playerId) === fineFilter.player) &&
+            (fineFilter.status === 'all' || (fineFilter.status === 'paid' ? x.paid : !x.paid)));
+        if (!list.length) { body.innerHTML = `<p class="p-6 text-center text-xs text-slate-500">Cap multa amb aquest filtre.</p>`; return; }
+        const days = {};
+        list.forEach((x, idx) => { const d = fineDayKey(x.date); (days[d.key] || (days[d.key] = { d, arr: [] })).arr.push({ x, idx }); });
+        const keys = Object.keys(days).sort().reverse();
+        fineDayOpen.__default = keys[0];
+        body.innerHTML = keys.map(k => {
+            const g = days[k];
+            const open = k in fineDayOpen ? fineDayOpen[k] : k === keys[0];
+            const tot = g.arr.reduce((a, o) => a + (Number(o.x.amount) || 0), 0);
+            const pend = g.arr.filter(o => !o.x.paid).reduce((a, o) => a + (Number(o.x.amount) || 0), 0);
+            const rows = g.arr.slice().reverse().map(({ x }) => {
+                const p = personById(x.playerId);
+                const amt = (Number(x.amount) || 0).toFixed(2).replace('.', ',');
+                return `<div class="flex items-center gap-3 bg-slate-950/40 border ${x.paid ? 'border-slate-800/50' : 'border-rose-500/20'} rounded-lg px-3 py-2">
                 <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold ${x.paid ? 'text-slate-400 line-through' : 'text-slate-100'}">${esc(p ? p.name : 'Jugador')}${p && p.carrec ? ` <span class="text-[9px] font-bold text-sky-400 bg-sky-500/10 px-1.5 py-0.5 rounded">${esc(p.carrec)}</span>` : ''}</span><span class="text-[10px] text-slate-500">${esc(x.date || '')}</span>${x.paid ? '<span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">PAGAT</span>' : ''}</div>
+                    <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold ${x.paid ? 'text-slate-400 line-through' : 'text-slate-100'}">${esc(p ? p.name : 'Jugador')}${p && p.carrec ? ` <span class="text-[9px] font-bold text-sky-400 bg-sky-500/10 px-1.5 py-0.5 rounded">${esc(p.carrec)}</span>` : ''}</span>${x.paid ? '<span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">PAGAT</span>' : '<span class="text-[9px] font-bold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded">PENDENT</span>'}</div>
                     <p class="text-xs text-slate-400 truncate">${esc(x.concept || '')}</p>
                 </div>
                 <span class="text-sm font-extrabold shrink-0 tabular-nums ${x.paid ? 'text-slate-500' : 'text-rose-400'}">${amt} €</span>
                 ${editable ? `<button onclick="toggleFinePaid('${x.id}')" class="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${x.paid ? 'bg-granate-500/15 text-granate-300 border border-granate-500/30 hover:bg-granate-500/25' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'}">${x.paid ? 'Cobrat' : 'Marca pagat'}</button>` : ''}
                 ${editable ? `<button onclick="deleteFine('${x.id}')" aria-label="Elimina" class="shrink-0 w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-400 transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : ''}
+            </div>`; }).join('');
+            return `<div class="border border-slate-800/70 rounded-xl overflow-hidden bg-slate-950/20">
+                <button onclick="toggleFineDay('${k}')" class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-900/60 transition-all">
+                    <i data-lucide="calendar-days" class="w-4 h-4 text-granate-400 shrink-0"></i>
+                    <span class="flex-1 min-w-0"><span class="block text-sm font-bold text-white truncate">${esc(g.d.label)}</span><span class="text-[10px] text-slate-500">${g.arr.length} ${g.arr.length === 1 ? 'multa' : 'multes'}${pend > 0 ? ` · <span class="text-rose-400">${eur(pend)} pendents</span>` : ' · <span class="text-emerald-400">tot pagat</span>'}</span></span>
+                    <span class="text-sm font-extrabold text-slate-200 tabular-nums shrink-0">${eur(tot)}</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 shrink-0 transition-transform ${open ? 'rotate-180' : ''}"></i>
+                </button>
+                ${open ? `<div class="px-3 pb-3 space-y-2">${rows}</div>` : ''}
             </div>`;
-        }).join('') : `<p class="p-6 text-center text-xs text-slate-500">Cap multa registrada.</p>`;
+        }).join('');
         lucide.createIcons();
     }
     function editFineRules() { if (!canEditFines()) return; ensureFines(); document.getElementById('fine-rules-text').value = state.fines.rules || ''; document.getElementById('fine-rules-modal').classList.remove('hidden'); }
