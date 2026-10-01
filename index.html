@@ -11703,19 +11703,40 @@
         } catch (e) { return null; }
     }
     const CLIP_EXT = /\.(mp4|mkv|webm|mov|m4v)$/i;
-    async function clipListNames(dir) {
-        const names = [];
-        try { for await (const [name, h] of dir.entries()) if (h.kind === 'file' && CLIP_EXT.test(name)) names.push(name); } catch (e) {}
-        return names.sort((a, b) => a.localeCompare(b, 'ca', { numeric: true }));
+    // Recorre la carpeta enllaçada i les seves subcarpetes (fins a 3 nivells),
+    // així es pot enllaçar la carpeta «Rival» i triar clips de «Rival/Solsona FS».
+    async function clipWalk(dir, prefix, depth, out) {
+        try {
+            for await (const [name, h] of dir.entries()) {
+                if (out.length >= 3000) return;
+                if (h.kind === 'file' && CLIP_EXT.test(name)) out.push({ path: prefix + name, name, handle: h });
+                else if (h.kind === 'directory' && depth < 3) await clipWalk(h, prefix + name + '/', depth + 1, out);
+            }
+        } catch (e) {}
     }
+    async function clipListNames(dir) {
+        const out = []; await clipWalk(dir, '', 0, out);
+        return out.map(x => x.path).sort((a, b) => a.localeCompare(b, 'ca', { numeric: true }));
+    }
+    // `wanted` pot ser un nom («Gol Solsona»), amb o sense extensió, o una
+    // ruta amb carpetes («Solsona FS/Gol Solsona»). Si la ruta no hi és, es
+    // busca pel nom a tota la carpeta enllaçada.
     async function clipFindFile(dir, wanted) {
-        const w = String(wanted || '').trim(); if (!w) return null;
-        try { return await (await dir.getFileHandle(w)).getFile(); } catch (e) {}
-        const names = await clipListNames(dir);
-        const nw = norm(w).replace(CLIP_EXT, '');
-        const hit = names.find(n => norm(n) === norm(w)) || names.find(n => norm(n).replace(CLIP_EXT, '') === nw);
+        const w = String(wanted || '').trim().replace(/\\/g, '/').replace(/^\/+/, ''); if (!w) return null;
+        try {
+            let d = dir; const parts = w.split('/');
+            for (let i = 0; i < parts.length - 1; i++) d = await d.getDirectoryHandle(parts[i]);
+            return await (await d.getFileHandle(parts[parts.length - 1])).getFile();
+        } catch (e) {}
+        const all = []; await clipWalk(dir, '', 0, all);
+        const strip = x => norm(x).replace(CLIP_EXT, '');
+        const base = x => x.split('/').pop();
+        const nw = strip(w), nb = strip(base(w));
+        const hit = all.find(x => strip(x.path) === nw)
+            || all.find(x => strip(x.path).endsWith('/' + nw))
+            || all.find(x => strip(base(x.path)) === nb);
         if (!hit) return null;
-        try { return await (await dir.getFileHandle(hit)).getFile(); } catch (e) { return null; }
+        try { return await hit.handle.getFile(); } catch (e) { return null; }
     }
     async function clipRefreshStatus() {
         const el = document.getElementById('clips-folder-status'); if (!el) return;
