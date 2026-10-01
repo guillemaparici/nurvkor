@@ -2026,22 +2026,22 @@
                         <div class="shrink-0 p-2.5 bg-granate-500/10 text-granate-400 rounded-xl"><i data-lucide="clapperboard" class="w-5 h-5"></i></div>
                         <div class="min-w-0">
                             <h4 class="font-bold text-white text-base">Anàlisi de vídeo</h4>
-                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Mira el partit a YouTube al navegador i ves marcant aquí els moments clau amb el seu enllaç i les teves notes. Després, clicant cada moment s'obre directament a YouTube al segon exacte.</p>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Mira el partit (YouTube, Veo o un altre enllaç) al navegador i ves marcant aquí els moments clau amb el seu enllaç i les teves notes. A YouTube, clicant cada moment s'obre al segon exacte; amb Veo o altres enllaços s'obre el vídeo en una pestanya nova i t'indica el minut on anar.</p>
                         </div>
                     </div>
                     <div class="mt-4">
                         <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Enllaç del partit (opcional)</label>
                         <div class="flex flex-col sm:flex-row gap-2 mt-1.5">
-                            <input type="text" id="video-url" placeholder="https://youtu.be/…  —  enllaç base del partit" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-granate-500 transition-all">
+                            <input type="text" id="video-url" placeholder="https://youtu.be/…  o  https://app.veo.co/matches/…  —  enllaç base del partit" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-granate-500 transition-all">
                             <button onclick="setVideoFromInput()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg transition-all shrink-0">Desa l'enllaç</button>
                         </div>
-                        <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Si el poses, els moments amb temps obriran aquest vídeo al segon indicat. També pots enganxar un enllaç propi (amb el minut) a cada moment.</p>
+                        <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Si el poses, els moments obriran aquest vídeo. A YouTube s'obre al segon indicat; amb Veo (o altres) s'obre el vídeo i l'app t'avisa del minut al qual has d'anar. També pots enganxar un enllaç propi a cada moment.</p>
                     </div>
                 </div>
 
                 <div class="coach-only bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5 space-y-3">
                     <h4 class="font-bold text-white text-sm">Marca un moment</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">Afegeix un moment amb el seu enllaç de YouTube, la categoria, els jugadors i una nota. Si has posat l'enllaç del partit a dalt, cada moment nou ja el porta i només hi has de posar el temps.</p>
+                    <p class="text-xs text-slate-400 leading-relaxed">Afegeix un moment amb el seu enllaç (YouTube, Veo…), la categoria, els jugadors i una nota. Si has posat l'enllaç del partit a dalt, cada moment nou ja el porta i només hi has de posar el temps.</p>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <button onclick="addMarker()" class="coach-only flex-1 py-2.5 bg-granate-500 hover:bg-granate-600 text-slate-950 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Afegeix moment</button>
                         <button onclick="openPresentation()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2"><i data-lucide="monitor-play" class="w-4 h-4"></i>Mode presentació</button>
@@ -2066,7 +2066,7 @@
                     <div class="p-6 border-b border-slate-800 flex items-center justify-between gap-3">
                         <div>
                             <h4 class="font-bold text-white text-base">Partits arxivats</h4>
-                            <p class="text-xs text-slate-400 mt-1">Cada partit tancat es guarda aquí amb els seus moments.</p>
+                            <p class="text-xs text-slate-400 mt-1">Cada partit tancat es guarda aquí amb els seus moments. <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Propi</span> <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Scouting rival</span></p>
                         </div>
                         <span id="archives-count" class="shrink-0 text-xs font-bold text-slate-400"></span>
                     </div>
@@ -2210,9 +2210,9 @@
                 <input type="text" id="mk-title" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
             </div>
             <div>
-                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Enllaç de YouTube</label>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Enllaç del vídeo (YouTube, Veo…)</label>
                 <input type="text" id="mk-link" oninput="onLinkInput()" placeholder="https://youtu.be/…?t=90" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
-                <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">A YouTube: clic dret sobre el vídeo → «Copia l'URL del vídeo al moment actual» per obtenir l'enllaç amb el minut.</p>
+                <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">A YouTube: clic dret sobre el vídeo → «Copia l'URL del vídeo al moment actual» per obtenir l'enllaç amb el minut. A Veo (o altres): enganxa l'enllaç del partit i escriu el temps (mm:ss) aquí sota.</p>
             </div>
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Temps (mm:ss) · opcional</label>
@@ -2260,7 +2260,7 @@
                 <h2 id="pres-title" class="text-3xl md:text-4xl font-extrabold text-white leading-tight">—</h2>
                 <p id="pres-players" class="text-sm text-slate-300 mt-3 font-medium"></p>
                 <p id="pres-note" class="text-base text-slate-400 mt-4 leading-relaxed"></p>
-                <button onclick="presOpenLink()" id="pres-open" class="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-granate-900/40"><i data-lucide="play" class="w-5 h-5"></i>Obre a YouTube</button>
+                <button onclick="presOpenLink()" id="pres-open" class="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-granate-900/40"><i data-lucide="play" class="w-5 h-5"></i>Obre el vídeo</button>
             </div>
         </div>
         <div class="flex items-center justify-between gap-3 px-5 py-4 border-t border-slate-800">
@@ -2281,6 +2281,17 @@
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Nom del partit</label>
                 <input type="text" id="archive-name" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tipus de vídeo</label>
+                <div class="mt-1.5 grid grid-cols-2 gap-2">
+                    <button type="button" id="archive-kind-propi" onclick="setArchiveDraftKind('propi')" class="py-2 rounded-lg text-xs font-bold border transition-all">Vídeo propi</button>
+                    <button type="button" id="archive-kind-rival" onclick="setArchiveDraftKind('rival')" class="py-2 rounded-lg text-xs font-bold border transition-all">Scouting rival</button>
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Partit del calendari (opcional)</label>
+                <select id="archive-match" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500"></select>
             </div>
             <p class="text-[11px] text-slate-500 leading-relaxed">En arxivar-lo, el panell quedarà buit i a punt per al següent partit. Podràs consultar-lo o reprendre'l des de «Partits arxivats».</p>
             <div class="flex items-center justify-end gap-3 pt-1">
@@ -2660,7 +2671,7 @@
                 <div id="narr-step-preview" class="hidden space-y-3"></div>
             </div>
             <div id="narr-modal-footer" class="hidden flex gap-2 p-5 pt-3 border-t border-slate-800 shrink-0">
-                <button onclick="commitNarrationImport()" class="flex-1 py-2.5 bg-granate-600 hover:bg-granate-500 text-white text-sm font-bold rounded-lg">Aplica al dashboard</button>
+                <button id="narr-apply-btn" onclick="commitNarrationImport()" class="flex-1 py-2.5 bg-granate-600 hover:bg-granate-500 text-white text-sm font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-granate-600">Aplica al dashboard</button>
                 <button onclick="closeNarrationImport()" class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold rounded-lg">Cancel&middot;la</button>
             </div>
         </div>
@@ -7905,13 +7916,20 @@
         }).catch(() => toast('No he pogut llegir el porta-retalls; enganxa-ho manualment.'));
     }
 
+    const NARR_KINDS = ['partit', 'entreno', 'notes', 'scouting', 'competicio', 'multes'];
+    function buildUnknownDraft(data) {
+        return { kind: 'desconegut', blocked: true, raw: String(data.kind), warnings: [`El tipus "${data.kind}" no és vàlid. Els tipus que accepto són: ${NARR_KINDS.join(', ')}.`], notices: [] };
+    }
+
     function analyzeNarration() {
         const raw = document.getElementById('narr-json-input').value.trim();
         if (!raw) { toast('Enganxa primer el codi de la narració.'); return; }
         let data;
         try { data = JSON.parse(raw); } catch (e) { toast('El codi no és un JSON vàlid: ' + e.message); return; }
 
-        if (data.kind === 'entreno') narrDraft = buildTrainingDraft(data);
+        if (!data || typeof data !== 'object' || Array.isArray(data)) { toast('El codi ha de ser un objecte JSON ({ "kind": … }).'); return; }
+        if (data.kind != null && !NARR_KINDS.includes(data.kind)) narrDraft = buildUnknownDraft(data);
+        else if (data.kind === 'entreno') narrDraft = buildTrainingDraft(data);
         else if (data.kind === 'notes') narrDraft = buildNotesDraft(data);
         else if (data.kind === 'scouting') narrDraft = buildScoutingDraft(data);
         else if (data.kind === 'competicio') narrDraft = buildCompeticioDraft(data);
@@ -7939,7 +7957,12 @@
         });
         if (!scores.length) warnings.push('No hi ha cap puntuació al bloc de codi.');
 
-        return { kind: 'competicio', date: data.date, iso: iso0, session, scores, compName: activeComp().name, warnings };
+        const comp0 = activeComp();
+        const notices = [];
+        if (iso0 && comp0 && (comp0.rounds || []).some(x => x.sessionIso === iso0)) notices.push('Aquest dia ja té puntuació a la competició: se substituirà per la nova.');
+        const blocked = !scores.some(x => x.ref && x.ref.ok && x.ref.id);
+        if (blocked && scores.length) warnings.push('Cap puntuació correspon a un jugador reconegut: no hi ha res a aplicar.');
+        return { kind: 'competicio', date: data.date, iso: iso0, session, scores, compName: comp0.name, warnings, notices, blocked };
     }
 
     /* ------------------------------ scouting -------------------------------- */
@@ -7960,7 +7983,10 @@
         const jornadaKey = match ? match.key : convActiveJornada;
         if (!jornadaKey) warnings.push('No hi ha cap jornada seleccionada a Convocatòries per aplicar-hi l\'scouting.');
 
-        return { kind: 'scouting', rival: data.rival || (match ? match.rival : ''), points, jornadaKey, matchedLabel: match ? match.label : '', warnings };
+        const notices = [];
+        if (jornadaKey && ensureScouting()[jornadaKey] && (ensureScouting()[jornadaKey].points || []).length) notices.push(`Aquesta jornada ja té una fitxa de scouting (${ensureScouting()[jornadaKey].points.length} punts): se substituirà per la nova.`);
+        const jl = convJornadaList().find(j => j.key === jornadaKey);
+        return { kind: 'scouting', rival: data.rival || (match ? match.rival : ''), points, jornadaKey, matchedLabel: match ? match.label : (jl ? jl.label : ''), warnings, notices, blocked: !jornadaKey || !points.length };
     }
 
     /* ------------------------- notes de jugador ----------------------------- */
@@ -7974,7 +8000,8 @@
             if (!n.text || !n.text.trim()) warnings.push(`Nota ${i + 1} (${n.player}): sense text.`);
             return { ref, text: (n.text || '').trim() };
         });
-        return { kind: 'notes', date: data.date || iso(new Date()), notes, warnings };
+        const okNotes = notes.filter(n => n.ref && n.ref.ok && n.ref.id && n.text).length;
+        return { kind: 'notes', date: data.date || iso(new Date()), notes, warnings, notices: [], blocked: !okNotes };
     }
 
     function buildMatchDraft(data) {
@@ -8013,12 +8040,36 @@
             return out;
         });
 
-        const videoMarkers = (data.videoMarkers || []).map((vm, i) => {
-            if (!vm.time) warnings.push(`Tall de vídeo ${i + 1}: sense minut de vídeo indicat.`);
-            return Object.assign({}, vm, { _sec: parseTime(vm.time) });
+        const videoMarkers = (Array.isArray(data.videoMarkers) ? data.videoMarkers : []).map((vm, i) => {
+            vm = vm || {};
+            const tag = `Tall de vídeo ${i + 1}${vm.title ? ' («' + vm.title + '»)' : ''}`;
+            const valid = vm.time != null && /^\d+(:\d{1,2}){0,2}$/.test(String(vm.time).trim());
+            if (!vm.time) warnings.push(`${tag}: sense minut de vídeo indicat (s'ometrà).`);
+            else if (!valid) warnings.push(`${tag}: el minut "${vm.time}" no és vàlid (fes servir mm:ss); s'ometrà.`);
+            if (vm.cat && !VIDEO_CATS[vm.cat]) warnings.push(`${tag}: categoria desconeguda ("${vm.cat}"), es desarà com a «altre».`);
+            return Object.assign({}, vm, { _sec: valid ? parseTime(vm.time) : null, _ok: valid });
         });
-
-        return { kind: 'partit', halfLength: HL, lineupStart, events, videoMarkers, warnings };
+        const hasMatchData = lineupStart.length > 0 || events.length > 0;
+        const videoOnly = !hasMatchData && videoMarkers.length > 0;
+        const notices = [];
+        const videoKind = data.videoKind === 'rival' ? 'rival' : 'propi';
+        if (data.videoKind && data.videoKind !== 'rival' && data.videoKind !== 'propi') warnings.push(`videoKind "${data.videoKind}" no és vàlid (propi o rival); es tractarà com a propi.`);
+        const videoUrl = (data.videoUrl || '').trim();
+        const liveM = ensureMatch();
+        const calM = videoMarkers.length ? findCalendarMatch(hasMatchData
+            ? { rival: data.rival || liveM.rival, jornada: data.jornada || liveM.jornada, kind: videoKind }
+            : { rival: data.rival, jornada: data.jornada, kind: videoKind }) : null;
+        const rivalTxt = data.rival || (calM ? calM.rival : '');
+        if (videoMarkers.length && (data.rival || data.jornada) && !calM) warnings.push(`No trobo cap partit del calendari per a "${data.jornada || data.rival}": el vídeo s'arxivarà sense vincle (el podràs vincular després).`);
+        if (videoMarkers.length && !data.rival && !data.jornada && !hasMatchData) notices.push('No has indicat rival ni jornada: el vídeo s\'arxivarà sense vincle al calendari (el podràs vincular després).');
+        if (videoOnly) notices.push('Només es desaran els talls de vídeo als partits arxivats; no es toca el minutatge del partit en curs.');
+        if (videoMarkers.length && videoUrl && !parseYouTubeId(videoUrl)) notices.push('L\'enllaç no és de YouTube: els talls s\'obriran en una pestanya nova i t\'indicaran el minut on anar.');
+        const emptyBlock = !hasMatchData && !videoMarkers.length;
+        if (emptyBlock) warnings.push('El bloc no porta cap alineació, esdeveniment ni tall de vídeo: no hi ha res a aplicar.');
+        if (videoMarkers.length && !videoMarkers.some(v => v._ok)) warnings.push('Cap tall de vídeo té un minut vàlid.');
+        const blocked = emptyBlock || (videoOnly && !videoMarkers.some(v => v._ok));
+        return { kind: 'partit', halfLength: HL, lineupStart, events, videoMarkers, warnings, notices, blocked, hasMatchData, videoOnly,
+            videoKind, videoUrl, videoName: (data.videoName || '').trim(), rival: rivalTxt, matchKey: calM ? calM.key : '', matchLabel: calM ? calM.label : '' };
     }
 
     /* ---------------------- narració d'entrenaments ------------------------ */
@@ -8047,7 +8098,12 @@
             return { ref, status: ATT_STATES.includes(a.status) ? a.status : 'P' };
         });
 
-        return { kind: 'entreno', date: data.date, dateObj, existingSession, exercises, attendance, warnings };
+        const okDate = !!(dateObj && !isNaN(dateObj));
+        const notices = [];
+        if (existingSession && existingSession.microcicle) notices.push('Es substituiran els exercicis d\'aquest dia al microcicle ' + existingSession.microcicle + ' i s\'actualitzaran el volum, la intensitat i la UC de la sessió.');
+        const blocked = !okDate || !existingSession;
+        if (!exercises.length && !attendance.length) warnings.push('El bloc no porta cap exercici ni assistència.');
+        return { kind: 'entreno', date: data.date, dateObj, existingSession, exercises, attendance, warnings, notices, blocked: blocked || (!exercises.length && !attendance.length) };
     }
 
     /* ---------------------------- multes ------------------------------ */
@@ -8075,15 +8131,23 @@
             if (ref.ok && ref.id && amount != null) {
                 existing = state.fines.items.find(f => String(f.playerId) === String(ref.id) && f.date === dateDisplay && Number(f.amount) === Number(amount) && !f.paid);
             }
-            return { ref, amount, date: dateDisplay, concept, paid, existing };
+            let dupPaid = null;
+            if (ref.ok && ref.id && amount != null && !existing) {
+                dupPaid = state.fines.items.find(f => String(f.playerId) === String(ref.id) && f.date === dateDisplay && Number(f.amount) === Number(amount) && f.paid && Boolean(f.concept) && f.concept === concept);
+                if (dupPaid) warnings.push(`Multa ${i + 1} (${it.player}): ja n'hi ha una de pagada igual (${dateDisplay}, ${amount}€); si l'apliques es duplicarà.`);
+            }
+            if (existing && !paid) warnings.push(`Multa ${i + 1} (${it.player}): ja existeix pendent igual; no s'afegirà un duplicat.`);
+            const valid = !!(ref.ok && ref.id && amount != null && amount > 0);
+            return { ref, amount, date: dateDisplay, concept, paid, existing, valid };
         });
-        return { kind: 'multes', items, warnings };
+        const blocked = !items.some(x => x.valid && !(x.existing && !x.paid));
+        return { kind: 'multes', items, warnings, notices: [], blocked };
     }
     function commitFinesNarration(d) {
         ensureFines();
         let created = 0, updated = 0;
         d.items.forEach(it => {
-            if (!it.ref || !it.ref.ok || !it.ref.id || it.amount == null) return;
+            if (!it.ref || !it.ref.ok || !it.ref.id || it.amount == null || !(it.amount > 0)) return;
             if (it.existing) {
                 if (it.paid && !it.existing.paid) { it.existing.paid = true; updated++; }
             } else {
@@ -8103,65 +8167,91 @@
         document.getElementById('narr-step-paste').classList.add('hidden');
         box.classList.remove('hidden');
         document.getElementById('narr-modal-footer').classList.remove('hidden');
+        const applyBtn = document.getElementById('narr-apply-btn');
+        if (applyBtn) applyBtn.disabled = !!d.blocked;
 
-        const stats = d.kind === 'entreno' ? [
-            ['exercicis', d.exercises.length, 'text-emerald-400'],
-            ['assistències', d.attendance.length, 'text-sky-400'],
-            ['línies contingut', d.content.length, 'text-violet-400']
-        ] : d.kind === 'notes' ? [
-            ['notes', d.notes.length, 'text-sky-400']
-        ] : d.kind === 'scouting' ? [
-            ['punts', d.points.length, 'text-indigo-400']
-        ] : d.kind === 'competicio' ? [
-            ['puntuacions', d.scores.length, 'text-amber-400']
-        ] : d.kind === 'multes' ? [
-            ['multes noves', d.items.filter(x => !x.existing).length, 'text-emerald-400'],
-            ['marcades pagades', d.items.filter(x => x.existing && x.paid).length, 'text-sky-400'],
-            ['import total', d.items.reduce((a, x) => a + (x.amount || 0), 0) + '€', 'text-amber-400']
-        ] : (() => {
+        const pName = r => esc(r && r.ok ? shortName(playerById(r.id)) : ((r && r.raw) || '?'));
+        const row = (inner) => `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5">${inner}</div>`;
+        const cutsList = cuts => cuts.length ? `<div>
+                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Talls de vídeo</p>
+                <div class="space-y-1 max-h-48 overflow-y-auto">${cuts.map(c => {
+                    const cat = VIDEO_CATS[c.cat] || VIDEO_CATS.altre;
+                    return `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5 flex items-center gap-2 ${c._ok ? '' : 'opacity-50'}"><span class="shrink-0 w-12 text-[11px] font-bold tabular-nums text-granate-400">${c._ok ? fmtTime(c._sec) : '—'}</span><span class="min-w-0 flex-1 text-xs text-slate-200 truncate">${esc(c.title || 'Moment')}</span><span class="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${cat.chip}">${cat.label}</span></div>`;
+                }).join('')}</div></div>` : '';
+
+        let stats = [], headline = '', detail = '';
+        if (d.kind === 'desconegut') {
+            headline = `<p class="text-xs text-slate-400">Tipus de bloc: <span class="font-bold text-slate-200">${esc(d.raw)}</span></p>`;
+        } else if (d.kind === 'entreno') {
+            stats = [['exercicis', d.exercises.length, 'text-emerald-400'], ['assistències', d.attendance.length, 'text-sky-400'], [d.existingSession ? 'sessió trobada' : 'sense sessió', d.existingSession ? '✓' : '✗', d.existingSession ? 'text-emerald-400' : 'text-rose-400']];
+            headline = `<p class="text-xs text-slate-400">Entreno del <span class="font-bold text-slate-200">${esc(d.date || '—')}</span>${d.existingSession ? ' · ' + esc(d.existingSession.esdeveniment || '') + (d.existingSession.microcicle ? ' · ' + esc(String(d.existingSession.microcicle)) : '') : ''}</p>`;
+            const att = {}; d.attendance.forEach(a => { att[a.status] = (att[a.status] || 0) + 1; });
+            detail = (d.exercises.length ? `<ul class="space-y-1">${d.exercises.map(e => `<li class="text-xs text-slate-300 flex gap-2"><span class="text-emerald-400 shrink-0">•</span><span class="min-w-0 truncate">${esc(e.name || '(sense nom)')}${e.temps != null ? ' · ' + e.temps + ' min' : ''}${e.series != null ? ' · ' + e.series + ' sèr.' : ''}${e.intensitat != null ? ' · int. ' + e.intensitat : ''}</span></li>`).join('')}</ul>` : '')
+                + (d.attendance.length ? `<p class="text-[11px] text-slate-400">Assistència: ${Object.keys(att).map(k => `<span class="font-bold text-slate-200">${att[k]}</span> ${k}`).join(' · ')}</p>` : '');
+        } else if (d.kind === 'notes') {
+            stats = [['notes', d.notes.length, 'text-sky-400'], ['aplicables', d.notes.filter(n => n.ref && n.ref.ok && n.text).length, 'text-emerald-400']];
+            headline = `<p class="text-xs text-slate-400">Notes de jugador · data <span class="font-bold text-slate-200">${esc(d.date)}</span></p>`;
+            detail = `<div class="space-y-1.5 max-h-56 overflow-y-auto">${d.notes.map(n => `<div class="bg-slate-950/50 rounded-lg p-2.5"><p class="text-[10px] font-bold ${n.ref.ok ? 'text-sky-400' : 'text-rose-400'}">${pName(n.ref)}</p><p class="text-xs text-slate-300 mt-0.5">${esc(n.text)}</p></div>`).join('')}</div>`;
+        } else if (d.kind === 'scouting') {
+            stats = [['punts', d.points.length, 'text-indigo-400']];
+            headline = `<p class="text-xs text-slate-400">Scouting${d.rival ? ' — <span class="font-bold text-slate-200">' + esc(d.rival) + '</span>' : ''}${d.matchedLabel ? ' · s\'aplicarà a <span class="font-bold text-slate-200">' + esc(d.matchedLabel) + '</span>' : ''}</p>`;
+            detail = `<ul class="space-y-1 max-h-48 overflow-y-auto">${d.points.map(pt => `<li class="text-xs text-slate-300 flex gap-2"><span class="text-indigo-400 shrink-0">•</span>${esc(pt)}</li>`).join('')}</ul>`;
+        } else if (d.kind === 'competicio') {
+            stats = [['puntuacions', d.scores.length, 'text-amber-400'], ['punts totals', d.scores.reduce((a, x) => a + (x.points || 0), 0), 'text-emerald-400']];
+            headline = `<p class="text-xs text-slate-400">Competició interna — <span class="font-bold text-slate-200">${esc(d.compName)}</span> · ${esc(d.date || '—')}${d.session ? ' · sessió trobada' : ''}</p>`;
+            detail = `<div class="grid grid-cols-2 gap-1.5">${d.scores.map(sc => `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5 flex items-center justify-between"><span class="text-xs ${sc.ref.ok ? 'text-slate-300' : 'text-rose-400'} truncate">${pName(sc.ref)}</span><span class="text-xs font-extrabold text-amber-400 shrink-0">${sc.points}</span></div>`).join('')}</div>`;
+        } else if (d.kind === 'multes') {
+            const nNew = d.items.filter(x => x.valid && !x.existing).length;
+            const nPaid = d.items.filter(x => x.valid && x.existing && x.paid).length;
+            stats = [['multes noves', nNew, 'text-emerald-400'], ['marcades pagades', nPaid, 'text-sky-400'], ['import nou', d.items.filter(x => x.valid && !x.existing).reduce((a, x) => a + x.amount, 0) + '€', 'text-amber-400']];
+            headline = `<p class="text-xs text-slate-400">Multes · ${d.items.length} ${d.items.length === 1 ? 'línia' : 'línies'}</p>`;
+            detail = `<div class="space-y-1.5 max-h-56 overflow-y-auto">${d.items.map(it => {
+                const tag = !it.valid ? ['· no vàlida', 'text-rose-400'] : it.existing ? (it.paid ? ['· marca pagada', 'text-sky-400'] : ['· ja existeix', 'text-slate-500']) : ['· nova', 'text-emerald-400'];
+                return `<div class="bg-slate-950/50 rounded-lg p-2.5 flex items-center justify-between gap-2"><div class="min-w-0"><p class="text-xs font-bold text-slate-200 truncate">${esc(it.ref.ok ? (personById(it.ref.id) || {}).name || it.ref.raw : (it.ref.raw || '?'))} <span class="text-slate-500 font-normal">· ${esc(it.date)}</span></p><p class="text-[10px] text-slate-500 truncate">${esc(it.concept)}${it.paid ? ' · pagada' : ' · pendent'}</p></div><span class="shrink-0 text-xs font-extrabold ${it.paid ? 'text-emerald-400' : 'text-slate-400'}">${it.amount == null ? '?' : it.amount}€ <span class="font-semibold text-[9px] ${tag[1]}">${tag[0]}</span></span></div>`;
+            }).join('')}</div>`;
+        } else { // partit
             const count = t => d.events.filter(e => e.type === t).length;
-            return [
-                ['canvis', count('sub'), 'text-emerald-400'],
-                ['gols', count('goal_for') + count('goal_against'), 'text-emerald-400'],
-                ['faltes', count('foul'), 'text-orange-400'],
-                ['targetes', count('card'), 'text-rose-400'],
-                ['temps morts', count('timeout'), 'text-amber-400'],
-                ['talls vídeo', d.videoMarkers.length, 'text-violet-400']
-            ];
-        })();
-        const headline = d.kind === 'entreno'
-            ? `<p class="text-xs text-slate-400">Entreno del <span class="font-bold text-slate-200">${d.date || '—'}</span>${d.existingSession ? ' · ' + esc(d.existingSession.esdeveniment || '') : ''}</p>`
-            : d.kind === 'scouting'
-            ? `<p class="text-xs text-slate-400">Scouting${d.rival ? ' — <span class="font-bold text-slate-200">' + esc(d.rival) + '</span>' : ''}${d.matchedLabel ? ' · s\'aplicarà a ' + esc(d.matchedLabel) : ''}</p>`
-            : d.kind === 'competicio'
-            ? `<p class="text-xs text-slate-400">Competició interna — <span class="font-bold text-slate-200">${esc(d.compName)}</span> · ${d.date || '—'}</p>`
-            : '';
-        const notesList = d.kind === 'notes'
-            ? `<div class="space-y-1.5">${d.notes.map(n => `<div class="bg-slate-950/50 rounded-lg p-2.5"><p class="text-[10px] font-bold text-sky-400">${esc(n.ref.ok ? shortName(playerById(n.ref.id)) : (n.ref.raw || '?'))}</p><p class="text-xs text-slate-300 mt-0.5">${esc(n.text)}</p></div>`).join('')}</div>`
-            : d.kind === 'scouting'
-            ? `<ul class="space-y-1">${d.points.map(pt => `<li class="text-xs text-slate-300 flex gap-2"><span class="text-indigo-400 shrink-0">•</span>${esc(pt)}</li>`).join('')}</ul>`
-            : d.kind === 'competicio'
-            ? `<div class="grid grid-cols-2 gap-1.5">${d.scores.map(s => `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5 flex items-center justify-between"><span class="text-xs text-slate-300 truncate">${esc(s.ref.ok ? shortName(playerById(s.ref.id)) : (s.ref.raw || '?'))}</span><span class="text-xs font-extrabold text-amber-400 shrink-0">${s.points}</span></div>`).join('')}</div>`
-            : d.kind === 'multes'
-            ? `<div class="space-y-1.5 max-h-56 overflow-y-auto">${d.items.map(it => `<div class="bg-slate-950/50 rounded-lg p-2.5 flex items-center justify-between gap-2"><div class="min-w-0"><p class="text-xs font-bold text-slate-200 truncate">${esc(it.ref.ok ? (personById(it.ref.id) || {}).name || it.ref.raw : (it.ref.raw || '?'))} <span class="text-slate-500 font-normal">· ${esc(it.date)}</span></p><p class="text-[10px] text-slate-500 truncate">${esc(it.concept)}</p></div><span class="shrink-0 text-xs font-extrabold ${it.paid ? 'text-emerald-400' : 'text-slate-400'}">${it.amount}€ <span class="font-semibold text-[9px] ${it.existing ? 'text-sky-400' : 'text-emerald-400'}">${it.existing ? '· marca pagat' : '· nova'}</span></span></div>`).join('')}</div>`
-            : '';
+            const cuts = d.videoMarkers;
+            if (d.videoOnly) {
+                const byCat = c => cuts.filter(x => x._ok && x.cat === c).length;
+                stats = [['talls vídeo', cuts.filter(x => x._ok).length, 'text-violet-400'], ['gols', byCat('gol-favor') + byCat('gol-contra'), 'text-emerald-400'], ['sense minut vàlid', cuts.filter(x => !x._ok).length, cuts.some(x => !x._ok) ? 'text-rose-400' : 'text-slate-500']];
+            } else {
+                stats = [['canvis', count('sub'), 'text-emerald-400'], ['gols', count('goal_for') + count('goal_against'), 'text-emerald-400'], ['faltes', count('foul'), 'text-orange-400'], ['targetes', count('card'), 'text-rose-400'], ['temps morts', count('timeout'), 'text-amber-400'], ['talls vídeo', cuts.filter(x => x._ok).length, 'text-violet-400']];
+            }
+            const K = ARCH_KIND[d.videoKind === 'rival' ? 'rival' : 'propi'];
+            headline = d.videoOnly
+                ? `<p class="text-xs text-slate-400">Talls de vídeo <span class="inline-block ml-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${K.chip}">${K.label}</span>${d.rival ? ' — <span class="font-bold text-slate-200">' + esc(d.rival) + '</span>' : ''}</p>`
+                : `<p class="text-xs text-slate-400">Partit${d.rival ? ' contra <span class="font-bold text-slate-200">' + esc(d.rival) + '</span>' : ''} · es desarà al minutatge arxivat${cuts.length ? ' i el vídeo a «Partits arxivats»' : ''}</p>`;
+            const dest = cuts.length ? `<p class="text-[11px] text-slate-400">Vídeo arxivat com a <span class="font-bold text-slate-200">${esc(d.videoName || (d.videoOnly ? (d.videoKind === 'rival' ? 'Scouting ' + (d.rival || d.matchLabel || 'rival') : (d.matchLabel || defaultMatchName())) : matchArchiveName()))}</span> · ${d.matchLabel ? 'vinculat a <span class="font-bold text-slate-200">' + esc(d.matchLabel) + '</span>' : 'sense vincle al calendari'}${d.videoUrl ? ' · amb enllaç' : ''}</p>` : '';
+            detail = cutsList(cuts) + dest;
+        }
+
+        const warnBox = d.warnings.length ? `
+                <div class="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3">
+                    <p class="text-[10px] font-bold text-rose-300 uppercase tracking-wider mb-1.5">${d.blocked ? 'No es pot aplicar' : 'Revisa abans de confirmar'} (${d.warnings.length})</p>
+                    <ul class="space-y-1 max-h-40 overflow-y-auto">${d.warnings.map(w => `<li class="text-[11px] text-rose-200">${esc(w)}</li>`).join('')}</ul>
+                </div>` : '';
+        const noticeBox = (d.notices && d.notices.length) ? `
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <p class="text-[10px] font-bold text-amber-300 uppercase tracking-wider mb-1.5">Què passarà</p>
+                    <ul class="space-y-1">${d.notices.map(w => `<li class="text-[11px] text-amber-200">${esc(w)}</li>`).join('')}</ul>
+                </div>` : '';
+        const okLine = (!d.warnings.length && !d.blocked) ? `<p class="text-xs text-emerald-400 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i>Tot resolt correctament, llest per aplicar.</p>` : '';
+        const cols = stats.length >= 6 ? 'grid-cols-3' : stats.length === 2 ? 'grid-cols-2' : stats.length === 1 ? 'grid-cols-1' : 'grid-cols-3';
         box.innerHTML = `
             ${headline}
-            <div class="grid grid-cols-3 gap-2">
-                ${stats.map(([label, n, cls]) => `<div class="bg-slate-950/50 rounded-lg p-2 text-center"><p class="text-lg font-extrabold ${cls}">${n}</p><p class="text-[9px] text-slate-500">${label}</p></div>`).join('')}
-            </div>
-            ${notesList}
-            ${d.warnings.length ? `
-                <div class="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3">
-                    <p class="text-[10px] font-bold text-rose-300 uppercase tracking-wider mb-1.5">Revisa abans de confirmar (${d.warnings.length})</p>
-                    <ul class="space-y-1 max-h-40 overflow-y-auto">${d.warnings.map(w => `<li class="text-[11px] text-rose-200">${esc(w)}</li>`).join('')}</ul>
-                </div>` : `<p class="text-xs text-emerald-400 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i>Tot resolt correctament, llest per aplicar.</p>`}
+            ${stats.length ? `<div class="grid ${cols} gap-2">${stats.map(([label, n, cls]) => `<div class="bg-slate-950/50 rounded-lg p-2 text-center"><p class="text-lg font-extrabold ${cls}">${n}</p><p class="text-[9px] text-slate-500">${label}</p></div>`).join('')}</div>` : ''}
+            ${detail}
+            ${noticeBox}
+            ${warnBox}
+            ${okLine}
             <button onclick="backToNarrationPaste()" class="text-[10px] text-slate-500 hover:text-slate-300 underline">Torna a editar el text</button>`;
         lucide.createIcons();
     }
 
     function commitNarrationImport() {
         if (!narrDraft) return;
+        if (narrDraft.blocked) { toast('Aquest bloc no es pot aplicar: revisa els avisos.'); return; }
         if (narrDraft.kind === 'entreno') commitTrainingNarration(narrDraft);
         else if (narrDraft.kind === 'notes') commitNotesNarration(narrDraft);
         else if (narrDraft.kind === 'scouting') commitScoutingNarration(narrDraft);
@@ -8206,7 +8296,26 @@
         toast(`${applied} nota${applied === 1 ? '' : 's'} afegida${applied === 1 ? '' : 's'} als jugadors.`);
     }
 
+    // Bloc de partit que només porta talls de vídeo (p. ex. scouting d'un
+    // rival): s'arxiven directament, sense tocar el minutatge en curs.
+    function commitVideoOnly(d) {
+        const v = ensureVideo();
+        const markers = d.videoMarkers.filter(vm => vm._ok).map(vm => ({
+            id: vuid(), t: vm._sec, title: vm.title || '', cat: VIDEO_CATS[vm.cat] ? vm.cat : 'altre',
+            part: 0, players: [], note: vm.note || '', link: ''
+        })).sort((a, b) => a.t - b.t);
+        if (!markers.length) { toast('No hi ha cap tall de vídeo vàlid.'); return; }
+        const kind = d.videoKind === 'rival' ? 'rival' : 'propi';
+        const name = d.videoName || (kind === 'rival' ? 'Scouting ' + (d.rival || d.matchLabel || 'rival') : (d.matchLabel || defaultMatchName()));
+        v.archives.unshift({ id: vuid(), name, savedAt: Date.now(), url: d.videoUrl || '', markers, kind, matchKey: d.matchKey || '' });
+        closeNarrationImport();
+        if (typeof renderVideo === 'function') renderVideo();
+        saveSoon();
+        toast(`Vídeo «${name}» arxivat (${markers.length} tall${markers.length === 1 ? '' : 's'}${kind === 'rival' ? ', scouting rival' : ''}).`);
+    }
+
     function commitMatchNarration(d) {
+        if (d.videoOnly) { commitVideoOnly(d); return; }
         const m = ensureMatch();
         m.halfLength = d.halfLength;
 
@@ -8288,7 +8397,8 @@
         m.events.sort((a, b) => (evGlobalMin(m, b) - evGlobalMin(m, a)) || ((b.at || 0) - (a.at || 0)));
 
         const v = ensureVideo();
-        d.videoMarkers.forEach(vm => {
+        if (d.videoUrl && d.videoMarkers.length && !v.url) v.url = d.videoUrl;
+        d.videoMarkers.filter(vm => vm._ok).forEach(vm => {
             const cat = VIDEO_CATS[vm.cat] ? vm.cat : 'altre';
             v.markers.push({ id: vuid(), t: vm._sec, title: vm.title || '', cat, part: 0, players: [], note: vm.note || '', link: v.url || '' });
         });
@@ -8297,7 +8407,9 @@
         // Importar la narració d'un partit vol dir que ja s'ha acabat: arxivem
         // alhora el minutatge i els talls de vídeo, i deixem els dos panells
         // buits i llestos per al següent partit (mateix nom per als dos arxius).
-        const name = matchArchiveName();
+        const name = d.videoName || matchArchiveName();
+        const vKind = d.videoKind === 'rival' ? 'rival' : (v.pendingKind || 'propi');
+        const vMatchKey = d.matchKey || v.pendingMatchKey || '';
         if (matchHasData(m)) {
             const playerNames = {};
             state.players.forEach(p => { playerNames[String(p.id)] = p.name; });
@@ -8308,8 +8420,8 @@
             state.match = emptyMatch(); goalDraft = null;
         }
         if (v.markers.length) {
-            v.archives.unshift({ id: vuid(), name, savedAt: Date.now(), url: v.url || '', markers: v.markers.slice() });
-            v.markers = []; v.url = '';
+            v.archives.unshift({ id: vuid(), name, savedAt: Date.now(), url: v.url || '', markers: v.markers.slice(), kind: vKind, matchKey: vMatchKey });
+            v.markers = []; v.url = ''; delete v.pendingKind; delete v.pendingMatchKey;
         }
 
         closeNarrationImport();
@@ -11326,7 +11438,15 @@
     function openVideoMoment(link, mk) {
         if (!link) { toast('Aquest moment no té enllaç.'); return; }
         const id = parseYouTubeId(link);
-        if (!id) { window.open(link, '_blank', 'noopener'); return; }
+        if (!id) {
+            // Enllaç que no és de YouTube (Veo, Hudl, Drive...): no podem
+            // incrustar-lo ni afegir-hi el minut de forma fiable, així que
+            // l'obrim tal qual i avisem del minut on cal anar.
+            window.open(link, '_blank', 'noopener');
+            const at = mk ? (mk.t || parseYouTubeTime(mk.link) || 0) : 0;
+            if (at) toast('Vídeo obert. Ves al minut ' + fmtTime(at) + (mk && mk.title ? ' — ' + mk.title : '') + '.');
+            return;
+        }
         const secs = Math.max(0, Math.floor(parseYouTubeTime(link) || 0));
         const embedUrl = 'https://www.youtube.com/embed/' + id + '?start=' + secs + '&autoplay=0&rel=0';
         // Sense "noopener": aquí SÍ que necessitem la referència a la
@@ -11472,7 +11592,7 @@
     function closeMarkerEditor() { document.getElementById('marker-modal').classList.add('hidden'); document.body.style.overflow = ''; mkEditId = null; }
 
 
-    /* --- mode presentació (cada moment obre YouTube en una pestanya) --- */
+    /* --- mode presentació (cada moment obre el vídeo en una pestanya) --- */
     let presenting = false, presIdx = 0, presSet = [], presBaseUrl = '';
     function presLink(mk) { return effectiveLink(mk.link, presBaseUrl, mk.t); }
     function startPresentation(ms, baseUrl) {
@@ -11525,10 +11645,56 @@
     const archiveById = id => (ensureVideo().archives || []).find(a => a.id === id);
     function defaultMatchName() { const d = new Date(); return `Partit ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; }
 
+    /* tipus (propi / rival) i vincle amb un partit del calendari */
+    const ARCH_KIND = {
+        propi: { label: 'Propi', chip: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30', icon: 'bg-emerald-500/10 text-emerald-400', on: 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300', off: 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200' },
+        rival: { label: 'Scouting rival', chip: 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30', icon: 'bg-indigo-500/10 text-indigo-400', on: 'bg-indigo-500/20 border-indigo-500/60 text-indigo-300', off: 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200' }
+    };
+    const archKind = a => (a && a.kind === 'rival') ? 'rival' : 'propi';
+    let archiveDraftKind = 'propi';
+    const calMatchByKey = key => key ? convJornadaList().find(j => String(j.key) === String(key)) : null;
+    function archMatchOptions(sel) {
+        const list = convJornadaList();
+        const dt = j => (j.date && j.date.toLocaleDateString) ? ' · ' + j.date.toLocaleDateString('ca-ES', { day: '2-digit', month: '2-digit' }) : '';
+        let html = '<option value="">Sense vincle</option>' + list.map(j => `<option value="${esc(String(j.key))}" ${String(j.key) === String(sel) ? 'selected' : ''}>${esc(j.label + dt(j))}</option>`).join('');
+        if (sel && !list.some(j => String(j.key) === String(sel))) html += `<option value="${esc(String(sel))}" selected>Partit ja no és al calendari (${esc(String(sel))})</option>`;
+        return html;
+    }
+    // Busca al calendari el partit d'un rival (o jornada). Per a scouting
+    // prefereix el proper partit (avui o futur); per a vídeo propi, l'últim jugat.
+    function findCalendarMatch(opts) {
+        const list = convJornadaList(); opts = opts || {};
+        let c = [];
+        if (opts.jornada) { const q = norm(opts.jornada); c = list.filter(j => j.jornada && norm(j.jornada) === q); }
+        if (!c.length && opts.rival) {
+            const q = norm(cleanRival ? cleanRival(opts.rival) : opts.rival);
+            const nr = j => norm(cleanRival ? cleanRival(j.rival || '') : (j.rival || ''));
+            c = list.filter(j => j.rival && nr(j) === q);
+            if (!c.length) c = list.filter(j => j.rival && q && (nr(j).includes(q) || q.includes(nr(j))));
+        }
+        if (!c.length) return null;
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const up = c.filter(j => j.date && +new Date(j.date) >= +today).sort((a, b) => +new Date(a.date) - +new Date(b.date));
+        const past = c.filter(j => !j.date || +new Date(j.date) < +today).sort((a, b) => (b.date ? +new Date(b.date) : 0) - (a.date ? +new Date(a.date) : 0));
+        return opts.kind === 'rival' ? (up[0] || past[0]) : (past[0] || up[0]);
+    }
+    function setArchiveDraftKind(k) {
+        archiveDraftKind = k === 'rival' ? 'rival' : 'propi';
+        ['propi', 'rival'].forEach(x => {
+            const b = document.getElementById('archive-kind-' + x); if (!b) return;
+            const on = x === archiveDraftKind;
+            b.className = 'py-2 rounded-lg text-xs font-bold border transition-all ' + (on ? ARCH_KIND[x].on : ARCH_KIND[x].off);
+        });
+    }
+    function setArchiveKind(id, k) { const a = archiveById(id); if (!a) return; a.kind = k === 'rival' ? 'rival' : 'propi'; renderArchives(); saveSoon(); }
+    function setArchiveMatch(id, key) { const a = archiveById(id); if (!a) return; a.matchKey = key || ''; renderArchives(); saveSoon(); }
+
     function openArchiveModal() {
         const v = ensureVideo();
         if (!v.markers.length) { toast('No hi ha cap moment per arxivar.'); return; }
         document.getElementById('archive-name').value = defaultMatchName();
+        setArchiveDraftKind(v.pendingKind || 'propi');
+        document.getElementById('archive-match').innerHTML = archMatchOptions(v.pendingMatchKey || '');
         const n = v.markers.length;
         document.getElementById('archive-count').innerText = `Es desaran ${n} moment${n === 1 ? '' : 's'} junts en aquest partit.`;
         document.getElementById('archive-modal').classList.remove('hidden');
@@ -11539,9 +11705,13 @@
     function confirmArchive() {
         const v = ensureVideo();
         if (!v.markers.length) { closeArchiveModal(); return; }
-        const name = document.getElementById('archive-name').value.trim() || defaultMatchName();
-        v.archives.unshift({ id: vuid(), name, savedAt: Date.now(), url: v.url || '', markers: v.markers.slice() });
-        v.markers = []; v.url = '';
+        const kind = archiveDraftKind === 'rival' ? 'rival' : 'propi';
+        const matchKey = document.getElementById('archive-match').value || '';
+        let name = document.getElementById('archive-name').value.trim() || defaultMatchName();
+        const cm = calMatchByKey(matchKey);
+        if (cm && name === defaultMatchName()) name = (kind === 'rival' ? 'Scouting ' : '') + cm.label;
+        v.archives.unshift({ id: vuid(), name, savedAt: Date.now(), url: v.url || '', markers: v.markers.slice(), kind, matchKey });
+        v.markers = []; v.url = ''; delete v.pendingKind; delete v.pendingMatchKey;
         closeArchiveModal(); renderVideo(); saveSoon();
         toast(`Partit «${name}» arxivat. Panell buit per al següent.`);
     }
@@ -11554,17 +11724,26 @@
         if (!arr.length) { list.innerHTML = `<div class="p-6 text-center text-sm text-slate-500">Encara no has arxivat cap partit. Quan acabis un, prem «Tanca i arxiva».</div>`; return; }
         list.innerHTML = arr.map(a => {
             const n = (a.markers || []).length; const open = expandedArchive === a.id;
+            const k = archKind(a), K = ARCH_KIND[k]; const cm = calMatchByKey(a.matchKey);
+            const matchTxt = a.matchKey ? (cm ? cm.label : 'partit eliminat del calendari') : '';
             const moments = (a.markers || []).slice().sort(markerCmp).map(mk => archiveMarkerRow(a.id, mk)).join('') || '<p class="text-xs text-slate-500 py-3">Sense moments.</p>';
             return `<div class="border-b border-slate-800/60 last:border-0">
                 <button onclick="toggleArchive('${a.id}')" class="w-full p-4 flex items-center gap-3 text-left hover:bg-slate-800/30 transition-all">
-                    <div class="shrink-0 w-9 h-9 rounded-lg bg-granate-500/10 text-granate-400 flex items-center justify-center"><i data-lucide="folder" class="w-4 h-4"></i></div>
+                    <div class="shrink-0 w-9 h-9 rounded-lg ${K.icon} flex items-center justify-center"><i data-lucide="${k === 'rival' ? 'scan-search' : 'folder'}" class="w-4 h-4"></i></div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-slate-100 truncate">${esc(a.name)}</p>
-                        <p class="text-[11px] text-slate-500">${arxDate(a.savedAt)} · ${n} moment${n === 1 ? '' : 's'}</p>
+                        <div class="flex items-center gap-2 min-w-0"><p class="text-sm font-semibold text-slate-100 truncate">${esc(a.name)}</p><span class="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${K.chip}">${K.label}</span></div>
+                        <p class="text-[11px] text-slate-500 truncate">${arxDate(a.savedAt)} · ${n} moment${n === 1 ? '' : 's'}${matchTxt ? ' · ' + esc(matchTxt) : ''}</p>
                     </div>
                     <i data-lucide="${open ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4 text-slate-500 shrink-0"></i>
                 </button>
                 ${open ? `<div class="px-4 pb-4 space-y-3">
+                    <div class="coach-only grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setArchiveKind('${a.id}','propi')" class="py-2 rounded-lg text-[11px] font-bold border transition-all ${k === 'propi' ? ARCH_KIND.propi.on : ARCH_KIND.propi.off}">Vídeo propi</button>
+                            <button onclick="setArchiveKind('${a.id}','rival')" class="py-2 rounded-lg text-[11px] font-bold border transition-all ${k === 'rival' ? ARCH_KIND.rival.on : ARCH_KIND.rival.off}">Scouting rival</button>
+                        </div>
+                        <select onchange="setArchiveMatch('${a.id}', this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-granate-500">${archMatchOptions(a.matchKey || '')}</select>
+                    </div>
                     <div class="divide-y divide-slate-800/40 border-y border-slate-800/40">${moments}</div>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="presentArchive('${a.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-xs font-semibold rounded-lg transition-all"><i data-lucide="monitor-play" class="w-3.5 h-3.5"></i>Presentar</button>
@@ -11613,6 +11792,7 @@
         if (v.markers.length && !confirm('El panell actual té moments sense arxivar. Els vols substituir per aquest partit? Arxiva\u2019ls abans si els vols conservar.')) return;
         v.markers = (a.markers || []).map(m => Object.assign({}, m));
         v.url = a.url || '';
+        v.pendingKind = archKind(a); v.pendingMatchKey = a.matchKey || '';
         v.archives = v.archives.filter(x => x.id !== id);
         expandedArchive = null;
         renderVideo(); saveSoon();
