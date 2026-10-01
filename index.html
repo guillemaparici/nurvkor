@@ -8060,7 +8060,9 @@
             if (!vm.time) warnings.push(`${tag}: sense minut de vídeo indicat (s'ometrà).`);
             else if (!valid) warnings.push(`${tag}: el minut "${vm.time}" no és vàlid (fes servir mm:ss); s'ometrà.`);
             if (vm.cat && !VIDEO_CATS[vm.cat]) warnings.push(`${tag}: categoria desconeguda ("${vm.cat}"), es desarà com a «altre».`);
-            return Object.assign({}, vm, { _sec: valid ? parseTime(vm.time) : null, _ok: valid });
+            const part = (Number(vm.part) === 1 || Number(vm.part) === 2) ? Number(vm.part) : 0;
+            if (vm.part != null && vm.part !== '' && !part) warnings.push(`${tag}: part "${vm.part}" no vàlida (1 o 2); es deixarà sense part.`);
+            return Object.assign({}, vm, { _sec: valid ? parseTime(vm.time) : null, _ok: valid, _part: part, _link: String(vm.link || '').trim() });
         });
         const hasMatchData = lineupStart.length > 0 || events.length > 0;
         const videoOnly = !hasMatchData && videoMarkers.length > 0;
@@ -8076,7 +8078,7 @@
         if (videoMarkers.length && (data.rival || data.jornada) && !calM) warnings.push(`No trobo cap partit del calendari per a "${data.jornada || data.rival}": el vídeo s'arxivarà sense vincle (el podràs vincular després).`);
         if (videoMarkers.length && !data.rival && !data.jornada && !hasMatchData) notices.push('No has indicat rival ni jornada: el vídeo s\'arxivarà sense vincle al calendari (el podràs vincular després).');
         if (videoOnly) notices.push('Només es desaran els talls de vídeo als partits arxivats; no es toca el minutatge del partit en curs.');
-        if (videoMarkers.length && videoUrl && !parseYouTubeId(videoUrl)) notices.push('L\'enllaç no és de YouTube: els talls s\'obriran en una pestanya nova i t\'indicaran el minut on anar.');
+        if (videoMarkers.length && ((videoUrl && !parseYouTubeId(videoUrl)) || videoMarkers.some(x => x._link && !parseYouTubeId(x._link)))) notices.push('L\'enllaç no és de YouTube: els talls s\'obriran en una pestanya nova i t\'indicaran el minut on anar.');
         const emptyBlock = !hasMatchData && !videoMarkers.length;
         if (emptyBlock) warnings.push('El bloc no porta cap alineació, esdeveniment ni tall de vídeo: no hi ha res a aplicar.');
         if (videoMarkers.length && !videoMarkers.some(v => v._ok)) warnings.push('Cap tall de vídeo té un minut vàlid.');
@@ -8194,7 +8196,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Talls de vídeo</p>
                 <div class="space-y-1 max-h-48 overflow-y-auto">${cuts.map(c => {
                     const cat = VIDEO_CATS[c.cat] || VIDEO_CATS.altre;
-                    return `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5 flex items-center gap-2 ${c._ok ? '' : 'opacity-50'}"><span class="shrink-0 w-12 text-[11px] font-bold tabular-nums text-granate-400">${c._ok ? fmtTime(c._sec) : '—'}</span><span class="min-w-0 flex-1 text-xs text-slate-200 truncate">${esc(c.title || 'Moment')}</span><span class="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${cat.chip}">${cat.label}</span></div>`;
+                    return `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5 flex items-center gap-2 ${c._ok ? '' : 'opacity-50'}"><span class="shrink-0 w-12 text-[11px] font-bold tabular-nums text-granate-400">${c._ok ? fmtTime(c._sec) : '—'}</span><span class="min-w-0 flex-1 text-xs text-slate-200 truncate">${esc(c.title || 'Moment')}${c._part ? ' <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-700 text-slate-200">' + c._part + 'a part</span>' : ''}</span><span class="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${cat.chip}">${cat.label}</span></div>`;
                 }).join('')}</div></div>` : '';
 
         let stats = [], headline = '', detail = '';
@@ -8320,8 +8322,8 @@
         const v = ensureVideo();
         const markers = d.videoMarkers.filter(vm => vm._ok).map(vm => ({
             id: vuid(), t: vm._sec, title: vm.title || '', cat: VIDEO_CATS[vm.cat] ? vm.cat : 'altre',
-            part: 0, players: [], note: vm.note || '', link: '', clip: String(vm.clip || '').trim() || undefined
-        })).sort((a, b) => a.t - b.t);
+            part: vm._part || 0, players: [], note: vm.note || '', link: vm._link || '', clip: String(vm.clip || '').trim() || undefined
+        })).sort(markerCmp);
         if (!markers.length) { toast('No hi ha cap tall de vídeo vàlid.'); return; }
         const kind = d.videoKind === 'rival' ? 'rival' : 'propi';
         const name = d.videoName || (kind === 'rival' ? 'Scouting ' + (d.rival || d.matchLabel || 'rival') : (d.matchLabel || defaultMatchName()));
@@ -8418,9 +8420,9 @@
         if (d.videoUrl && d.videoMarkers.length && !v.url) v.url = d.videoUrl;
         d.videoMarkers.filter(vm => vm._ok).forEach(vm => {
             const cat = VIDEO_CATS[vm.cat] ? vm.cat : 'altre';
-            v.markers.push({ id: vuid(), t: vm._sec, title: vm.title || '', cat, part: 0, players: [], note: vm.note || '', link: v.url || '', clip: String(vm.clip || '').trim() || undefined });
+            v.markers.push({ id: vuid(), t: vm._sec, title: vm.title || '', cat, part: vm._part || 0, players: [], note: vm.note || '', link: vm._link || v.url || '', clip: String(vm.clip || '').trim() || undefined });
         });
-        v.markers.sort((a, b) => a.t - b.t);
+        v.markers.sort(markerCmp);
 
         // Importar la narració d'un partit vol dir que ja s'ha acabat: arxivem
         // alhora el minutatge i els talls de vídeo, i deixem els dos panells
@@ -11901,7 +11903,7 @@
     function toggleArchive(id) { expandedArchive = (expandedArchive === id) ? null : id; renderArchives(); }
     function presentArchive(id) {
         const a = archiveById(id); if (!a) return;
-        const ms = (a.markers || []).slice().sort((x, y) => (x.t || 0) - (y.t || 0));
+        const ms = (a.markers || []).slice().sort(markerCmp);
         if (!ms.length) { toast('Aquest partit no té moments.'); return; }
         startPresentation(ms, a.url || '');
     }
