@@ -2035,6 +2035,13 @@
                             <input type="text" id="video-url" placeholder="https://youtu.be/…  o  https://app.veo.co/matches/…  —  enllaç base del partit" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-granate-500 transition-all">
                             <button onclick="setVideoFromInput()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg transition-all shrink-0">Desa l'enllaç</button>
                         </div>
+                        <div id="clips-folder-row" class="mt-3 flex flex-col sm:flex-row sm:items-center gap-2 bg-slate-950/50 rounded-lg p-3">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Clips locals (Win+Alt+R)</p>
+                                <p id="clips-folder-status" class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">—</p>
+                            </div>
+                            <button onclick="clipLinkFolder()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg transition-all shrink-0">Enllaça la carpeta de clips</button>
+                        </div>
                         <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Si el poses, els moments obriran aquest vídeo. A YouTube s'obre al segon indicat; amb Veo (o altres) s'obre el vídeo i l'app t'avisa del minut al qual has d'anar. També pots enganxar un enllaç propi a cada moment.</p>
                     </div>
                 </div>
@@ -2213,6 +2220,12 @@
                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Enllaç del vídeo (YouTube, Veo…)</label>
                 <input type="text" id="mk-link" oninput="onLinkInput()" placeholder="https://youtu.be/…?t=90" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
                 <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">A YouTube: clic dret sobre el vídeo → «Copia l'URL del vídeo al moment actual» per obtenir l'enllaç amb el minut. A Veo (o altres): enganxa l'enllaç del partit i escriu el temps (mm:ss) aquí sota.</p>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Clip local (sense internet) · opcional</label>
+                <input type="text" id="mk-clip" list="mk-clip-list" placeholder="nom del clip, p. ex. Gol Aleix.mp4" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
+                <datalist id="mk-clip-list"></datalist>
+                <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Escriu o tria un clip de la carpeta enllaçada (a la pestanya Vídeo). En clicar el moment s'obrirà aquest clip; si no es troba, s'obrirà l'enllaç.</p>
             </div>
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Temps (mm:ss) · opcional</label>
@@ -8117,6 +8130,7 @@
         const warnings = [];
         if (!Array.isArray(data.items) || !data.items.length) warnings.push('No hi ha cap multa al bloc de codi.');
         ensureFines();
+        const usedFines = new Set();
         const items = (data.items || []).map((it, i) => {
             const ref = resolveFinesRef(it.player);
             if (!ref.ok) warnings.push(`Multa ${i + 1}: no trobo cap jugador amb el nom "${it.player}".`);
@@ -8127,21 +8141,25 @@
             const dateDisplay = dateObj && !isNaN(dateObj) ? dateObj.toLocaleDateString('ca-ES') : (it.date || new Date().toLocaleDateString('ca-ES'));
             const concept = (it.concept || 'Multa').trim();
             const paid = !!it.paid;
+            // Una multa ja guardada (mateix jugador, data i import) compta com a
+            // existent tant si és pagada com pendent: no es duplica mai. Cada
+            // multa guardada només es fa servir un cop, així dues línies iguals
+            // al text casen amb dues multes iguals ja guardades.
             let existing = null;
             if (ref.ok && ref.id && amount != null) {
-                existing = state.fines.items.find(f => String(f.playerId) === String(ref.id) && f.date === dateDisplay && Number(f.amount) === Number(amount) && !f.paid);
+                const cands = state.fines.items.filter(f => !usedFines.has(f.id) && String(f.playerId) === String(ref.id) && f.date === dateDisplay && Number(f.amount) === Number(amount));
+                existing = cands.find(f => f.concept === concept && (paid ? !f.paid : f.paid)) || cands.find(f => f.concept === concept) || cands[0] || null;
+                if (existing) usedFines.add(existing.id);
             }
-            let dupPaid = null;
-            if (ref.ok && ref.id && amount != null && !existing) {
-                dupPaid = state.fines.items.find(f => String(f.playerId) === String(ref.id) && f.date === dateDisplay && Number(f.amount) === Number(amount) && f.paid && Boolean(f.concept) && f.concept === concept);
-                if (dupPaid) warnings.push(`Multa ${i + 1} (${it.player}): ja n'hi ha una de pagada igual (${dateDisplay}, ${amount}€); si l'apliques es duplicarà.`);
-            }
-            if (existing && !paid) warnings.push(`Multa ${i + 1} (${it.player}): ja existeix pendent igual; no s'afegirà un duplicat.`);
             const valid = !!(ref.ok && ref.id && amount != null && amount > 0);
-            return { ref, amount, date: dateDisplay, concept, paid, existing, valid };
+            const willPay = !!(existing && paid && !existing.paid);
+            return { ref, amount, date: dateDisplay, concept, paid, existing, valid, willPay };
         });
-        const blocked = !items.some(x => x.valid && !(x.existing && !x.paid));
-        return { kind: 'multes', items, warnings, notices: [], blocked };
+        const nSkip = items.filter(x => x.valid && x.existing && !x.willPay).length;
+        const notices = nSkip ? [`${nSkip} ${nSkip === 1 ? 'multa ja existeix' : 'multes ja existeixen'} a l'app (mateix jugador, data i import) i no es tornaran a afegir.`] : [];
+        const blocked = !items.some(x => x.valid && (!x.existing || x.willPay));
+        if (blocked && items.length && !warnings.length) notices.push('Totes les multes ja són a l\'app: no hi ha res a aplicar.');
+        return { kind: 'multes', items, warnings, notices, blocked };
     }
     function commitFinesNarration(d) {
         ensureFines();
@@ -8202,11 +8220,11 @@
             detail = `<div class="grid grid-cols-2 gap-1.5">${d.scores.map(sc => `<div class="bg-slate-950/50 rounded-lg px-2.5 py-1.5 flex items-center justify-between"><span class="text-xs ${sc.ref.ok ? 'text-slate-300' : 'text-rose-400'} truncate">${pName(sc.ref)}</span><span class="text-xs font-extrabold text-amber-400 shrink-0">${sc.points}</span></div>`).join('')}</div>`;
         } else if (d.kind === 'multes') {
             const nNew = d.items.filter(x => x.valid && !x.existing).length;
-            const nPaid = d.items.filter(x => x.valid && x.existing && x.paid).length;
-            stats = [['multes noves', nNew, 'text-emerald-400'], ['marcades pagades', nPaid, 'text-sky-400'], ['import nou', d.items.filter(x => x.valid && !x.existing).reduce((a, x) => a + x.amount, 0) + '€', 'text-amber-400']];
+            const nPaid = d.items.filter(x => x.valid && x.willPay).length;
+            stats = [['multes noves', nNew, 'text-emerald-400'], ['marcades pagades', nPaid, 'text-sky-400'], ['ja existents', d.items.filter(x => x.valid && x.existing && !x.willPay).length, 'text-slate-400']];
             headline = `<p class="text-xs text-slate-400">Multes · ${d.items.length} ${d.items.length === 1 ? 'línia' : 'línies'}</p>`;
             detail = `<div class="space-y-1.5 max-h-56 overflow-y-auto">${d.items.map(it => {
-                const tag = !it.valid ? ['· no vàlida', 'text-rose-400'] : it.existing ? (it.paid ? ['· marca pagada', 'text-sky-400'] : ['· ja existeix', 'text-slate-500']) : ['· nova', 'text-emerald-400'];
+                const tag = !it.valid ? ['· no vàlida', 'text-rose-400'] : it.existing ? (it.willPay ? ['· marca pagada', 'text-sky-400'] : ['· ja existeix', 'text-slate-500']) : ['· nova', 'text-emerald-400'];
                 return `<div class="bg-slate-950/50 rounded-lg p-2.5 flex items-center justify-between gap-2"><div class="min-w-0"><p class="text-xs font-bold text-slate-200 truncate">${esc(it.ref.ok ? (personById(it.ref.id) || {}).name || it.ref.raw : (it.ref.raw || '?'))} <span class="text-slate-500 font-normal">· ${esc(it.date)}</span></p><p class="text-[10px] text-slate-500 truncate">${esc(it.concept)}${it.paid ? ' · pagada' : ' · pendent'}</p></div><span class="shrink-0 text-xs font-extrabold ${it.paid ? 'text-emerald-400' : 'text-slate-400'}">${it.amount == null ? '?' : it.amount}€ <span class="font-semibold text-[9px] ${tag[1]}">${tag[0]}</span></span></div>`;
             }).join('')}</div>`;
         } else { // partit
@@ -8302,7 +8320,7 @@
         const v = ensureVideo();
         const markers = d.videoMarkers.filter(vm => vm._ok).map(vm => ({
             id: vuid(), t: vm._sec, title: vm.title || '', cat: VIDEO_CATS[vm.cat] ? vm.cat : 'altre',
-            part: 0, players: [], note: vm.note || '', link: ''
+            part: 0, players: [], note: vm.note || '', link: '', clip: String(vm.clip || '').trim() || undefined
         })).sort((a, b) => a.t - b.t);
         if (!markers.length) { toast('No hi ha cap tall de vídeo vàlid.'); return; }
         const kind = d.videoKind === 'rival' ? 'rival' : 'propi';
@@ -8400,7 +8418,7 @@
         if (d.videoUrl && d.videoMarkers.length && !v.url) v.url = d.videoUrl;
         d.videoMarkers.filter(vm => vm._ok).forEach(vm => {
             const cat = VIDEO_CATS[vm.cat] ? vm.cat : 'altre';
-            v.markers.push({ id: vuid(), t: vm._sec, title: vm.title || '', cat, part: 0, players: [], note: vm.note || '', link: v.url || '' });
+            v.markers.push({ id: vuid(), t: vm._sec, title: vm.title || '', cat, part: 0, players: [], note: vm.note || '', link: v.url || '', clip: String(vm.clip || '').trim() || undefined });
         });
         v.markers.sort((a, b) => a.t - b.t);
 
@@ -9852,7 +9870,7 @@
                 const idx = flat++; pmMoments.push(it);
                 const mk = it.mk; const cat = VIDEO_CATS[mk.cat] || VIDEO_CATS.altre;
                 const secs = mk.t || parseYouTubeTime(mk.link) || 0; const tl = secs ? fmtTime(secs) : '▶';
-                const h = !!it.link;
+                const h = !!it.link || !!(it.mk && it.mk.clip);
                 return `<button onclick="openPlayerMoment(${idx})" ${h ? '' : 'disabled'} class="w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${h ? 'bg-slate-950/50 border-slate-800/60 hover:border-granate-500/60' : 'bg-slate-900/40 border-slate-800/40 cursor-not-allowed'}">
                     <span class="shrink-0 w-14 py-1 rounded-lg text-[11px] font-bold tabular-nums text-center ${h ? 'bg-slate-900 border border-slate-800 text-granate-400' : 'bg-slate-900 text-slate-600'}">${tl}</span>
                     <span class="min-w-0 flex-1">
@@ -9875,7 +9893,7 @@
     }
     function openPlayerMoment(i) {
         const it = pmMoments[i]; if (!it) return;
-        if (!it.link) { toast('Aquest moment no té enllaç.'); return; }
+        if (!it.link && !(it.mk && it.mk.clip)) { toast('Aquest moment no té enllaç.'); return; }
         openVideoMoment(it.link, it.mk);
     }
 
@@ -9917,7 +9935,7 @@
                 const idx = flat++; pmMoments.push(it);
                 const mk = it.mk; const cat = VIDEO_CATS[mk.cat] || VIDEO_CATS.altre;
                 const secs = mk.t || parseYouTubeTime(mk.link) || 0; const tl = secs ? fmtTime(secs) : '▶';
-                const h = !!it.link;
+                const h = !!it.link || !!(it.mk && it.mk.clip);
                 return `<button onclick="openPlayerMoment(${idx})" ${h ? '' : 'disabled'} class="w-full flex items-center gap-3 p-2.5 rounded-lg border text-left transition-all ${h ? 'bg-slate-950/60 border-slate-800/60 hover:border-granate-500/60' : 'bg-slate-900/40 border-slate-800/40 cursor-not-allowed'}">
                     <span class="shrink-0 w-12 py-1 rounded-md text-[10px] font-bold tabular-nums text-center ${h ? 'bg-slate-900 border border-slate-800 text-granate-400' : 'bg-slate-900 text-slate-600'}">${tl}</span>
                     <span class="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap"><span class="text-xs font-semibold text-slate-100 truncate">${esc(mk.title || 'Moment')}</span><span class="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${cat.chip}">${cat.label}</span></span>
@@ -11436,6 +11454,11 @@
     // (minut, títol, categoria i jugadors), per distingir-los un cop
     // oberts en pestanyes diferents del navegador.
     function openVideoMoment(link, mk) {
+        if (mk && mk.clip && clipsSupported()) {
+            // Clip local: la finestra s'ha d'obrir ara, dins el gest del clic.
+            openLocalClip(mk, link);
+            return;
+        }
         if (!link) { toast('Aquest moment no té enllaç.'); return; }
         const id = parseYouTubeId(link);
         if (!id) {
@@ -11470,6 +11493,7 @@
 
     function renderVideo() {
         const v = ensureVideo();
+        clipRefreshStatus();
         const urlInput = document.getElementById('video-url');
         if (urlInput && document.activeElement !== urlInput) urlInput.value = v.url || '';
         const catSel = document.getElementById('mk-cat');
@@ -11498,7 +11522,7 @@
             const cat = VIDEO_CATS[mk.cat] || VIDEO_CATS.altre;
             const names = (mk.players || []).map(mkName).filter(Boolean).join(', ');
             const sub = [names, mk.note].filter(Boolean).join(' · ');
-            const hasLink = !!markerLink(mk);
+            const hasLink = !!markerLink(mk) || !!mk.clip;
             const secs = mk.t || parseYouTubeTime(mk.link) || 0;
             const timeLabel = secs ? fmtTime(secs) : '▶';
             return `<div class="p-4 hover:bg-slate-800/30 transition-all flex items-center gap-3">
@@ -11508,6 +11532,7 @@
                         <span class="text-sm font-semibold text-slate-100">${esc(mk.title || 'Moment')}</span>
                         <span class="text-[10px] font-bold px-2 py-0.5 rounded ${cat.chip}">${cat.label}</span>
                         ${partBadge(mk)}
+                        ${mk.clip ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">clip</span>' : ''}
                         ${hasLink ? '' : '<span class="text-[10px] font-medium text-slate-500">sense enllaç</span>'}
                     </div>
                     ${sub ? `<p class="text-[11px] text-slate-500 truncate mt-0.5">${esc(sub)}</p>` : ''}
@@ -11522,7 +11547,7 @@
         const mk = ensureVideo().markers.find(x => x.id === id);
         if (!mk) return;
         const link = markerLink(mk);
-        if (!link) { toast('Aquest moment no té enllaç; edita el moment per afegir-ne un.'); return; }
+        if (!link && !mk.clip) { toast('Aquest moment no té enllaç; edita el moment per afegir-ne un.'); return; }
         openVideoMoment(link, mk);
     }
 
@@ -11542,6 +11567,8 @@
         if (!catSel.options.length) catSel.innerHTML = Object.keys(VIDEO_CATS).map(k => `<option value="${k}">${VIDEO_CATS[k].label}</option>`).join('');
         document.getElementById('mk-title').value = mk.title || '';
         document.getElementById('mk-link').value = mk.link || '';
+        document.getElementById('mk-clip').value = mk.clip || '';
+        clipFillDatalist();
         document.getElementById('mk-time').value = mk.t ? fmtTime(mk.t) : '';
         document.getElementById('mk-part').value = String(mk.part || 0);
         catSel.value = mk.cat || 'altre';
@@ -11573,6 +11600,8 @@
         if (!mk) return;
         mk.title = document.getElementById('mk-title').value.trim() || 'Moment';
         mk.link = document.getElementById('mk-link').value.trim();
+        mk.clip = document.getElementById('mk-clip').value.trim();
+        if (!mk.clip) delete mk.clip;
         let t = parseTime(document.getElementById('mk-time').value);
         const lt = parseYouTubeTime(mk.link);
         if (!t && lt != null) t = lt;
@@ -11635,8 +11664,97 @@
     function presOpenLink() {
         if (!presSet.length) return;
         const link = presLink(presSet[presIdx]);
-        if (!link) { toast('Aquest moment no té enllaç.'); return; }
+        if (!link && !presSet[presIdx].clip) { toast('Aquest moment no té enllaç.'); return; }
         openVideoMoment(link, presSet[presIdx]);
+    }
+
+    /* --- clips locals (Win+Alt+R) ---
+       La carpeta es tria un cop per ordinador (Chrome / Edge). L'accés es
+       guarda a IndexedDB; el navegador pot tornar a demanar permís en
+       reobrir l'app (un clic). Cada moment pot portar `clip` (nom del
+       fitxer); en clicar-lo s'obre el clip local i, si no es pot, l'enllaç. */
+    function clipsSupported() { return typeof window.showDirectoryPicker === 'function' && !!window.indexedDB; }
+    function clipIdb() {
+        return new Promise((res, rej) => {
+            const rq = indexedDB.open('nurvkor-clips', 1);
+            rq.onupgradeneeded = () => rq.result.createObjectStore('kv');
+            rq.onsuccess = () => res(rq.result);
+            rq.onerror = () => rej(rq.error);
+        });
+    }
+    async function clipStoreGet() {
+        try { const db = await clipIdb(); return await new Promise(res => { const r = db.transaction('kv').objectStore('kv').get('dir'); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); }); }
+        catch (e) { return null; }
+    }
+    async function clipStorePut(h) {
+        const db = await clipIdb();
+        return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(h, 'dir'); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
+    }
+    // Retorna la carpeta si hi ha permís; amb interactive=true el demana
+    // (només funciona dins d'un gest de l'usuari, com un clic).
+    async function clipGetDir(interactive) {
+        const h = await clipStoreGet(); if (!h) return null;
+        try {
+            let perm = await h.queryPermission({ mode: 'read' });
+            if (perm !== 'granted' && interactive) perm = await h.requestPermission({ mode: 'read' });
+            return perm === 'granted' ? h : null;
+        } catch (e) { return null; }
+    }
+    const CLIP_EXT = /\.(mp4|mkv|webm|mov|m4v)$/i;
+    async function clipListNames(dir) {
+        const names = [];
+        try { for await (const [name, h] of dir.entries()) if (h.kind === 'file' && CLIP_EXT.test(name)) names.push(name); } catch (e) {}
+        return names.sort((a, b) => a.localeCompare(b, 'ca', { numeric: true }));
+    }
+    async function clipFindFile(dir, wanted) {
+        const w = String(wanted || '').trim(); if (!w) return null;
+        try { return await (await dir.getFileHandle(w)).getFile(); } catch (e) {}
+        const names = await clipListNames(dir);
+        const nw = norm(w).replace(CLIP_EXT, '');
+        const hit = names.find(n => norm(n) === norm(w)) || names.find(n => norm(n).replace(CLIP_EXT, '') === nw);
+        if (!hit) return null;
+        try { return await (await dir.getFileHandle(hit)).getFile(); } catch (e) { return null; }
+    }
+    async function clipRefreshStatus() {
+        const el = document.getElementById('clips-folder-status'); if (!el) return;
+        if (!clipsSupported()) { el.textContent = 'Aquest navegador no permet enllaçar carpetes (fes servir Chrome o Edge a l\u2019ordinador).'; return; }
+        const h = await clipStoreGet();
+        if (!h) { el.textContent = 'Cap carpeta enllaçada. Tria on es guarden els clips de Win+Alt+R (normalment Vídeos › Captures).'; return; }
+        const dir = await clipGetDir(false);
+        el.textContent = dir ? `Carpeta enllaçada: ${h.name} ✓` : `Carpeta «${h.name}» enllaçada; en obrir un clip el navegador et demanarà permís (un clic).`;
+    }
+    async function clipLinkFolder() {
+        if (!clipsSupported()) { toast('Aquest navegador no permet enllaçar carpetes. Fes servir Chrome o Edge.'); return; }
+        try {
+            const h = await window.showDirectoryPicker({ id: 'nurvkor-clips', mode: 'read', startIn: 'videos' });
+            await clipStorePut(h);
+            toast(`Carpeta «${h.name}» enllaçada.`);
+        } catch (e) { if (e && e.name !== 'AbortError') toast('No he pogut enllaçar la carpeta.'); }
+        clipRefreshStatus();
+    }
+    async function clipFillDatalist() {
+        const dl = document.getElementById('mk-clip-list'); if (!dl) return;
+        dl.innerHTML = '';
+        const dir = await clipGetDir(false); if (!dir) return;
+        const names = await clipListNames(dir);
+        dl.innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join('');
+    }
+    async function openLocalClip(mk, fallbackLink) {
+        const w = window.open('', '_blank');
+        const fail = msg => {
+            if (w) w.close();
+            if (fallbackLink) { toast(msg + ' S\u2019obre l\u2019enllaç.'); openVideoMoment(fallbackLink, Object.assign({}, mk, { clip: '' })); }
+            else toast(msg);
+        };
+        const dir = await clipGetDir(true);
+        if (!dir) return fail('No tinc accés a la carpeta de clips (enllaça-la a la pestanya Vídeo).');
+        const file = await clipFindFile(dir, mk.clip);
+        if (!file) return fail(`No trobo el clip «${mk.clip}» a la carpeta.`);
+        if (!w) { toast('El navegador ha bloquejat la pestanya nova.'); return; }
+        const url = URL.createObjectURL(file);
+        w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(momentLabel(mk)) +
+            '</title><style>html,body{margin:0;height:100%;background:#000;}video{position:fixed;inset:0;width:100%;height:100%;}</style></head><body><video src="' + url + '" controls autoplay></video></body></html>');
+        w.document.close();
     }
 
     /* --- partits arxivats --- */
@@ -11761,13 +11879,13 @@
         const cat = VIDEO_CATS[mk.cat] || VIDEO_CATS.altre;
         const names = (mk.players || []).map(mkName).filter(Boolean).join(', ');
         const sub = [names, mk.note].filter(Boolean).join(' · ');
-        const link = archiveMarkerLink(aid, mk);
+        const link = archiveMarkerLink(aid, mk) || (mk.clip ? 'clip' : '');
         const secs = mk.t || parseYouTubeTime(mk.link) || 0;
         const tl = secs ? fmtTime(secs) : '▶';
         return `<div class="py-2.5 flex items-center gap-3">
             <button onclick="openArchiveLink('${aid}','${mk.id}')" ${link ? '' : 'disabled'} class="shrink-0 w-14 py-1 rounded-lg text-[11px] font-bold tabular-nums transition-all ${link ? 'bg-slate-950 border border-slate-800 text-granate-400 hover:border-granate-500' : 'bg-slate-900 border border-slate-800/50 text-slate-600 cursor-not-allowed'}">${tl}</button>
             <button onclick="openArchiveLink('${aid}','${mk.id}')" class="min-w-0 flex-1 text-left">
-                <div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-semibold text-slate-200">${esc(mk.title || 'Moment')}</span><span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${cat.chip}">${cat.label}</span>${partBadge(mk)}</div>
+                <div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-semibold text-slate-200">${esc(mk.title || 'Moment')}</span><span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${cat.chip}">${cat.label}</span>${partBadge(mk)}${mk.clip ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">clip</span>' : ''}</div>
                 ${sub ? `<p class="text-[10px] text-slate-500 truncate mt-0.5">${esc(sub)}</p>` : ''}
             </button>
         </div>`;
@@ -11777,7 +11895,7 @@
         const a = archiveById(aid); if (!a) return;
         const mk = (a.markers || []).find(x => x.id === mkid); if (!mk) return;
         const link = archiveMarkerLink(aid, mk);
-        if (!link) { toast('Aquest moment no té enllaç.'); return; }
+        if (!link && !mk.clip) { toast('Aquest moment no té enllaç.'); return; }
         openVideoMoment(link, mk);
     }
     function toggleArchive(id) { expandedArchive = (expandedArchive === id) ? null : id; renderArchives(); }
