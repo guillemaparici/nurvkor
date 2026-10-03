@@ -1,5 +1,5 @@
 // NurvKor service worker — puja VERSION a cada publicació per forçar l'actualització
-const VERSION = 'nurvkor-v2';
+const VERSION = 'nurvkor-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './icon-monochrome-512.png', './apple-touch-icon.png'];
 const CDN_HOSTS = ['cdn.tailwindcss.com', 'cdn.jsdelivr.net', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -20,6 +20,12 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   // Mai cachejar Supabase ni l'API d'Anthropic
   if (url.hostname.endsWith('.supabase.co') || url.hostname === 'api.anthropic.com') return;
+
+  // Manifest: sempre xarxa primer perquè les icones noves arribin a l'instal·lació
+  if (url.origin === location.origin && url.pathname.endsWith('manifest.webmanifest')) {
+    e.respondWith(fetch(req).catch(() => caches.match(req)));
+    return;
+  }
 
   // Pàgina: xarxa primer (agafa les actualitzacions de GitHub), cache si no hi ha xarxa
   if (req.mode === 'navigate' || (url.origin === location.origin && (url.pathname.endsWith('/') || url.pathname.endsWith('index.html')))) {
