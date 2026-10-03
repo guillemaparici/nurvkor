@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#08090b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="NurvKor">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <title>NurvKor · Gestió d'equips de futbol sala</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -186,6 +194,12 @@
             <div class="flex items-center justify-between mb-5">
                 <h2 class="text-lg font-bold">Configuració</h2>
                 <button onclick="closeAppConfig()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+
+            <div id="pwa-install-box" class="hidden mb-5 p-3 rounded-xl border border-slate-800 bg-slate-950">
+                <div class="text-xs font-medium text-slate-300 mb-1">Instal·la l'app</div>
+                <p id="pwa-install-hint" class="text-[11px] text-slate-400 mb-2">Afegeix NurvKor a la pantalla d'inici per obrir-la com una app.</p>
+                <button id="pwa-install-btn" onclick="pwaInstall()" class="hidden px-3 py-2 rounded-lg bg-granate-600 hover:bg-granate-500 text-white text-xs font-semibold">Instal·la l'app</button>
             </div>
 
             <label class="block text-xs font-medium text-slate-400 mb-1.5">Nom del club</label>
@@ -17770,5 +17784,36 @@ ${userText}`;
 
         agCheckSessionAndEnter();
     </script>
+<script>
+// ===== PWA: service worker + instal·lació =====
+(function(){
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+    }
+    var deferred = null;
+    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    function box(){ return document.getElementById('pwa-install-box'); }
+    window.addEventListener('beforeinstallprompt', function(e){
+        e.preventDefault(); deferred = e;
+        var b = box(), btn = document.getElementById('pwa-install-btn');
+        if (b && btn && !standalone) { b.classList.remove('hidden'); btn.classList.remove('hidden'); }
+    });
+    window.addEventListener('appinstalled', function(){ deferred = null; var b = box(); if (b) b.classList.add('hidden'); });
+    window.pwaInstall = function(){
+        if (!deferred) return;
+        deferred.prompt();
+        deferred.userChoice.finally(function(){ deferred = null; var b = box(); if (b) b.classList.add('hidden'); });
+    };
+    document.addEventListener('DOMContentLoaded', function(){
+        var ua = navigator.userAgent || '';
+        var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        var b = box();
+        if (b && isIOS && !standalone) {
+            document.getElementById('pwa-install-hint').textContent = "A l'iPhone: toca el botó Compartir de Safari i tria «Afegeix a la pantalla d'inici».";
+            b.classList.remove('hidden');
+        }
+    });
+})();
+</script>
 </body>
 </html>
