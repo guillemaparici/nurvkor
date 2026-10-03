@@ -1,5 +1,5 @@
 // NurvKor service worker — puja VERSION a cada publicació per forçar l'actualització
-const VERSION = 'nurvkor-v6';
+const VERSION = 'nurvkor-v8';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './favicon-32.png', './favicon-64.png', './icon-maskable-512.png', './icon-monochrome-512.png', './apple-touch-icon.png'];
 const CDN_HOSTS = ['cdn.tailwindcss.com', 'cdn.jsdelivr.net', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
