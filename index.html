@@ -109,29 +109,47 @@
             .spg-grid > .squad-card > :last-child { margin-top: auto; }
             .spg-grid > .squad-card > :nth-last-child(2) { margin-bottom: .75rem; }
         }
-        @media (min-width:1280px){ .spg-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+        @media (min-width:1280px){ #squad-cards-grid .spg-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
         #squad-summary > summary { list-style: none; }
         #squad-summary > summary::-webkit-details-marker { display: none; }
         #squad-summary[open] > summary .squad-chev { transform: rotate(180deg); }
         /* Estadística: franja fina de KPIs d'equip */
-        .kpi-strip { display: flex; flex-wrap: wrap; background: rgba(31,31,31,.8); border-radius: 1rem; box-shadow: 0 8px 24px -14px rgba(0,0,0,.55); overflow: hidden; }
-        .kpi-strip .ks-cell { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-start; gap: .15rem; padding: .7rem 1.4rem; min-width: 0; }
-        .kpi-strip .ks-cell + .ks-cell { border-left: 1px solid rgba(58,58,58,.55); }
-        .kpi-strip .ks-lbl { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #9f9f9f; }
-        .kpi-strip .ks-val { font-size: 1.3rem; font-weight: 800; color: #fff; line-height: 1.15; white-space: nowrap; }
-        .kpi-strip .ks-sub { font-size: 10.5px; color: #737373; }
-        .kpi-strip .ks-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; background: #2a2a2a; min-width: 64px; margin-top: .1rem; }
-        .kpi-strip .ks-ha { display: flex; align-items: baseline; gap: .45rem; font-size: 1rem; line-height: 1.25; }
-        .kpi-strip .ks-hl { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #737373; width: 1.9rem; }
+        .kpi-strip { display: grid; grid-template-columns: .9fr 1.1fr 1.35fr 1.3fr 1.55fr; background: rgba(31,31,31,.8); background-image: linear-gradient(135deg, rgb(var(--granate-600) / .09), transparent 55%); border-radius: 1.1rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px -14px rgba(0,0,0,.55); overflow: hidden; }
+        .kpi-strip .ks-cell { display: flex; flex-direction: column; justify-content: flex-start; gap: .45rem; padding: .85rem 1.4rem; min-width: 0; }
+        .kpi-strip .ks-cell + .ks-cell { border-left: 1px solid rgba(255,255,255,.07); }
+        .kpi-strip .ks-lbl { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9f9f9f; }
+        .kpi-strip .ks-val { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1; white-space: nowrap; }
+        .kpi-strip .ks-val small { font-size: .9rem; font-weight: 600; color: #9f9f9f; margin-left: .2rem; }
+        .kpi-strip .ks-sub { font-size: 10.5px; color: #8a8a8a; }
+        .kpi-strip .ks-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+        .kpi-strip .ks-ring { width: 46px; height: 46px; flex-shrink: 0; }
+        .kpi-strip .ks-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #2f2f2f; width: 100%; gap: 2px; }
+        .kpi-strip .ks-bar span { border-radius: 3px; }
+        .kpi-strip .ks-tri { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+        .kpi-strip .ks-tri > span { display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .35rem 0 .3rem; border-radius: .7rem; background: color-mix(in srgb, var(--c) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 28%, transparent); }
+        .kpi-strip .ks-tri b { font-size: 1.35rem; font-weight: 800; line-height: 1; color: var(--c); }
+        .kpi-strip .ks-tri i { font-style: normal; font-size: 9px; font-weight: 700; letter-spacing: .1em; color: #9f9f9f; }
+        .kpi-strip .ks-gl { display: flex; align-items: baseline; gap: .55rem; }
+        .kpi-strip .ks-gl b { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+        .kpi-strip .ks-gl .gf { color: #34d399; } .kpi-strip .ks-gl .gc { color: #fb7185; } .kpi-strip .ks-gl .sep { color: #5a5a5a; font-weight: 700; }
+        .kpi-strip .ks-diff { margin-left: auto; align-self: center; font-size: 11px; font-weight: 800; padding: .2rem .55rem; border-radius: 999px; }
+        .kpi-strip .ks-diff.pos { color: #34d399; background: rgba(16,185,129,.14); } .kpi-strip .ks-diff.neg { color: #fb7185; background: rgba(244,63,94,.14); } .kpi-strip .ks-diff.zero { color: #9f9f9f; background: rgba(255,255,255,.07); }
+        .kpi-strip .ks-ha { display: grid; grid-template-columns: 2.2rem auto 1fr; align-items: center; gap: .6rem; }
+        .kpi-strip .ks-hl { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8a8a8a; }
+        .kpi-strip .ks-chips { display: flex; gap: .3rem; }
+        .kpi-strip .ks-chips b { min-width: 1.5rem; text-align: center; font-size: 12.5px; font-weight: 800; padding: .12rem .3rem; border-radius: .45rem; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+        @media (max-width: 1100px) { .kpi-strip { grid-template-columns: repeat(3, 1fr); } .kpi-strip .ks-cell:nth-child(n+4) { border-top: 1px solid rgba(255,255,255,.07); } .kpi-strip .ks-cell:nth-child(4) { border-left: 0; } }
         @media (max-width: 767px) {
-            .kpi-strip .ks-cell { flex: 1 1 45%; border-left: 0 !important; border-bottom: 1px solid rgba(58,58,58,.4); padding: .6rem 1rem; }
+            .kpi-strip { grid-template-columns: 1fr 1fr; }
+            .kpi-strip .ks-cell { border-left: 0 !important; border-top: 1px solid rgba(255,255,255,.07); padding: .75rem 1rem; }
+            .kpi-strip .ks-cell:nth-child(-n+2) { border-top: 0; } .kpi-strip .ks-cell:nth-child(even) { border-left: 1px solid rgba(255,255,255,.07) !important; }
+            .kpi-strip .ks-cell:last-child { grid-column: 1 / -1; border-left: 0 !important; }
         }
 
         /* ===== Capa de moviment i profunditat (inspirada en micro-interaccions UI) ===== */
         body::before { content: ''; position: fixed; inset: -25%; z-index: -1; pointer-events: none;
             background:
-              radial-gradient(38% 34% at 82% 8%, rgba(155,28,49,.20), transparent 70%),
-              radial-gradient(30% 28% at 12% 95%, rgba(155,28,49,.08), transparent 70%);
+              radial-gradient(50% 42% at 90% 0%, rgb(var(--granate-600) / .09), transparent 70%);
             animation: nkAurora 38s ease-in-out infinite alternate; }
         @keyframes nkAurora { from { transform: translate3d(-2%,-1%,0) rotate(0deg) scale(1); } to { transform: translate3d(3%,2%,0) rotate(6deg) scale(1.06); } }
         @keyframes nkRise { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
@@ -139,7 +157,7 @@
         @keyframes nkGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         .tab-content:not(.hidden) { animation: nkFade .45s cubic-bezier(.2,.8,.2,1) backwards; }
         /* Targetes: relleu suau (llum superior + vora) */
-        .bg-slate-900\/80.rounded-2xl:not(.squad-card) { background-image: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 38%); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px -16px rgba(0,0,0,.6) !important; }
+        .bg-slate-900\/80.rounded-2xl:not(.squad-card) { background-image: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 38%), linear-gradient(135deg, rgb(var(--granate-600) / .09), transparent 50%); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px -16px rgba(0,0,0,.6) !important; }
         /* Fitxes de jugador */
         .spg-grid > .squad-card { transition: transform .38s cubic-bezier(.2,.8,.2,1), box-shadow .38s, background-color .3s; }
         .spg-grid > .squad-card { isolation: isolate; }
@@ -175,7 +193,7 @@
         }
 
         /* ===== Barra lateral fluida i minimalista ===== */
-        #sidebar { background: rgba(28,28,28,.72) !important; -webkit-backdrop-filter: blur(24px) saturate(1.2); backdrop-filter: blur(24px) saturate(1.2); border-right: 0 !important; transition: transform .3s, width .4s cubic-bezier(.2,.8,.2,1); }
+        #sidebar { background: linear-gradient(165deg, rgb(var(--granate-600) / .85) 0%, rgb(var(--granate-800) / .62) 38%, rgb(var(--granate-950) / .55) 70%, rgba(24,24,24,.92) 100%), rgba(24,24,24,.9) !important; -webkit-backdrop-filter: blur(24px) saturate(1.2); backdrop-filter: blur(24px) saturate(1.2); border-right: 0 !important; transition: transform .3s, width .4s cubic-bezier(.2,.8,.2,1); }
         @media (min-width: 768px) {
             #sidebar { margin: 12px 0 12px 12px; height: calc(100% - 24px) !important; border-radius: 28px; border: 1px solid rgba(255,255,255,.08) !important;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 24px 60px -24px rgba(0,0,0,.8) !important; }
@@ -6258,22 +6276,24 @@
         const lligaPlayed = played.filter(c => matchPeriod(c) === 'lliga');
         const pts = (statsPeriod === 'pretemporada' || !lligaPlayed.length) ? null
             : lligaPlayed.reduce((a, c) => a + (c.res === 'V' ? 3 : c.res === 'E' ? 1 : 0), 0);
-        const dash = '<span class="text-slate-600">-</span>';
-        const diff = gf - gc;
-        const bar = played.length
-            ? `<div class="ks-bar" title="${w} victòries · ${e} empats · ${l} derrotes">${[[w, '#10b981'], [e, '#f59e0b'], [l, '#f43f5e']].filter(x => x[0]).map(x => `<span style="flex:${x[0]};background:${x[1]}"></span>`).join('')}</div>`
-            : '<div class="ks-bar"></div>';
-        const cell = (lbl, val, sub, extra) => `<div class="ks-cell"><span class="ks-lbl">${lbl}</span><span class="ks-val">${val}</span>${sub ? `<span class="ks-sub">${sub}</span>` : ''}${extra || ''}</div>`;
+        const diff = gf - gc, total = cal.length, pj = played.length;
+        const seg = (arr, rest) => `<div class="ks-bar">${arr.filter(x => x[0]).map(x => `<span style="flex:${x[0]};background:${x[1]}"></span>`).join('')}${rest > 0 ? `<span style="flex:${rest};background:transparent"></span>` : ''}</div>`;
+        const aprof = (pts !== null && lligaPlayed.length) ? Math.round(pts / (lligaPlayed.length * 3) * 100) : null;
+        const ring = pct => `<svg class="ks-ring" viewBox="0 0 36 36" title="Aprofitament de punts"><circle cx="18" cy="18" r="15" fill="none" stroke="#2f2f2f" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(pct / 100 * 94.25).toFixed(1)} 94.25" transform="rotate(-90 18 18)"/><text x="18" y="21.3" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff">${pct}%</text></svg>`;
+        const chips = (v, e, d) => `<span class="ks-chips"><b style="--c:#10b981">${v}</b><b style="--c:#f59e0b">${e}</b><b style="--c:#f43f5e">${d}</b></span>`;
+        const haRow = (lbl, v, e, d) => `<div class="ks-ha"><span class="ks-hl">${lbl}</span>${chips(v, e, d)}${seg([[v, '#10b981'], [e, '#f59e0b'], [d, '#f43f5e']], (v + e + d) ? 0 : 1)}</div>`;
+        const cell = (lbl, inner) => `<div class="ks-cell"><span class="ks-lbl">${lbl}</span>${inner}</div>`;
+        const ptsSub = pts === null ? (statsPeriod === 'pretemporada' ? 'Només a lliga' : 'Cap partit de lliga') : `${lligaPlayed.length} PJ · lliga`;
         document.getElementById('stats-kpis').innerHTML = [
-            cell('Punts', pts === null ? '<span class="text-slate-600">—</span>' : `<span style="color:#34d399">${pts}</span>`, pts === null ? (statsPeriod === 'pretemporada' ? 'Només a lliga' : 'Cap partit de lliga') : 'Lliga'),
-            cell('J', played.length, `de ${cal.length} jornades`, bar),
-            cell('Balanç', `${w}${dash}${e}${dash}${l}`, 'V · E · D'),
-            cell('Gols', `${gf} <span style="font-size:.85rem;font-weight:600;color:#9f9f9f">/ ${gc}</span>`, `Diferència ${diff >= 0 ? '+' : ''}${diff}`),
-            cell('Local / Visitant', `<span class="ks-ha"><span class="ks-hl">Casa</span><span>${hw}${dash}${he}${dash}${hl}</span></span><span class="ks-ha"><span class="ks-hl">Fora</span><span>${aw}${dash}${ae}${dash}${al}</span></span>`, '')
+            cell('Punts', `<div class="ks-row"><div><span class="ks-val">${pts === null ? '<span style="color:#5a5a5a">—</span>' : `<span style="color:#34d399">${pts}</span>`}</span><div class="ks-sub" style="margin-top:.3rem">${ptsSub}</div></div>${aprof !== null ? ring(aprof) : ''}</div>`),
+            cell('J', `<div class="ks-row"><span class="ks-val">${pj}<small>/ ${total}</small></span><span class="ks-sub">${total ? Math.round(pj / total * 100) : 0}% jugat</span></div>${seg([[w, '#10b981'], [e, '#f59e0b'], [l, '#f43f5e']], Math.max(0, total - pj))}`),
+            cell('Balanç', `<div class="ks-tri"><span style="--c:#10b981"><b>${w}</b><i>V</i></span><span style="--c:#f59e0b"><b>${e}</b><i>E</i></span><span style="--c:#f43f5e"><b>${l}</b><i>D</i></span></div>`),
+            cell('Gols', `<div class="ks-gl"><b class="gf">${gf}</b><b class="sep">/</b><b class="gc">${gc}</b><span class="ks-diff ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero'}">${diff > 0 ? '+' : ''}${diff}</span></div>${seg([[gf, '#34d399'], [gc, '#fb7185']], (gf + gc) ? 0 : 1)}`),
+            cell('Local / Visitant', haRow('Casa', hw, he, hl) + haRow('Fora', aw, ae, al))
         ].join('');
     }
 
-    let statsPeriod = 'tot';
+    let statsPeriod = 'lliga';
     /* (Fase C) Àmbit de les estadístiques = període + (opcionalment) UN partit arxivat.
        statsMatchKey = id del partit arxivat seleccionat; null = tota la temporada / el període. */
     let statsMatchKey = null;
