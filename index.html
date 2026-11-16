@@ -85,11 +85,27 @@
             }
         }
         /* Plantilla: graella de targetes a tot l'ample + resum plegable */
+        /* Plantilla: cada posició = resum del grup (esquerra) + targetes (dreta) */
+        .squad-pos-group { --pc: #a78bfa; }
+        .spg-sum { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1.1rem; margin-bottom: .75rem; padding: .6rem .9rem; border-radius: .9rem; background: rgba(15,23,42,.8); box-shadow: inset 3px 0 0 var(--pc); }
+        .spg-name { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pc); }
+        .spg-count { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1; }
+        .spg-count small { font-size: 11px; font-weight: 600; color: #94a3b8; margin-left: .3rem; }
+        .spg-share { display: none; height: 4px; border-radius: 2px; background: #1e293b; overflow: hidden; width: 100%; }
+        .spg-share > span { display: block; height: 100%; background: var(--pc); border-radius: 2px; }
+        .spg-stat { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; font-size: 11px; color: #94a3b8; }
+        .spg-stat b { font-size: 13px; font-weight: 800; color: #fff; }
+        .spg-stats { display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+        .spg-grid .squad-card { box-shadow: inset 0 2px 0 var(--pc), 0 8px 24px -14px rgba(0,0,0,.55); }
         @media (min-width:1024px){
-            #squad-cards-grid:not(.hidden) { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1.5rem 2rem; }
-            #squad-cards-grid > .squad-pos-group { margin-top: 0; }
-            #squad-cards-grid .squad-pos-group > div { display: grid; grid-template-columns: repeat(var(--n, 4), 190px); gap: 1rem; }
+            #squad-cards-grid:not(.hidden) { display: flex; flex-direction: column; gap: 1.5rem; }
+            #squad-cards-grid > .squad-pos-group { margin-top: 0; display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 1.25rem; align-items: stretch; }
+            .spg-sum { flex-direction: column; align-items: stretch; flex-wrap: nowrap; margin-bottom: 0; padding: 1rem 1.1rem; gap: .55rem; }
+            .spg-share { display: block; }
+            .spg-stats { flex-direction: column; gap: .35rem; padding-top: .65rem; border-top: 1px solid rgba(51,65,85,.55); }
+            .spg-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; align-content: start; }
         }
+        @media (min-width:1280px){ .spg-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
         #squad-summary > summary { list-style: none; }
         #squad-summary > summary::-webkit-details-marker { display: none; }
         #squad-summary[open] > summary .squad-chev { transform: rotate(180deg); }
@@ -794,11 +810,13 @@
                                 <div class="shrink-0 flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5">
                                     <button id="squad-view-cards-btn" onclick="setSquadView('cards')" title="Vista de targetes" class="w-8 h-8 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i></button>
                                     <button id="squad-view-table-btn" onclick="setSquadView('table')" title="Vista de taula" class="w-8 h-8 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all"><i data-lucide="list" class="w-3.5 h-3.5"></i></button>
+                                    <button id="squad-view-3d-btn" onclick="setSquadView('3d')" title="Pista 3D i telemetria d'equip" class="coach-only w-8 h-8 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all"><i data-lucide="box" class="w-3.5 h-3.5"></i></button>
                                 </div>
                                 <button onclick="openPlayerEditor()" class="coach-only shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Afegeix jugador</button>
                             </div>
                         </div>
                         <div id="squad-cards-grid" class="hidden space-y-6 p-6"></div>
+                        <div id="squad-3d-wrap" class="hidden" style="padding:12px"><div id="squad-3d-host"></div></div>
                         <div id="squad-table-wrap" class="overflow-x-auto flex-1">
                             <table class="w-full text-sm sticky2">
                                 <thead class="bg-slate-950/60 text-[10px] uppercase tracking-wider text-slate-400">
@@ -5433,26 +5451,31 @@
     /* -- vista de targetes de la plantilla -- */
     let squadView = 'cards';
     function setSquadView(view) {
+        // La vista 3D mostra càrregues individuals: només per a l'entrenador.
+        if (view === '3d' && typeof appRole !== 'undefined' && appRole === 'player') view = 'cards';
         squadView = view;
-        const cardsGrid = document.getElementById('squad-cards-grid'), tableWrap = document.getElementById('squad-table-wrap');
+        const cardsGrid = document.getElementById('squad-cards-grid'), tableWrap = document.getElementById('squad-table-wrap'), wrap3d = document.getElementById('squad-3d-wrap');
         if (cardsGrid) cardsGrid.classList.toggle('hidden', view !== 'cards');
         if (tableWrap) tableWrap.classList.toggle('hidden', view !== 'table');
-        const cardsBtn = document.getElementById('squad-view-cards-btn'), tableBtn = document.getElementById('squad-view-table-btn');
-        [[cardsBtn, view === 'cards'], [tableBtn, view === 'table']].forEach(([btn, active]) => {
+        if (wrap3d) wrap3d.classList.toggle('hidden', view !== '3d');
+        const cardsBtn = document.getElementById('squad-view-cards-btn'), tableBtn = document.getElementById('squad-view-table-btn'), btn3d = document.getElementById('squad-view-3d-btn');
+        [[cardsBtn, view === 'cards'], [tableBtn, view === 'table'], [btn3d, view === '3d']].forEach(([btn, active]) => {
             if (!btn) return;
             btn.classList.toggle('bg-slate-800', active);
             btn.classList.toggle('text-emerald-400', active);
             btn.classList.toggle('text-slate-400', !active);
         });
+        if (view === '3d') mountSquad3D(); else unmountSquad3D();
         lucide.createIcons();
     }
     const SQUAD_POS_ORDER = ['Porter', 'Tanca', 'Tancament', 'Ala', 'Pivot', 'Universal'];
-    function squadCardHTML(p) {
+    const SQUAD_POS_COLOR = { Porter: '#10b981', Tanca: '#38bdf8', Tancament: '#38bdf8', Ala: '#f59e0b', Pivot: '#f43f5e', Universal: '#a78bfa' };
+    const squadTotals = p => computePlayerEvolution(p.id).reduce((a, r) => ({ min: a.min + r.minutes, gols: a.gols + r.gols, assist: a.assist + r.assist }), { min: 0, gols: 0, assist: 0 });
+    function squadCardHTML(p, tot) {
         const age = ageOf(p.anyNaixement);
         const baixa = p.actiu === false;
         const initials = (p.name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-        const rows = computePlayerEvolution(p.id);
-        const t = rows.reduce((a, r) => ({ min: a.min + r.minutes, gols: a.gols + r.gols, assist: a.assist + r.assist }), { min: 0, gols: 0, assist: 0 });
+        const t = tot || squadTotals(p);
         const badges = `${p.extern ? `<span class="text-[8px] font-extrabold px-1.5 py-0.5 rounded bg-indigo-600 text-white shrink-0">SÈNIOR B</span>` : ''}${baixa ? `<span class="text-[8px] font-bold uppercase tracking-wider text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded shrink-0">Baixa</span>` : ''}`;
         return `<button onclick="openPlayerProfile(${jsArg(p.id)})" class="squad-card group relative text-left bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl hover:border-granate-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-granate-950/20 transition-all duration-200 flex items-center gap-3 p-3 sm:block sm:p-4 ${baixa ? 'opacity-50' : ''}">
                 <div class="relative w-12 h-12 rounded-xl bg-granate-500/10 border border-granate-500/30 flex items-center justify-center font-black text-sm text-granate-300 shrink-0 sm:mb-3">
@@ -5483,13 +5506,144 @@
         list.forEach(p => { const k = p.posicio || 'Sense posició'; (groups[k] = groups[k] || []).push(p); });
         const orderedKeys = SQUAD_POS_ORDER.filter(k => groups[k]).concat(Object.keys(groups).filter(k => !SQUAD_POS_ORDER.includes(k)));
 
-        grid.innerHTML = orderedKeys.map(k => `<div class="squad-pos-group" style="--n:${Math.min(groups[k].length, 5)}">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">${esc(k)} <span class="text-slate-600 normal-case font-medium">· ${groups[k].length}</span></p>
-                <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-4">
-                    ${groups[k].map(squadCardHTML).join('')}
+        const tmap = new Map(list.map(p => [p.id, squadTotals(p)]));
+        grid.innerHTML = orderedKeys.map(k => {
+            const ps = groups[k];
+            const sum = ps.reduce((a, p) => { const t = tmap.get(p.id); return { min: a.min + t.min, gols: a.gols + t.gols, assist: a.assist + t.assist }; }, { min: 0, gols: 0, assist: 0 });
+            const ages = ps.map(p => ageOf(p.anyNaixement)).filter(x => x !== null);
+            const avgAge = ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1) : '—';
+            const share = Math.round(ps.length / list.length * 100);
+            const color = SQUAD_POS_COLOR[k] || '#a78bfa';
+            const stat = (lbl, v) => `<span class="spg-stat"><span>${lbl}</span><b>${v}</b></span>`;
+            return `<div class="squad-pos-group" style="--pc:${color}">
+                <div class="spg-sum">
+                    <span class="spg-name">${esc(k)}</span>
+                    <span class="spg-count">${ps.length}<small>${ps.length === 1 ? 'jugador' : 'jugadors'} · ${share}%</small></span>
+                    <span class="spg-share"><span style="width:${share}%"></span></span>
+                    <span class="spg-stats">${stat('Edat mitjana', avgAge)}${stat('Minuts', sum.min)}${stat('Gols', sum.gols)}${stat('Assist.', sum.assist)}</span>
                 </div>
-            </div>`).join('');
+                <div class="spg-grid grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-4">
+                    ${ps.map(p => squadCardHTML(p, tmap.get(p.id))).join('')}
+                </div>
+            </div>`;
+        }).join('');
         lucide.createIcons();
+    }
+
+
+    /* ===================== Vista 3D de la plantilla (NK3D) =====================
+       Adaptador: converteix l'estat de NurvKor en el JSON net que espera el mòdul
+       NK3D (vegeu l'esquema a la capçalera del mòdul). Càrrega setmanal d'un jugador =
+       Σ càrrega de cada entrenament on ha estat present (P/R) + Σ minuts reals × intensitat
+       del partit. Aguda = setmana; crònica = mitjana de 4 setmanes; ACWR = aguda / crònica. */
+    let squad3D = null, squad3DDemo = false, squad3DMounting = false;
+    const mondayOf = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+    function squad3DRole(p, state3) {
+        const pos = norm(p.posicio), lat = norm(p.lateralitat);
+        if (pos.startsWith('porter')) return 'POR';
+        if (pos.startsWith('tanc')) return 'TAN';
+        if (pos.startsWith('pivot')) return 'PIV';
+        // Ala (o universal/sense posició): carril segons lateralitat; si no consta, s'alterna
+        if (/^(e|esq|izq)/.test(lat)) return 'ALA-E';
+        if (/^(d|dre|der)/.test(lat)) return 'ALA-D';
+        return (state3.alt++ % 2) ? 'ALA-D' : 'ALA-E';
+    }
+    function buildSquad3DData() {
+        const players = squadPlayers();
+        if (!players.length) return null;
+        const todayD = new Date(); todayD.setHours(23, 59, 59, 999);
+        const sessions = (state.sessions || []).filter(s => s && s.iso);
+        const trainings = sessions.filter(s => !isMatch(s.esdeveniment) && !isRestSession(s));
+        const archive = (ensureMatchArchive() || []).filter(a => a && a.match && a.match.date);
+        const stamps = [];
+        trainings.forEach(s => { if (players.some(p => p.attendance && p.attendance[s.iso])) { const d = toDate(s.iso); if (d && d <= todayD) stamps.push(d); } });
+        archive.forEach(a => { const d = toDate(a.match.date); if (d && d <= todayD) stamps.push(d); });
+        if (!stamps.length) return null;
+        let w0 = mondayOf(new Date(Math.min(...stamps))); const wEnd = mondayOf(new Date(Math.max(...stamps)));
+        let nW = Math.round((wEnd - w0) / 604800000) + 1;
+        if (nW > 30) { w0 = new Date(wEnd.getFullYear(), wEnd.getMonth(), wEnd.getDate() - 7 * 29); nW = 30; }
+        const widx = d => { const i = Math.round((mondayOf(d) - w0) / 604800000); return (i >= 0 && i < nW) ? i : -1; };
+        const f2 = d => String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+        const weeks = Array.from({ length: nW }, (_, i) => {
+            const a = new Date(w0.getFullYear(), w0.getMonth(), w0.getDate() + 7 * i), b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 6);
+            return { label: 'Setm. ' + (i + 1), range: f2(a) + ' – ' + f2(b), match: '' };
+        });
+        archive.forEach(a => {
+            const d = toDate(a.match.date), i = d ? widx(d) : -1;
+            if (i >= 0) { const m = a.match; weeks[i].match = [m.jornada, cleanRival(m.rival || a.name || '')].filter(Boolean).join(' · ') || weeks[i].range; }
+        });
+        weeks.forEach(w => { if (!w.match) w.match = w.range; });
+        const alt = { alt: 0 };
+        const out = players.map(p => {
+            const hist = Array.from({ length: nW }, () => ({ train: 0, match: 0, minutes: 0, _uc: 0, _vol: 0, _mi: 0 }));
+            trainings.forEach(s => {
+                const v = p.attendance ? p.attendance[s.iso] : null;
+                if (v !== 'P' && v !== 'R') return;
+                const d = toDate(s.iso), i = d ? widx(d) : -1; if (i < 0) return;
+                const f = sessionLoadFull(s);
+                hist[i].train += f.uc; hist[i]._uc += f.uc; hist[i]._vol += f.volum;
+            });
+            archive.forEach(a => {
+                const m = a.match, d = toDate(m.date), i = d ? widx(d) : -1; if (i < 0) return;
+                const mins = minutesInArchive(m, p.id); if (mins <= 0) return;
+                const mi = matchIntensity(m);
+                hist[i].match += mins * mi; hist[i].minutes += mins; hist[i]._mi += mins * mi;
+            });
+            const history = hist.map(h => ({ train: Math.round(h.train), match: Math.round(h.match), minutes: h.minutes,
+                rpe: (h._vol + h.minutes) > 0 ? Math.round(((h._uc + h._mi) / (h._vol + h.minutes)) * 10) / 10 : 0 }));
+            // disponibilitat: l'última marca d'entrenament "S" (present sense entrenar: lesió/malaltia) → limitada
+            const marks = trainings.filter(s => p.attendance && p.attendance[s.iso] && toDate(s.iso) <= todayD).sort((x, y) => x.iso < y.iso ? -1 : 1).slice(-2).map(s => p.attendance[s.iso]);
+            const status = p.actiu === false ? 'baixa' : (marks.includes('S') ? 'limitat' : 'disponible');
+            const pm = computePlayerMetrics(p.id), impact = pm.minuts > 0 ? Math.max(5, Math.min(98, Math.round(50 + 8 * per40(pm.pm, pm.minuts)))) : null;
+            const allM = Object.values(p.attendance || {}).filter(v => 'PRSJA'.includes(v));
+            const attendance = allM.length ? Math.round(allM.filter(v => 'PRS'.includes(v)).length / allM.length * 100) : null;
+            const first = (p.nom || String(p.name || '').split(' ')[0] || '').trim(), sur = (p.cognoms || String(p.name || '').split(' ').slice(1).join(' ') || '').trim();
+            return { id: String(p.id), name: p.name, short: (p.alias && p.alias.trim()) || (first + (sur ? ' ' + sur[0].toUpperCase() + '.' : '')), dorsal: p.dorsal != null ? p.dorsal : (p.id || ''),
+                pos: squad3DRole(p, alt), status, impact, attendance, history };
+        });
+        return { meta: { title: 'Pista Tàctica 3D', subtitle: 'Càrrega real: entrenaments (assistència) + partits (minuts × intensitat)', source: 'real' }, weeks, players: out };
+    }
+    function squad3DData() {
+        let d = squad3DDemo ? null : buildSquad3DData(), fallback = false;
+        if (!d) { d = NK3D.mockData(); fallback = !squad3DDemo; }
+        d.meta.swapLabel = squad3DDemo || fallback ? (fallback ? '' : 'Veure dades reals') : 'Veure demostració';
+        if (fallback) d.meta.subtitle = 'Demostració · encara no hi ha càrregues reals (passa assistència i arxiva partits)';
+        return d;
+    }
+    const squad3DSig = d => JSON.stringify([d.meta.source, d.meta.subtitle, d.players.map(p => [p.id, p.pos, p.status, p.dorsal, (p.history || []).map(h => [h.train, h.match, h.minutes, h.rpe])])]);
+    function swapSquad3DSource() { squad3DDemo = !squad3DDemo; refreshSquad3D(true); }
+    function refreshSquad3D(reset) {
+        if (!squad3D) return;
+        const d = squad3DData(), sig = squad3DSig(d);
+        if (!reset && sig === squad3D.sig) return;
+        squad3D.sig = sig; squad3D.ctl.setData(d, !!reset);
+    }
+    function mountSquad3D() {
+        const host = document.getElementById('squad-3d-host'); if (!host) return;
+        if (squad3D) { refreshSquad3D(); return; }
+        if (squad3DMounting || typeof NK3D === 'undefined') return;
+        squad3DMounting = true;
+        host.innerHTML = '<div class="p-12 text-center text-xs text-slate-500">Carregant la pista 3D…</div>';
+        NK3D.ensureThree().then(() => {
+            squad3DMounting = false;
+            if (squadView !== '3d') { host.innerHTML = ''; return; }
+            host.innerHTML = '';
+            const d = squad3DData();
+            try {
+                squad3D = { ctl: NK3D.create(host, d, { onSwapSource: swapSquad3DSource }), sig: squad3DSig(d) };
+            } catch (e) {
+                host.innerHTML = '<div class="p-12 text-center text-xs text-rose-300">No s\'ha pogut iniciar la vista 3D en aquest dispositiu (WebGL no disponible).</div>';
+            }
+        }).catch(e => {
+            squad3DMounting = false;
+            host.innerHTML = '<div class="p-12 text-center text-xs text-rose-300">No s\'ha pogut carregar la vista 3D (' + esc(e.message) + '). Comprova la connexió i torna-ho a provar.</div>';
+        });
+    }
+    // Allibera la memòria de WebGL en sortir de la vista 3D.
+    function unmountSquad3D() {
+        if (squad3D) { try { squad3D.ctl.dispose(); } catch (e) { } squad3D = null; }
+        squad3DMounting = false;
+        const host = document.getElementById('squad-3d-host'); if (host && squadView !== '3d') host.innerHTML = '';
     }
 
     /* -------------------------- 2 · estadística --------------------------- */
@@ -17776,5 +17930,1282 @@ ${userText}`;
 
         agCheckSessionAndEnter();
     </script>
+<script id="nk3d-module">
+/* =====================================================================
+   NK3D · Pista Tàctica 3D & Telemetria d'Equip  (mòdul desacoblat de NurvKor)
+   ---------------------------------------------------------------------
+   Requereix Three.js r149 (UMD, window.THREE). No toca l'estat de NurvKor:
+   rep un objecte JSON net (vegeu NK3D.mockData() per a l'esquema complet) i
+   exposa un controlador:
+
+     const c = NK3D.create(container, data, { onSelect, onSwapSource, emblemDraw });
+     c.setData(data)  c.setWeek(i)  c.setCamera('broadcast'|'zenital'|'defensa'|'carrils'|'atac')
+     c.setMode({ halos, synergy, heat, labels })  c.select(id|null)  c.dispose()
+
+   Esquema de dades:
+   {
+     meta:  { title, subtitle, source },
+     weeks: [ { label, range, match } ],            // eix del time-scrubber
+     players: [ {
+        id, name, short, dorsal,
+        pos: 'POR'|'TAN'|'ALA-E'|'ALA-D'|'PIV',
+        status: 'disponible'|'limitat'|'baixa',
+        impact: 0..100, attendance: 0..100,
+        history: [ { train, match, minutes, rpe } ]   // un element per setmana
+     } ],
+     units: [ { name, players:[id,...] } ]            // opcional (quartets de rotació)
+   }
+   Les mètriques (aguda, crònica, ACWR, minuts 4 setmanes) es calculen amb
+   NK3D.prepare(data), de manera que l'adaptador només aporta càrregues brutes.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+  const NK3D = root.NK3D = root.NK3D || {};
+  let T = null;   // THREE, assignat a create()
+
+  /* ------------------------------ utilitats ----------------------------- */
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const mkCanvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  const rng = seed => { let s = (seed >>> 0) || 1; return () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296; };
+  const hash = str => { let h = 2166136261; for (let i = 0; i < String(str).length; i++) { h ^= String(str).charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const fmt1 = v => (v == null || isNaN(v)) ? '—' : (Math.round(v * 10) / 10).toFixed(1);
+  const fmt2 = v => (v == null || isNaN(v)) ? '—' : (Math.round(v * 100) / 100).toFixed(2);
+
+  const ROLE_LABEL = { 'POR': 'Porter', 'TAN': 'Tanca', 'ALA-E': 'Ala esquerra', 'ALA-D': 'Ala dreta', 'PIV': 'Pivot' };
+  const LINE_OF = { 'POR': 'POR', 'TAN': 'TAN', 'ALA-E': 'ALA', 'ALA-D': 'ALA', 'PIV': 'PIV' };
+  const LINE_LABEL = { POR: 'Porters', TAN: 'Tanques', ALA: 'Ales', PIV: 'Pivots' };
+  const LINE_ORDER = ['POR', 'TAN', 'ALA', 'PIV'];
+  const COL = { ok: '#10b981', warn: '#f59e0b', bad: '#e11d48', mute: '#64748b', vol: '#38bdf8' };
+
+  // Estat segons ràtio ACWR (zona òptima 0,8–1,3; precaució 1,3–1,5; risc >1,5)
+  function acwrStatus(v) {
+    if (v == null || isNaN(v)) return { k: 'na', label: 'Sense dades', color: COL.mute };
+    if (v < 0.8) return { k: 'warn', label: 'Subcàrrega', color: COL.warn };
+    if (v <= 1.3) return { k: 'ok', label: 'Òptim', color: COL.ok };
+    if (v <= 1.5) return { k: 'warn', label: 'Precaució', color: COL.warn };
+    return { k: 'bad', label: 'Sobrecàrrega · risc', color: COL.bad };
+  }
+  const STOPS = [[0.4, [245, 158, 11]], [0.8, [16, 185, 129]], [1.25, [16, 185, 129]], [1.42, [245, 158, 11]], [1.7, [225, 29, 72]]];
+  function acwrRGB(v) {   // [0..1] x3 interpolat de manera contínua
+    if (v == null || isNaN(v)) return [0.39, 0.45, 0.55];
+    if (v <= STOPS[0][0]) return STOPS[0][1].map(x => x / 255);
+    for (let i = 1; i < STOPS.length; i++) {
+      if (v <= STOPS[i][0]) {
+        const t = (v - STOPS[i - 1][0]) / (STOPS[i][0] - STOPS[i - 1][0]);
+        return STOPS[i - 1][1].map((x, k) => lerp(x, STOPS[i][1][k], t) / 255);
+      }
+    }
+    return STOPS[STOPS.length - 1][1].map(x => x / 255);
+  }
+  const rgbCss = (c, a) => `rgba(${Math.round(c[0] * 255)},${Math.round(c[1] * 255)},${Math.round(c[2] * 255)},${a == null ? 1 : a})`;
+
+  /* ------------- càlcul de mètriques (aguda / crònica / ACWR) ------------ */
+  // Aguda = càrrega de la setmana; crònica = mitjana mòbil de les últimes 4 setmanes
+  // (la setmana actual inclosa). ACWR = aguda / crònica.
+  function prepare(data) {
+    const players = data.players || [];
+    let maxAcute = 1, maxM4 = 1;
+    players.forEach(p => {
+      const H = p.history || [];
+      H.forEach((h, i) => {
+        h.train = +h.train || 0; h.match = +h.match || 0; h.minutes = +h.minutes || 0;
+        h.acute = h.train + h.match;
+        const from = Math.max(0, i - 3);
+        let sum = 0, n = 0, m4 = 0;
+        for (let k = from; k <= i; k++) { sum += (H[k].train || 0) + (H[k].match || 0); n++; m4 += (+H[k].minutes || 0); }
+        h.chronic = n ? sum / n : 0;
+        h.acwr = h.chronic > 0 ? h.acute / h.chronic : null;
+        h.minutes4 = m4;
+        if (h.acute > maxAcute) maxAcute = h.acute;
+        if (m4 > maxM4) maxM4 = m4;
+      });
+    });
+    data._max = { acute: maxAcute, minutes4: maxM4 };
+    return data;
+  }
+
+  /* ------------------------ disposició tàctica a pista ------------------- */
+  // Eix X = sentit d'atac (+X), Z positiu = banda dreta mirant cap a l'atac.
+  function layoutPositions(players) {
+    const by = {};
+    players.forEach(p => { (by[p.pos] = by[p.pos] || []).push(p); });
+    const out = {};
+    const spread = (arr, fn) => arr.forEach((p, i) => { out[p.id] = fn(i, arr.length); });
+    spread(by['POR'] || [], (i, n) => ({ x: -18.3, z: (i - (n - 1) / 2) * 1.7 }));
+    spread(by['TAN'] || [], (i, n) => ({ x: -9, z: (i - (n - 1) / 2) * Math.min(3.4, 11 / Math.max(1, n - 1)) }));
+    spread(by['ALA-E'] || [], (i, n) => ({ x: 1 + (i - (n - 1) / 2) * 3.4, z: -8 }));
+    spread(by['ALA-D'] || [], (i, n) => ({ x: 1 + (i - (n - 1) / 2) * 3.4, z: 8 }));
+    spread(by['PIV'] || [], (i, n) => ({ x: 12.5, z: (i - (n - 1) / 2) * 3.6 }));
+    return out;
+  }
+
+  /* ----------------------------- dades de demo --------------------------- */
+  function mockData() {
+    const R = rng(20261116);
+    const defs = [
+      ['m1', 'Marc Vidal', 'Marc V.', 1, 'POR'], ['m2', 'Pau Serra', 'Pau S.', 30, 'POR'], ['m3', 'Biel Roca', 'Biel R.', 13, 'POR'],
+      ['m4', 'Àlex Ferrer', 'Àlex F.', 4, 'TAN'], ['m5', 'Nil Costa', 'Nil C.', 6, 'TAN'], ['m6', 'Oriol Pons', 'Oriol P.', 8, 'TAN'],
+      ['m7', 'Joan Mas', 'Joan M.', 7, 'ALA-E'], ['m8', 'Quim Soler', 'Quim S.', 11, 'ALA-E'],
+      ['m9', 'Gerard Vila', 'Gerard V.', 10, 'ALA-D'], ['m10', 'Aleix Puig', 'Aleix P.', 17, 'ALA-D'], ['m11', 'Roger Bosch', 'Roger B.', 20, 'ALA-D'],
+      ['m12', 'Ferran Coll', 'Ferran C.', 9, 'PIV'], ['m13', 'Dani Lluch', 'Dani L.', 19, 'PIV'], ['m14', 'Pol Riera', 'Pol R.', 21, 'PIV']
+    ];
+    const NW = 12;
+    const rivals = ['Cornellà', 'Sant Andreu', 'Mistral', 'Gràcia', 'Sants', 'Horta', 'Badalona', 'Poble Sec', 'Clot', 'Sarrià', 'Eixample B', 'Guinardó'];
+    const weeks = [];
+    for (let w = 0; w < NW; w++) weeks.push({ label: 'Setm. ' + (w + 1), range: '', match: 'J' + (w + 1) + ' · ' + rivals[w] });
+    const players = defs.map(([id, name, short, dorsal, pos], i) => {
+      const gk = pos === 'POR';
+      const base = gk ? 260 : pos === 'TAN' ? 430 : pos === 'PIV' ? 400 : 450;
+      const mp = gk ? 0.9 : pos === 'TAN' ? 0.75 : 0.6;
+      const history = [];
+      for (let w = 0; w < NW; w++) {
+        let train = base * (0.75 + R() * 0.5);
+        let minutes = Math.round(40 * mp * (0.5 + R() * 0.9));
+        if (gk && i === 1) minutes = Math.round(minutes * 0.25);
+        // pics de sobrecàrrega narratius
+        if (id === 'm8' && w >= 8) { train *= 1.55; minutes = 40; }
+        if (id === 'm10' && w >= 9) { train *= 1.3; minutes = Math.min(40, minutes + 12); }
+        if (id === 'm12' && w >= 5 && w <= 6) { train *= 0.35; minutes = 0; }   // lesió breu
+        const rpe = clamp(5.6 + R() * 2.4 + (id === 'm8' && w >= 8 ? 1 : 0), 3, 9.5);
+        history.push({ train: Math.round(train), match: Math.round(minutes * (7.5 + R())), minutes: clamp(minutes, 0, 40), rpe: Math.round(rpe * 10) / 10 });
+      }
+      return {
+        id, name, short, dorsal, pos,
+        status: id === 'm12' ? 'limitat' : 'disponible',
+        impact: Math.round(clamp(45 + (R() - .3) * 40, 12, 96)),
+        attendance: Math.round(clamp(78 + R() * 22, 40, 100)),
+        history
+      };
+    });
+    return prepare({
+      meta: { title: 'Pista Tàctica 3D', subtitle: 'Dades de demostració', source: 'demo' },
+      weeks, players,
+      units: [
+        { name: 'Quartet 1', players: ['m1', 'm4', 'm7', 'm12'] },
+        { name: 'Quartet 2', players: ['m2', 'm5', 'm9', 'm13'] },
+        { name: 'Quartet 3', players: ['m3', 'm6', 'm10', 'm14'] }
+      ]
+    });
+  }
+
+  /* ------------------------------- carregador ---------------------------- */
+  // Carrega Three.js sota demanda (script clàssic amb SRI, com la resta de llibreries).
+  NK3D.THREE_SRC = { url: 'https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js', integrity: 'sha384-RRHfJ6w1mTlKUBMYT/hvnRiOzEB/vyRV3DrQOseb6oYfvaZSfdd0byS4bHps0k2R' };
+  let loading = null;
+  NK3D.ensureThree = function () {
+    if (root.THREE && root.THREE.REVISION) return Promise.resolve(root.THREE);
+    if (loading) return loading;
+    loading = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = NK3D.THREE_SRC.url;
+      if (NK3D.THREE_SRC.integrity) { s.integrity = NK3D.THREE_SRC.integrity; s.crossOrigin = 'anonymous'; }
+      s.onload = () => root.THREE ? resolve(root.THREE) : reject(new Error('Three.js no disponible'));
+      s.onerror = () => { loading = null; reject(new Error('No s\'ha pogut carregar Three.js')); };
+      document.head.appendChild(s);
+    });
+    return loading;
+  };
+  NK3D.mockData = mockData;
+  NK3D.prepare = prepare;
+  NK3D.acwrStatus = acwrStatus;
+  NK3D.layoutPositions = layoutPositions;
+
+  /* ===================== textures i escenari (pavelló) ==================== */
+  const HX = 24.5, HZ = 15, HH = 9.6;   // mig llarg, mig ample i alçada de la nau
+  const PL = 20, PW = 10;               // mitja pista (40x20 m)
+
+  function canvasTex(c, opts) {
+    opts = opts || {};
+    const t = new T.CanvasTexture(c);
+    t.encoding = opts.linear ? T.LinearEncoding : T.sRGBEncoding;
+    if (opts.repeat) { t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(opts.repeat[0], opts.repeat[1]); }
+    t.anisotropy = opts.aniso || 8;
+    return t;
+  }
+
+  function parquetCanvas() {
+    const S = 1024, c = mkCanvas(S, S), g = c.getContext('2d'), R = rng(7), pw = 24;
+    g.fillStyle = '#d7ae74'; g.fillRect(0, 0, S, S);
+    for (let r = 0; r * pw < S; r++) {
+      let x = -Math.floor(R() * 420);
+      while (x < S) {
+        const len = 360 + Math.floor(R() * 330), y = r * pw;
+        g.fillStyle = `hsl(${33 + R() * 4},${48 + R() * 10}%,${62 + R() * 9}%)`;
+        g.fillRect(x, y, len, pw);
+        g.globalAlpha = 0.08; g.strokeStyle = '#7a5224'; g.lineWidth = 1;
+        for (let k = 0; k < 4; k++) {
+          const yy = y + 3 + R() * (pw - 6);
+          g.beginPath(); g.moveTo(x, yy); g.bezierCurveTo(x + len * .3, yy + R() * 3 - 1.5, x + len * .65, yy + R() * 3 - 1.5, x + len, yy + R() * 2 - 1); g.stroke();
+        }
+        g.globalAlpha = 1;
+        g.fillStyle = 'rgba(70,40,10,.38)'; g.fillRect(x, y, 1.5, pw);
+        x += len;
+      }
+      g.fillStyle = 'rgba(70,40,10,.30)'; g.fillRect(0, r * pw, S, 1.5);
+    }
+    return c;
+  }
+
+  function panelCanvas() {
+    const W = 1024, H = 512, c = mkCanvas(W, H), g = c.getContext('2d'), R = rng(11);
+    const pwid = 256;
+    for (let i = 0; i < W / pwid; i++) {
+      const l = 54 + R() * 5;
+      g.fillStyle = `hsl(${21 + R() * 3},${52 + R() * 6}%,${l}%)`;
+      g.fillRect(i * pwid, 0, pwid, H);
+      g.globalAlpha = 0.07; g.fillStyle = '#5a2a10';
+      for (let x = 0; x < pwid; x += 16) g.fillRect(i * pwid + x, 0, 2, H);
+      g.globalAlpha = 1;
+      const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, 'rgba(255,230,200,.10)'); gr.addColorStop(1, 'rgba(60,20,0,.10)');
+      g.fillStyle = gr; g.fillRect(i * pwid, 0, pwid, H);
+      g.fillStyle = 'rgba(70,28,8,.55)'; g.fillRect(i * pwid, 0, 2, H);
+    }
+    g.fillStyle = 'rgba(70,28,8,.4)'; g.fillRect(0, H / 2, W, 2);
+    return c;
+  }
+
+  function whiteWallCanvas() {
+    const c = mkCanvas(512, 256), g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#d9d6d0'); gr.addColorStop(1, '#f1eeea');
+    g.fillStyle = gr; g.fillRect(0, 0, 512, 256);
+    return c;
+  }
+
+  function slatCanvas() {
+    const c = mkCanvas(512, 512), g = c.getContext('2d'), R = rng(3);
+    for (let x = 0; x < 512; x += 16) {
+      g.fillStyle = `hsl(${30 + R() * 4},${40 + R() * 8}%,${60 + R() * 6}%)`; g.fillRect(x, 0, 16, 512);
+      g.fillStyle = 'rgba(60,30,10,.35)'; g.fillRect(x, 0, 1.5, 512);
+    }
+    return c;
+  }
+
+  function netCanvas() {
+    const c = mkCanvas(64, 64), g = c.getContext('2d');
+    g.strokeStyle = 'rgba(245,245,245,.95)'; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(0, 1.5); g.lineTo(64, 1.5); g.moveTo(1.5, 0); g.lineTo(1.5, 64); g.stroke();
+    return c;
+  }
+
+  function glowCanvas() {
+    const c = mkCanvas(128, 128), g = c.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,244,225,1)'); gr.addColorStop(0.35, 'rgba(255,236,205,.45)'); gr.addColorStop(1, 'rgba(255,230,190,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    return c;
+  }
+
+  // Línies reglamentàries del futbol sala (40x20, àrees de 6 m, 2n penal a 10 m)
+  function linesCanvas() {
+    const MW = 42, MH = 22, S = 100;                    // marge d'1 m, 100 px/m
+    const c = mkCanvas(MW * S, MH * S), g = c.getContext('2d');
+    const X = m => (m + MW / 2) * S, Z = m => (m + MH / 2) * S;
+    g.strokeStyle = '#13294f'; g.fillStyle = '#13294f'; g.lineWidth = 0.08 * S; g.lineCap = 'butt'; g.globalAlpha = 0.94;
+    g.strokeRect(X(-PL), Z(-PW), 2 * PL * S, 2 * PW * S);
+    g.beginPath(); g.moveTo(X(0), Z(-PW)); g.lineTo(X(0), Z(PW)); g.stroke();
+    g.beginPath(); g.arc(X(0), Z(0), 3 * S, 0, Math.PI * 2); g.stroke();
+    g.beginPath(); g.arc(X(0), Z(0), 0.12 * S, 0, Math.PI * 2); g.fill();
+    const D = Math.PI / 180;
+    [-1, 1].forEach(s => {
+      const gx = s * PL;
+      // àrea de penal: dos quarts de cercle de 6 m des dels pals + segment de 3,16 m
+      g.beginPath();
+      if (s < 0) { g.arc(X(gx), Z(-1.5), 6 * S, -90 * D, 0); g.stroke(); g.beginPath(); g.arc(X(gx), Z(1.5), 6 * S, 0, 90 * D); g.stroke(); }
+      else { g.arc(X(gx), Z(-1.5), 6 * S, 180 * D, 270 * D); g.stroke(); g.beginPath(); g.arc(X(gx), Z(1.5), 6 * S, 90 * D, 180 * D); g.stroke(); }
+      g.beginPath(); g.moveTo(X(gx - s * 6), Z(-1.5)); g.lineTo(X(gx - s * 6), Z(1.5)); g.stroke();
+      g.beginPath(); g.arc(X(gx - s * 6), Z(0), 0.11 * S, 0, Math.PI * 2); g.fill();     // penal 6 m
+      g.beginPath(); g.arc(X(gx - s * 10), Z(0), 0.11 * S, 0, Math.PI * 2); g.fill();    // doble penal 10 m
+      // arcs de córner (25 cm)
+      [-1, 1].forEach(sz => {
+        g.beginPath();
+        const a0 = s < 0 ? (sz < 0 ? 0 : -90 * D) : (sz < 0 ? 90 * D : 180 * D);
+        g.arc(X(gx), Z(sz * PW), 0.25 * S, a0, a0 + 90 * D); g.stroke();
+      });
+      // zona de canvis (5 m des del mig camp), marques a les dues bandes
+      [-1, 1].forEach(sz => { g.beginPath(); g.moveTo(X(s * 5), Z(sz * PW)); g.lineTo(X(s * 5), Z(sz * (PW + 0.8))); g.stroke(); });
+    });
+    return c;
+  }
+
+  function emblemCanvas(draw) {
+    const S = 1024, c = mkCanvas(S, S), g = c.getContext('2d');
+    if (typeof draw === 'function') { draw(g, S); return c; }
+    const cx = S / 2;
+    const gr = g.createRadialGradient(cx, cx, 40, cx, cx, cx - 20);
+    gr.addColorStop(0, 'rgba(155,28,49,.95)'); gr.addColorStop(0.85, 'rgba(120,18,38,.92)'); gr.addColorStop(1, 'rgba(90,10,28,.9)');
+    g.fillStyle = gr; g.beginPath(); g.arc(cx, cx, cx - 20, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 14; g.beginPath(); g.arc(cx, cx, cx - 60, 0, Math.PI * 2); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 4; g.beginPath(); g.arc(cx, cx, cx - 100, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#fff'; g.font = '900 330px "Plus Jakarta Sans", Inter, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('NK', cx, cx - 20);
+    g.font = '700 70px "Plus Jakarta Sans", Inter, system-ui, sans-serif';
+    if ('letterSpacing' in g) g.letterSpacing = '14px';
+    g.fillText('NURVKOR', cx, cx + 190);
+    return c;
+  }
+
+  function signCanvas() {
+    const W = 2048, H = 420, c = mkCanvas(W, H), g = c.getContext('2d');
+    g.fillStyle = 'rgba(255,255,255,.95)'; g.strokeStyle = 'rgba(255,255,255,.95)';
+    // escut estilitzat (anell + creu)
+    g.lineWidth = 10; g.beginPath(); g.arc(190, H / 2, 135, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 5; g.beginPath(); g.arc(190, H / 2, 112, 0, Math.PI * 2); g.stroke();
+    g.fillRect(180, H / 2 - 75, 20, 150); g.fillRect(115, H / 2 - 10, 150, 20);
+    g.textBaseline = 'alphabetic';
+    g.font = '500 120px "Plus Jakarta Sans", Inter, system-ui, sans-serif';
+    if ('letterSpacing' in g) g.letterSpacing = '26px';
+    g.fillText('COL·LEGI', 420, 170);
+    g.font = '500 128px "Plus Jakarta Sans", Inter, system-ui, sans-serif';
+    if ('letterSpacing' in g) g.letterSpacing = '10px';
+    g.fillText('REIAL MONESTIR DE SANTA ISABEL', 420, 330);
+    return c;
+  }
+
+  // Dibuixa un LED vermell del marcador
+  function drawScoreboard(cv, tex, info) {
+    const g = cv.getContext('2d'), W = cv.width, H = cv.height;
+    g.fillStyle = '#0c0707'; g.fillRect(0, 0, W, H);
+    g.shadowColor = '#ff2a1f'; g.shadowBlur = 14; g.fillStyle = '#ff3b2f'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '800 38px "Plus Jakarta Sans", monospace'; g.fillText(info.top || 'NURVKOR', W / 2, 38);
+    g.font = '800 120px "Plus Jakarta Sans", monospace'; g.fillText(info.mid || '--', W / 2, H / 2 + 6);
+    g.font = '700 34px "Plus Jakarta Sans", monospace'; g.fillText(info.bottom || '', W / 2, H - 36);
+    g.shadowBlur = 0;
+    g.fillStyle = 'rgba(0,0,0,.35)';
+    for (let y = 0; y < H; y += 4) g.fillRect(0, y, W, 1);     // trama de LEDs
+    tex.needsUpdate = true;
+  }
+
+  function quadGeo(p0, p1, p2, p3, cell) {
+    // p0-p1 base, p3-p2 cim (UV en unitats de malla)
+    const v = [p0, p1, p2, p0, p2, p3].flatMap(p => [p.x, p.y, p.z]);
+    const len = (a, b) => a.distanceTo(b);
+    const u1 = len(p0, p1) / cell, v1 = len(p0, p3) / cell;
+    const uv = [0, 0, u1, 0, u1, v1, 0, 0, u1, v1, 0, v1];
+    const g = new T.BufferGeometry();
+    g.setAttribute('position', new T.Float32BufferAttribute(v, 3));
+    g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2));
+    g.computeVertexNormals();
+    return g;
+  }
+
+  function buildGoal(dir, mats, own) {
+    const grp = new T.Group();
+    const gw = 1.5, gh = 2, gd = 1.0, bh = 1.2, r = 0.04;
+    const red = mats.red, wht = mats.white;
+    const bar = (a, b) => {   // barra a ratlles vermell/blanc entre dos punts
+      const len = a.distanceTo(b), n = Math.max(2, Math.round(len / 0.4));
+      const dirv = b.clone().sub(a).normalize();
+      const q = new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), dirv);
+      for (let i = 0; i < n; i++) {
+        const m = new T.Mesh(new T.CylinderGeometry(r, r, len / n, 10), i % 2 ? wht : red);
+        m.position.copy(a).addScaledVector(dirv, (i + 0.5) * len / n); m.quaternion.copy(q); m.castShadow = true; grp.add(m);
+      }
+    };
+    const V = (x, y, z) => new T.Vector3(x * dir, y, z);   // x és profunditat cap enrere
+    [-gw, gw].forEach(z => { bar(V(0, 0, z), V(0, gh, z)); bar(V(0, 0, z), V(gd, 0, z)); bar(V(0, gh, z), V(gd, bh, z)); bar(V(gd, 0, z), V(gd, bh, z)); });
+    bar(V(0, gh, -gw), V(0, gh, gw)); bar(V(gd, bh, -gw), V(gd, bh, gw)); bar(V(gd, 0, -gw), V(gd, 0, gw));
+    // xarxa
+    const nm = mats.net;
+    [
+      [V(gd, 0, -gw), V(gd, 0, gw), V(gd, bh, gw), V(gd, bh, -gw)],     // fons
+      [V(0, gh, -gw), V(0, gh, gw), V(gd, bh, gw), V(gd, bh, -gw)],     // sostre
+      [V(0, 0, -gw), V(gd, 0, -gw), V(gd, bh, -gw), V(0, gh, -gw)],     // lateral
+      [V(0, 0, gw), V(gd, 0, gw), V(gd, bh, gw), V(0, gh, gw)]          // lateral
+    ].forEach(q => { const m = new T.Mesh(quadGeo(q[0], q[1], q[2], q[3], 0.1), nm); grp.add(m); });
+    grp.position.x = dir * PL;
+    return grp;
+  }
+
+  /* ---------------- construcció de tot el pavelló Santa Isabel ------------ */
+  function buildHall(scene, renderer, opts, reg) {
+    const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    const track = o => { reg.push(o); return o; };
+    const roof = new T.Group(); scene.add(roof);
+    const hall = new T.Group(); scene.add(hall);
+
+    // --- parquet
+    const pq = track(canvasTex(parquetCanvas(), { repeat: [2 * HX / 4, 2 * HZ / 4], aniso }));
+    const floorMat = track(new T.MeshStandardMaterial({ map: pq, roughness: 0.36, metalness: 0.0, envMapIntensity: 0.55 }));
+    const floor = new T.Mesh(new T.PlaneGeometry(2 * HX, 2 * HZ), floorMat);
+    floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; hall.add(floor);
+    const slab = new T.Mesh(new T.BoxGeometry(2 * HX, 0.7, 2 * HZ), track(new T.MeshStandardMaterial({ color: 0x1b130d, roughness: 0.8 })));
+    slab.position.y = -0.36; hall.add(slab);
+
+    const lt = track(canvasTex(linesCanvas(), { aniso }));
+    const lines = new T.Mesh(new T.PlaneGeometry(42, 22), track(new T.MeshStandardMaterial({ map: lt, transparent: true, roughness: 0.4, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, depthWrite: false })));
+    lines.rotation.x = -Math.PI / 2; lines.position.y = 0.004; lines.receiveShadow = true; hall.add(lines);
+
+    const et = track(canvasTex(emblemCanvas(opts.emblemDraw), { aniso }));
+    const emblem = new T.Mesh(new T.CircleGeometry(2.6, 64), track(new T.MeshStandardMaterial({ map: et, transparent: true, roughness: 0.45, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3, depthWrite: false })));
+    emblem.rotation.x = -Math.PI / 2; emblem.position.y = 0.006; hall.add(emblem);
+
+    // --- parets: panells acústics de fusta terracota + mur blanc superior
+    const panelH = 5.4;
+    const pt = track(canvasTex(panelCanvas(), { repeat: [2 * HX / 8, 1], aniso }));
+    const ptEnd = track(canvasTex(panelCanvas(), { repeat: [2 * HZ / 8, 1], aniso }));
+    const wt = track(canvasTex(whiteWallCanvas()));
+    const mkWall = (w, h, mat, pos, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), mat); m.position.set(pos[0], pos[1], pos[2]); m.rotation.y = ry; m.receiveShadow = true; hall.add(m); return m; };
+    const panelMat = track(new T.MeshStandardMaterial({ map: pt, roughness: 0.78, metalness: 0 }));
+    const panelMatE = track(new T.MeshStandardMaterial({ map: ptEnd, roughness: 0.78, metalness: 0 }));
+    const whiteMat = track(new T.MeshStandardMaterial({ map: wt, roughness: 0.92, metalness: 0 }));
+    const upH = HH - panelH;
+    // paret llarga del fons (z = -HZ) i la propera (z = +HZ, invisible des de fora)
+    [[-HZ, 0], [HZ, Math.PI]].forEach(([z, ry]) => { mkWall(2 * HX, panelH, panelMat, [0, panelH / 2, z], ry); mkWall(2 * HX, upH, whiteMat, [0, panelH + upH / 2, z], ry); });
+    // parets de capçalera (x = -HX i x = +HX)
+    [[-HX, Math.PI / 2], [HX, -Math.PI / 2]].forEach(([x, ry]) => { mkWall(2 * HZ, panelH, panelMatE, [x, panelH / 2, 0], ry); mkWall(2 * HZ, upH, whiteMat, [x, panelH + upH / 2, 0], ry); });
+    // sòcol fosc
+    const base = new T.Mesh(new T.BoxGeometry(2 * HX, 0.18, 0.08), track(new T.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.6 })));
+    base.position.set(0, 0.09, -HZ + 0.04); hall.add(base);
+
+    // --- tires LED il·luminació indirecta + brillantor a la paret
+    const stripMat = track(new T.MeshBasicMaterial({ color: 0xfff3dc }));
+    const gt = track(canvasTex(glowCanvas()));
+    const glowMat = track(new T.MeshBasicMaterial({ map: gt, transparent: true, opacity: 0.3, blending: T.AdditiveBlending, depthWrite: false }));
+    const strips = new T.InstancedMesh(new T.BoxGeometry(1.5, 0.1, 0.1), stripMat, 40);
+    const glows = new T.InstancedMesh(new T.PlaneGeometry(4.4, 1.7), glowMat, 40);
+    let si = 0; const mtx = new T.Matrix4(), q = new T.Quaternion(), sc = new T.Vector3(1, 1, 1);
+    const place = (x, y, z, ry) => {
+      if (si >= 40) return;
+      q.setFromEuler(new T.Euler(0, ry, 0));
+      strips.setMatrixAt(si, mtx.compose(new T.Vector3(x, y, z), q, sc));
+      const n = new T.Vector3(0, 0, 1).applyQuaternion(q);
+      glows.setMatrixAt(si, mtx.compose(new T.Vector3(x + n.x * 0.03, y + 0.9, z + n.z * 0.03), q, sc)); si++;
+    };
+    for (let x = -21.6; x <= 21.7; x += 3.6) { place(x, panelH + 0.12, -HZ + 0.06, 0); place(x, panelH + 0.12, HZ - 0.06, Math.PI); }
+    for (let z = -10.8; z <= 10.9; z += 3.6) { place(-HX + 0.06, panelH + 0.12, z, Math.PI / 2); }
+    strips.count = si; glows.count = si; strips.frustumCulled = glows.frustumCulled = false; hall.add(strips, glows);
+
+    // --- retolació institucional + marcador
+    const signTex = track(canvasTex(signCanvas(), { aniso }));
+    const sign = new T.Mesh(new T.PlaneGeometry(10.5, 10.5 * 420 / 2048), track(new T.MeshBasicMaterial({ map: signTex, transparent: true, opacity: 0.93, depthWrite: false })));
+    sign.position.set(-3.2, 3.15, -HZ + 0.02); hall.add(sign);
+
+    const sbCv = mkCanvas(512, 256), sbTex = track(canvasTex(sbCv));
+    const sbBody = new T.Mesh(new T.BoxGeometry(2.6, 1.3, 0.3), track(new T.MeshStandardMaterial({ color: 0x15171c, roughness: 0.5, metalness: 0.4 })));
+    sbBody.position.set(5.2, 6.9, -HZ + 0.4); hall.add(sbBody);
+    const sbScreen = new T.Mesh(new T.PlaneGeometry(2.4, 1.2), track(new T.MeshBasicMaterial({ map: sbTex })));
+    sbScreen.position.set(5.2, 6.9, -HZ + 0.56); hall.add(sbScreen);
+    const setScore = info => drawScoreboard(sbCv, sbTex, info);
+    setScore({ top: 'NURVKOR', mid: '--', bottom: '' });
+
+    // --- galeria elevada al fons (x = +HX) amb xarxa protectora
+    const wood = track(new T.MeshStandardMaterial({ color: 0x9a6b3e, roughness: 0.6 }));
+    const gal = new T.Mesh(new T.BoxGeometry(3.6, 0.22, 2 * HZ - 1), wood); gal.position.set(HX - 1.8, 3.3, 0); gal.receiveShadow = true; hall.add(gal);
+    const rail = new T.Mesh(new T.BoxGeometry(0.08, 0.08, 2 * HZ - 1), track(new T.MeshStandardMaterial({ color: 0x2b2f38, metalness: 0.6, roughness: 0.4 })));
+    rail.position.set(HX - 3.55, 4.35, 0); hall.add(rail);
+    const posts = new T.InstancedMesh(new T.BoxGeometry(0.06, 1.05, 0.06), rail.material, 22);
+    for (let i = 0; i < 22; i++) posts.setMatrixAt(i, mtx.compose(new T.Vector3(HX - 3.55, 3.9, -HZ + 1 + i * ((2 * HZ - 2) / 21)), new T.Quaternion(), sc));
+    posts.frustumCulled = false; hall.add(posts);
+    const galNetTex = track(canvasTex(netCanvas(), { repeat: [(2 * HZ - 1) / 0.25, 4 / 0.25], linear: false }));
+    const galNet = new T.Mesh(new T.PlaneGeometry(2 * HZ - 1, 4.2), track(new T.MeshBasicMaterial({ map: galNetTex, transparent: true, opacity: 0.5, side: T.DoubleSide, depthWrite: false })));
+    galNet.rotation.y = -Math.PI / 2; galNet.position.set(HX - 3.7, 5.4, 0); hall.add(galNet);
+
+    // --- porteries reglamentàries (3x2 m, franges vermelles i blanques)
+    const gm = { red: track(new T.MeshStandardMaterial({ color: 0xc1121f, roughness: 0.4, metalness: 0.1 })), white: track(new T.MeshStandardMaterial({ color: 0xf4f4f4, roughness: 0.4, metalness: 0.1 })) };
+    const netTex = track(canvasTex(netCanvas(), { repeat: [1, 1] })); netTex.wrapS = netTex.wrapT = T.RepeatWrapping;
+    gm.net = track(new T.MeshBasicMaterial({ map: netTex, transparent: true, opacity: 0.72, side: T.DoubleSide, depthWrite: false }));
+    hall.add(buildGoal(-1, gm, true), buildGoal(1, gm, false));
+
+    // --- sostre: coberta de fusta, encavallades metàl·liques, projectors i cistelles plegades
+    const slatTex = track(canvasTex(slatCanvas(), { repeat: [2 * HX / 4, 2 * HZ / 4], aniso }));
+    const deck = new T.Mesh(new T.PlaneGeometry(2 * HX, 2 * HZ), track(new T.MeshStandardMaterial({ map: slatTex, roughness: 0.8, color: 0xe8dccb })));
+    deck.rotation.x = Math.PI / 2; deck.position.y = HH; roof.add(deck);
+    const steel = track(new T.MeshStandardMaterial({ color: 0x8e949c, roughness: 0.45, metalness: 0.75 }));
+    const NT = 9, trussX = []; for (let i = 0; i < NT; i++) trussX.push(-HX + 1.6 + i * ((2 * HX - 3.2) / (NT - 1)));
+    const panels = 14, perTruss = 2 + panels * 2 + 1;
+    const beams = new T.InstancedMesh(new T.BoxGeometry(1, 1, 1), steel, NT * perTruss + 6);
+    let bi = 0;
+    const addBeam = (a, b, th) => {
+      const d = b.clone().sub(a), len = d.length();
+      const qq = new T.Quaternion().setFromUnitVectors(new T.Vector3(1, 0, 0), d.normalize());
+      beams.setMatrixAt(bi++, mtx.compose(a.clone().add(b).multiplyScalar(0.5), qq, new T.Vector3(len, th, th)));
+    };
+    const yT = HH - 0.18, yB = HH - 1.55;
+    trussX.forEach(x => {
+      addBeam(new T.Vector3(x, yT, -HZ), new T.Vector3(x, yT, HZ), 0.12);
+      addBeam(new T.Vector3(x, yB, -HZ), new T.Vector3(x, yB, HZ), 0.1);
+      for (let k = 0; k < panels; k++) {
+        const z0 = -HZ + k * (2 * HZ / panels), z1 = z0 + 2 * HZ / panels;
+        const up = k % 2 === 0;
+        addBeam(new T.Vector3(x, up ? yB : yT, z0), new T.Vector3(x, up ? yT : yB, z1), 0.07);
+        addBeam(new T.Vector3(x, yT, z0), new T.Vector3(x, yB, z0), 0.05);
+      }
+      addBeam(new T.Vector3(x, yT, HZ), new T.Vector3(x, yB, HZ), 0.05);
+    });
+    [-9, -3, 3, 9].forEach(z => addBeam(new T.Vector3(-HX, yT - 0.08, z), new T.Vector3(HX, yT - 0.08, z), 0.1));
+    beams.count = bi; beams.frustumCulled = false; roof.add(beams);
+
+    // projectors zenitals amb con de llum volumètric subtil
+    const coneTexC = mkCanvas(8, 128), cg = coneTexC.getContext('2d'), cgr = cg.createLinearGradient(0, 0, 0, 128);
+    cgr.addColorStop(0, 'rgba(255,245,225,.0)'); cgr.addColorStop(1, 'rgba(255,245,225,.9)'); cg.fillStyle = cgr; cg.fillRect(0, 0, 8, 128);
+    const coneTex = track(canvasTex(coneTexC));
+    const coneMat = track(new T.MeshBasicMaterial({ map: coneTex, transparent: true, opacity: 0.04, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide }));
+    const fixMat = track(new T.MeshStandardMaterial({ color: 0x1b1d22, roughness: 0.5, metalness: 0.6 }));
+    const lampMat = track(new T.MeshBasicMaterial({ color: 0xfff6e2 }));
+    const spots = [];
+    [[-12, -5], [-12, 5], [0, -5], [0, 5], [12, -5], [12, 5]].forEach(([x, z], i) => {
+      const f = new T.Mesh(new T.CylinderGeometry(0.28, 0.34, 0.38, 16), fixMat); f.position.set(x, HH - 1.7, z); roof.add(f);
+      const lamp = new T.Mesh(new T.CircleGeometry(0.26, 16), lampMat); lamp.rotation.x = Math.PI / 2; lamp.position.set(x, HH - 1.9, z); roof.add(lamp);
+      const cone = new T.Mesh(new T.ConeGeometry(3.4, 7.6, 24, 1, true), coneMat); cone.position.set(x, HH - 1.9 - 3.8, z); cone.rotation.x = Math.PI; hall.add(cone);
+      spots.push([x, z]);
+    });
+    // cistelles plegades al sostre
+    const bbMat = track(new T.MeshStandardMaterial({ color: 0xe9eef2, roughness: 0.3, metalness: 0.1, transparent: true, opacity: 0.9 }));
+    const rimMat = track(new T.MeshStandardMaterial({ color: 0xd9531e, roughness: 0.4, metalness: 0.3 }));
+    [[-14.5, HZ - 2.6], [14.5, -HZ + 2.6]].forEach(([x, z]) => {
+      const g = new T.Group();
+      const bb = new T.Mesh(new T.BoxGeometry(1.8, 1.05, 0.05), bbMat); g.add(bb);
+      const rim = new T.Mesh(new T.TorusGeometry(0.23, 0.015, 8, 24), rimMat); rim.rotation.x = Math.PI / 2; rim.position.set(0, -0.4, 0.35); g.add(rim);
+      g.rotation.x = Math.PI / 2 - 0.12; g.position.set(x, HH - 1.3, z); roof.add(g);
+      [-0.8, 0.8].forEach(dx => { const c = new T.Mesh(new T.CylinderGeometry(0.012, 0.012, 1.1, 6), steel); c.position.set(x + dx, HH - 0.65, z); roof.add(c); });
+    });
+
+    return { roof, hall, spots, setScore, floorMat };
+  }
+
+  // Mini escena per generar un mapa d'entorn procedural (reflexos suaus al parquet)
+  function buildEnvironment(renderer) {
+    const sc = new T.Scene();
+    sc.background = new T.Color(0x1a1612);
+    const room = new T.Mesh(new T.BoxGeometry(60, 20, 36), new T.MeshBasicMaterial({ color: 0x5a3a24, side: T.BackSide }));
+    room.position.y = 9; sc.add(room);
+    const lm = new T.MeshBasicMaterial({ color: 0xfff1dd });
+    for (let x = -24; x <= 24; x += 8) { const l = new T.Mesh(new T.BoxGeometry(5, 0.3, 1.6), lm); l.position.set(x, 18, -4); sc.add(l); const l2 = l.clone(); l2.position.z = 6; sc.add(l2); }
+    const pm = new T.PMREMGenerator(renderer);
+    const rt = pm.fromScene(sc, 0.04);
+    pm.dispose();
+    room.geometry.dispose(); room.material.dispose(); lm.dispose();
+    return rt;
+  }
+
+  /* ============== jugadors (avatars), halos de telemetria, xarxes ============ */
+  const SKIN = [0xf1c9a5, 0xe0ac86, 0xc68a62, 0x9b6a47, 0x6f4a32];
+  const HAIR = [0x1a1410, 0x2b1d12, 0x4a3320, 0x8a6a3a, 0x111111];
+
+  function numberCanvas(num, name, light) {
+    const c = mkCanvas(256, 256), g = c.getContext('2d');
+    g.textAlign = 'center'; g.fillStyle = light ? '#15171b' : '#fff';
+    g.font = '700 38px "Plus Jakarta Sans", Inter, system-ui, sans-serif';
+    g.fillText(String(name || '').toUpperCase().slice(0, 12), 128, 62);
+    g.font = '900 150px "Plus Jakarta Sans", Inter, system-ui, sans-serif';
+    g.fillText(String(num == null ? '' : num), 128, 200);
+    return c;
+  }
+
+  function buildAvatar(p) {
+    const gk = p.pos === 'POR', h = hash(p.id);
+    const C = gk ? { jersey: 0xf2c10f, sleeve: 0x15171b, shorts: 0x15171b, socks: 0x15171b }
+                 : { jersey: 0x8e1b2f, sleeve: 0x15171b, shorts: 0x15171b, socks: 0x8e1b2f };
+    const mats = {
+      jersey: new T.MeshStandardMaterial({ color: C.jersey, roughness: 0.72 }),
+      sleeve: new T.MeshStandardMaterial({ color: C.sleeve, roughness: 0.7 }),
+      shorts: new T.MeshStandardMaterial({ color: C.shorts, roughness: 0.75 }),
+      socks: new T.MeshStandardMaterial({ color: C.socks, roughness: 0.8 }),
+      skin: new T.MeshStandardMaterial({ color: SKIN[h % 5], roughness: 0.62 }),
+      hair: new T.MeshStandardMaterial({ color: HAIR[(h >> 3) % 5], roughness: 0.8 }),
+      shoe: new T.MeshStandardMaterial({ color: 0x0f1013, roughness: 0.5 }),
+      glove: new T.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.6 })
+    };
+    const root = new T.Group(), body = new T.Group(); root.add(body);
+    const add = (parent, geo, mat, x, y, z) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
+    // cames
+    [-1, 1].forEach(sx => {
+      add(body, new T.CapsuleGeometry(0.06, 0.2, 4, 10), mats.skin, sx * 0.1, 0.72, 0);
+      add(body, new T.CapsuleGeometry(0.054, 0.3, 4, 10), mats.socks, sx * 0.1, 0.3, 0.01);
+      add(body, new T.BoxGeometry(0.1, 0.07, 0.26), mats.shoe, sx * 0.1, 0.04, 0.06);
+    });
+    const shorts = add(body, new T.CylinderGeometry(0.19, 0.18, 0.26, 16), mats.shorts, 0, 0.99, 0); shorts.scale.z = 0.74;
+    const torso = add(body, new T.CapsuleGeometry(0.18, 0.26, 6, 14), mats.jersey, 0, 1.3, 0); torso.scale.z = 0.7;
+    add(body, new T.TorusGeometry(0.075, 0.016, 8, 16), mats.sleeve, 0, 1.6, 0.02).rotation.x = Math.PI / 2;
+    const mkArm = sx => {
+      const g = new T.Group(); g.position.set(sx * 0.255, 1.5, 0); g.rotation.z = sx * 0.13; body.add(g);
+      add(g, new T.CapsuleGeometry(0.056, 0.18, 4, 10), mats.sleeve, 0, -0.14, 0);
+      add(g, new T.CapsuleGeometry(0.046, 0.2, 4, 10), mats.skin, 0, -0.38, 0);
+      if (gk) add(g, new T.SphereGeometry(0.07, 10, 8), mats.glove, 0, -0.55, 0);
+      return g;
+    };
+    const armL = mkArm(-1), armR = mkArm(1);
+    add(body, new T.CylinderGeometry(0.05, 0.055, 0.1, 10), mats.skin, 0, 1.64, 0);
+    const head = new T.Group(); head.position.set(0, 1.76, 0); body.add(head);
+    add(head, new T.SphereGeometry(0.118, 18, 14), mats.skin, 0, 0, 0).scale.set(0.95, 1.08, 1);
+    add(head, new T.SphereGeometry(0.124, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.56), mats.hair, 0, 0.01, -0.012);
+    // dorsal a l'esquena (davant local = +Z; esquena = -Z)
+    const nt = new T.CanvasTexture(numberCanvas(p.dorsal, p.short ? String(p.short).split(' ').slice(-1)[0] : '', gk)); nt.encoding = T.sRGBEncoding; nt.anisotropy = 4;
+    const numMat = new T.MeshBasicMaterial({ map: nt, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const num = new T.Mesh(new T.PlaneGeometry(0.34, 0.34), numMat); num.position.set(0, 1.3, -0.133); num.rotation.y = Math.PI; body.add(num);
+    const hit = new T.Mesh(new T.CylinderGeometry(0.55, 0.55, 2.1, 10), new T.MeshBasicMaterial({ visible: false }));
+    hit.position.y = 1.05; hit.userData.pid = p.id; root.add(hit);
+    const sc = (gk ? 1.03 : 0.97 + ((h >> 6) % 8) / 100);
+    body.scale.setScalar(sc * 1.14);
+    return { root, body, torso, armL, armR, head, hit, mats, numMat, numTex: nt, phase: (h % 628) / 100, allMats: Object.values(mats).concat([numMat]) };
+  }
+
+  const HALO_VS = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+  const HALO_FS = `
+    precision highp float;
+    varying vec2 vUv;
+    uniform float uFrac, uPulse, uTime, uSel, uOp, uCone, uDim;
+    uniform vec3 uVol, uCol;
+    const float PI = 3.14159265;
+    float ring(float r, float r0, float w, float aa) { return 1.0 - smoothstep(w - aa, w + aa, abs(r - r0)); }
+    void main() {
+      vec2 p = (vUv - 0.5) * 8.0;
+      float r = length(p);
+      float a = atan(p.y, p.x);
+      float aa = max(fwidth(r), 0.004);
+      vec3 col = vec3(0.0); float al = 0.0;
+      float cone = (1.0 - smoothstep(0.40, 0.46, abs(a))) * smoothstep(1.28, 1.36, r) * (1.0 - smoothstep(1.4, 3.7, r));
+      col += vec3(0.78, 0.92, 1.0) * cone * 0.55 * uCone; al += cone * 0.30 * uCone;
+      float ro = ring(r, 1.20, 0.085, aa);
+      float t = mod(PI * 0.5 - a + 2.0 * PI, 2.0 * PI) / (2.0 * PI);
+      float arc = 1.0 - smoothstep(uFrac - 0.004, uFrac + 0.004, t);
+      col += vec3(0.55, 0.65, 0.8) * ro * 0.28; al += ro * 0.28;
+      float vol = ro * arc; col += uVol * vol; al += vol * 0.95;
+      float ri = ring(r, 0.86, 0.09, aa);
+      float gl = exp(-pow((r - 0.86) / 0.2, 2.0)) * 0.5;
+      col += uCol * (ri + gl); al += ri * 0.95 + gl * 0.8;
+      float disc = (1.0 - smoothstep(0.0, 0.78, r)) * 0.20; col += uCol * disc; al += disc;
+      float pr = fract(uTime * 0.6);
+      float pw = ring(r, 0.9 + pr * 0.9, 0.05 + 0.03 * pr, aa) * (1.0 - pr) * uPulse;
+      col += uCol * pw; al += pw * 0.9;
+      float sel = ring(r, 1.45, 0.035, aa) * uSel; col += vec3(1.0) * sel; al += sel * 0.95;
+      col = mix(col, col * 0.4, uDim);
+      al = clamp(al, 0.0, 1.0);
+      gl_FragColor = vec4(clamp(col / max(al, 0.0001), 0.0, 1.0), al * uOp);
+    }`;
+
+  function buildHalo() {
+    const mat = new T.ShaderMaterial({
+      transparent: true, depthWrite: false, extensions: { derivatives: true },
+      uniforms: { uFrac: { value: 0 }, uVol: { value: new T.Color(COL.vol) }, uCol: { value: new T.Color(0x64748b) }, uPulse: { value: 0 }, uTime: { value: 0 }, uSel: { value: 0 }, uOp: { value: 1 }, uCone: { value: 1 }, uDim: { value: 0 } },
+      vertexShader: HALO_VS, fragmentShader: HALO_FS
+    });
+    const m = new T.Mesh(new T.PlaneGeometry(8, 8), mat);
+    m.rotation.x = -Math.PI / 2; m.position.y = 0.014; m.renderOrder = 2;
+    return m;
+  }
+
+  /* --- xarxa de sinergies: línies d'energia corbes arran de terra --- */
+  function synergyPairs(mode, actors, units) {
+    const pairs = [], seen = new Set();
+    const add = (a, b) => { if (!a || !b || a === b) return; const k = a.id < b.id ? a.id + '|' + b.id : b.id + '|' + a.id; if (!seen.has(k)) { seen.add(k); pairs.push([a, b]); } };
+    if (mode === 'unit') {
+      (units || []).forEach(u => {
+        const m = (u.players || []).map(id => actors.get(String(id))).filter(Boolean);
+        for (let i = 0; i < m.length; i++) for (let j = i + 1; j < m.length; j++) add(m[i], m[j]);
+      });
+      return pairs;
+    }
+    const byPos = {}, byLine = {};
+    actors.forEach(a => { (byPos[a.p.pos] = byPos[a.p.pos] || []).push(a); (byLine[LINE_OF[a.p.pos]] = byLine[LINE_OF[a.p.pos]] || []).push(a); });
+    Object.keys(byPos).forEach(k => {
+      const arr = byPos[k].slice().sort((u, v) => (k === 'ALA-E' || k === 'ALA-D') ? u.base.x - v.base.x : u.base.z - v.base.z);
+      for (let i = 0; i < arr.length - 1; i++) add(arr[i], arr[i + 1]);
+    });
+    for (let i = 0; i < LINE_ORDER.length - 1; i++) {
+      const A = byLine[LINE_ORDER[i]] || [], B = byLine[LINE_ORDER[i + 1]] || [];
+      A.forEach(a => {
+        const near = B.slice().sort((u, v) => u.base.distanceTo(a.base) - v.base.distanceTo(a.base)).slice(0, 2);
+        near.forEach(b => add(a, b));
+      });
+    }
+    return pairs;
+  }
+
+  /* --- mapa de calor de càrrega sobre el parquet --- */
+  function makeHeat() {
+    const W = 400, H = 200, cv = mkCanvas(W, H), cx = cv.getContext('2d');
+    const tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding;
+    const mesh = new T.Mesh(new T.PlaneGeometry(2 * PL, 2 * PW), new T.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
+    mesh.rotation.x = -Math.PI / 2; mesh.position.y = 0.012; mesh.renderOrder = 1;
+    const R = 78, K = new Float32Array((2 * R + 1) * (2 * R + 1)), sg = 30;
+    for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) K[(y + R) * (2 * R + 1) + x + R] = Math.exp(-(x * x + y * y) / (2 * sg * sg));
+    const field = new Float32Array(W * H), img = cx.createImageData(W, H);
+    const ramp = t => {
+      if (t < 0.5) { const k = t / 0.5; return [lerp(40, 40, k), lerp(110, 215, k), lerp(230, 150, k)]; }
+      if (t < 0.78) { const k = (t - 0.5) / 0.28; return [lerp(40, 250, k), lerp(215, 190, k), lerp(150, 40, k)]; }
+      const k = (t - 0.78) / 0.22; return [lerp(250, 232, k), lerp(190, 38, k), lerp(40, 62, k)];
+    };
+    function update(points) {   // points: [{x, z, v}] en metres
+      field.fill(0);
+      points.forEach(p => {
+        const px = Math.round((p.x + PL) / (2 * PL) * W), pz = Math.round((p.z + PW) / (2 * PW) * H);
+        for (let y = -R; y <= R; y++) {
+          const yy = pz + y; if (yy < 0 || yy >= H) continue;
+          for (let x = -R; x <= R; x++) { const xx = px + x; if (xx < 0 || xx >= W) continue; field[yy * W + xx] += p.v * K[(y + R) * (2 * R + 1) + x + R]; }
+        }
+      });
+      const d = img.data;
+      for (let i = 0; i < W * H; i++) {
+        const t = clamp(field[i] / 1.15, 0, 1), c = ramp(t), a = Math.min(1, Math.max(0, (t - 0.04) / 0.26)) * 0.88;
+        d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = a * 255;
+      }
+      cx.putImageData(img, 0, 0); tex.needsUpdate = true;
+    }
+    return { mesh, update, tex };
+  }
+
+  /* ============================== CSS del HUD ============================= */
+  const CSS = `
+  .nk3d{position:relative;height:clamp(540px,80vh,860px);background:#0B0F19;border-radius:1rem;overflow:hidden;color:#e2e8f0;font-variant-numeric:tabular-nums;font-size:12px;user-select:none;-webkit-user-select:none;touch-action:none}
+  .nk3d:fullscreen{height:100%;border-radius:0}
+  .nk3d-stage{position:absolute;inset:0}.nk3d-stage canvas{display:block;width:100%;height:100%;outline:none}
+  .nk3d-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .nk3d-lbl{position:absolute;left:0;top:0;display:flex;align-items:center;gap:6px;padding:4px 9px 4px 6px;border-radius:999px;background:rgba(15,23,42,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(148,163,184,.28);box-shadow:0 6px 18px -8px rgba(0,0,0,.7);white-space:nowrap;transform-origin:50% 100%;pointer-events:auto;cursor:pointer;will-change:transform}
+  .nk3d-lbl b{font-weight:800;font-size:11px;min-width:20px;height:20px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(155,28,49,.85);color:#fff}
+  .nk3d-lbl span{font-weight:600;color:#f1f5f9}.nk3d-lbl em{font-style:normal;font-weight:800;font-size:11px}
+  .nk3d-lbl.sel{border-color:#fff;background:rgba(30,41,59,.85)}.nk3d-lbl.gone{display:none}
+  .nk3d-glbl{position:absolute;left:0;top:0;padding:5px 10px;border-radius:10px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.3);backdrop-filter:blur(6px);color:#e2e8f0;font-size:11px;white-space:nowrap;pointer-events:none;text-align:center;line-height:1.25}
+  .nk3d-glbl b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  .nk3d-hud{position:absolute;z-index:3}
+  .nk3d-tl{left:14px;top:12px;max-width:46%}
+  .nk3d-title{font-weight:800;font-size:15px;color:#fff;letter-spacing:-.01em}.nk3d-sub{color:#94a3b8;margin-top:2px}
+  .nk3d-chip{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:3px 9px;border-radius:999px;background:rgba(15,23,42,.7);border:1px solid rgba(148,163,184,.25);font-weight:600;color:#cbd5e1}
+  .nk3d-chip i{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .nk3d-btn{cursor:pointer;border:1px solid rgba(148,163,184,.25);background:rgba(15,23,42,.72);color:#cbd5e1;border-radius:9px;padding:5px 10px;font:inherit;font-weight:600;backdrop-filter:blur(6px);transition:all .15s}
+  .nk3d-btn:hover{border-color:rgba(203,213,225,.55);color:#fff}.nk3d-btn.on{background:rgba(155,28,49,.85);border-color:rgba(244,114,138,.6);color:#fff}
+  .nk3d-tr{right:14px;top:12px;display:flex;flex-direction:column;align-items:flex-end;gap:7px;max-width:58%}
+  .nk3d-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}
+  .nk3d-legend{left:14px;bottom:64px;padding:8px 11px;border-radius:12px;background:rgba(15,23,42,.66);border:1px solid rgba(148,163,184,.22);backdrop-filter:blur(6px);color:#94a3b8;line-height:1.7}
+  .nk3d-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .nk3d-scrub{left:50%;transform:translateX(-50%);bottom:12px;width:min(680px,calc(100% - 28px));display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:14px;background:rgba(11,15,25,.82);border:1px solid rgba(148,163,184,.25);backdrop-filter:blur(10px)}
+  .nk3d-scrub input[type=range]{flex:1;accent-color:#c0304c;height:4px;cursor:pointer}
+  .nk3d-wk{min-width:150px;text-align:right}.nk3d-wk b{display:block;color:#fff;font-size:12px}.nk3d-wk small{color:#94a3b8}
+  .nk3d-play{width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;background:#9b1c31;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}.nk3d-play:hover{background:#b3223c}
+  .nk3d-panel{position:absolute;z-index:4;right:12px;top:108px;bottom:70px;width:340px;max-width:calc(100% - 24px);overflow-y:auto;padding:14px;border-radius:16px;background:rgba(11,15,25,.9);border:1px solid rgba(148,163,184,.25);backdrop-filter:blur(12px);transform:translateX(calc(100% + 24px));transition:transform .28s cubic-bezier(.22,.8,.3,1);scrollbar-width:thin}
+  .nk3d-panel.open{transform:none}
+  .nk3d-ph{display:flex;align-items:center;gap:10px}.nk3d-ph .dn{width:42px;height:42px;border-radius:12px;background:rgba(155,28,49,.85);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff}
+  .nk3d-ph strong{display:block;font-size:15px;color:#fff}.nk3d-ph small{color:#94a3b8}.nk3d-ph .x{margin-left:auto}
+  .nk3d-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}
+  .nk3d-k{padding:7px 9px;border-radius:10px;background:rgba(30,41,59,.55);border:1px solid rgba(148,163,184,.14)}.nk3d-k small{display:block;color:#94a3b8;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em}.nk3d-k b{font-size:17px;color:#fff}
+  .nk3d-sec{margin:12px 0 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;display:flex;justify-content:space-between}
+  .nk3d-panel canvas{width:100%;display:block;border-radius:10px;background:rgba(15,23,42,.5)}
+  .nk3d-lg{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px;color:#94a3b8;font-size:10.5px}.nk3d-lg i{display:inline-block;width:14px;height:3px;margin-right:4px;vertical-align:middle;border-radius:2px}
+  .nk3d-wi{padding:11px;border-radius:12px;background:rgba(155,28,49,.1);border:1px solid rgba(244,114,138,.25)}
+  .nk3d-wi label{display:flex;justify-content:space-between;color:#cbd5e1;margin-top:7px}.nk3d-wi input{width:100%;accent-color:#c0304c}
+  .nk3d-gauge{position:relative;height:10px;border-radius:6px;margin-top:11px;background:linear-gradient(90deg,#f59e0b 0%,#f59e0b 20%,#10b981 20%,#10b981 65%,#f59e0b 65%,#f59e0b 75%,#e11d48 75%,#e11d48 100%)}
+  .nk3d-gauge u{position:absolute;top:-4px;width:4px;height:18px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.5);transition:left .12s;text-decoration:none}
+  .nk3d-verdict{margin-top:9px;font-weight:700}
+  @media (max-width:760px){
+    .nk3d{height:clamp(560px,86vh,820px)}.nk3d-tl{max-width:72%}.nk3d-sub{display:none}.nk3d-tr{top:auto;bottom:64px;left:10px;right:10px;max-width:none;align-items:stretch;gap:5px}.nk3d-row{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}.nk3d-row::-webkit-scrollbar{display:none}.nk3d-row .nk3d-btn{white-space:nowrap;flex:0 0 auto}
+    .nk3d-legend{display:none}.nk3d-wk{min-width:92px}
+    .nk3d-panel{top:auto;left:10px;right:10px;bottom:64px;width:auto;max-width:none;height:52%;transform:translateY(calc(100% + 80px))}
+  }`;
+  function injectCSS() {
+    if (document.getElementById('nk3d-css')) return;
+    const s = document.createElement('style'); s.id = 'nk3d-css'; s.textContent = CSS; document.head.appendChild(s);
+  }
+
+  /* ================================ controlador ============================ */
+  const PRESETS = {
+    broadcast: { pos: [0, 7.5, 27], tgt: [0, 1, 0], label: 'Broadcast' },
+    zenital: { pos: [0, 36, 12], tgt: [0, 0, -0.4], label: 'Zenital 2.5D' },
+    defensa: { pos: [-31, 9.5, 13], tgt: [-11, 0.8, 0], label: 'Bloc defensiu' },
+    carrils: { pos: [3, 17, 21], tgt: [3, 0, 0], label: 'Carrils' },
+    atac: { pos: [32, 9, 12], tgt: [12, 0.8, 0], label: 'Front d\'atac' }
+  };
+
+  NK3D.create = function (container, data, opts) {
+    T = root.THREE; if (!T) throw new Error('Three.js no està carregat');
+    opts = opts || {};
+    injectCSS();
+    const reg = [];
+    const L = [];                 // listeners [target, evt, fn, opt]
+    const on = (t, e, f, o) => { t.addEventListener(e, f, o); L.push([t, e, f, o]); };
+    const st = { week: 0, cam: 'broadcast', halos: true, synergy: false, heat: false, labels: true, synMode: 'line', sel: null, playing: false, whatif: null, wiMin: 25, wiRpe: 8 };
+    let disposed = false, visible = true, raf = 0, playTimer = 0;
+    let actors = new Map(), D = null, nW = 0, firstLoad = true;
+
+    /* ---------- DOM ---------- */
+    container.innerHTML = `
+      <div class="nk3d-stage"></div><div class="nk3d-labels"></div>
+      <div class="nk3d-hud nk3d-tl"><div class="nk3d-title"></div><div class="nk3d-sub"></div><div class="nk3d-chip" data-r="team"></div></div>
+      <div class="nk3d-hud nk3d-tr">
+        <div class="nk3d-row" data-r="cams">${Object.keys(PRESETS).map(k => `<button class="nk3d-btn" data-cam="${k}">${PRESETS[k].label}</button>`).join('')}</div>
+        <div class="nk3d-row"><button class="nk3d-btn on" data-tg="halos" title="Halos de telemetria">Halos</button><button class="nk3d-btn" data-tg="synergy" title="Xarxa de sinergia">Sinergia</button><button class="nk3d-btn" data-tg="heat" title="Mapa de calor de càrrega">Calor</button><button class="nk3d-btn on" data-tg="labels" title="Etiquetes">Etiquetes</button><button class="nk3d-btn" data-act="fs" title="Pantalla completa">⤢</button></div>
+        <div class="nk3d-row" data-r="synrow" style="display:none"><button class="nk3d-btn on" data-syn="line">Per línies</button><button class="nk3d-btn" data-syn="unit">Per quartets</button></div>
+        <div class="nk3d-row" data-r="src"></div>
+      </div>
+      <div class="nk3d-hud nk3d-legend"><div><i style="background:#10b981"></i>Òptim (ACWR 0,8–1,3)</div><div><i style="background:#f59e0b"></i>Precaució</div><div><i style="background:#e11d48"></i>Sobrecàrrega / risc</div><div style="margin-top:3px;border-top:1px solid rgba(148,163,184,.2);padding-top:3px">Anell exterior = minuts (4 setm.)<br>Anell interior = ràtio ACWR</div></div>
+      <div class="nk3d-panel"></div>
+      <div class="nk3d-hud nk3d-scrub"><button class="nk3d-play" data-act="play" title="Reproduir">▶</button><input type="range" min="0" max="0" value="0" step="1" data-r="range"><div class="nk3d-wk"><b data-r="wk"></b><small data-r="wm"></small></div></div>`;
+    const $ = sel => container.querySelector(sel);
+    const stage = $('.nk3d-stage'), labelsEl = $('.nk3d-labels'), panel = $('.nk3d-panel');
+    const rangeEl = $('[data-r=range]'), playBtn = $('[data-act=play]');
+
+    /* ---------- renderer / escena / càmera ---------- */
+    const renderer = new T.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+    stage.appendChild(renderer.domElement);
+    const scene = new T.Scene(); scene.background = new T.Color(0x0B0F19);
+    const envRT = buildEnvironment(renderer); scene.environment = envRT.texture;
+    const cam = new T.PerspectiveCamera(48, 1, 0.1, 400);
+
+    const hemi = new T.HemisphereLight(0xfff4e6, 0x6b4a2c, 0.62); scene.add(hemi);
+    const sun = new T.DirectionalLight(0xffffff, 1.0); sun.position.set(9, 26, 11);
+    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 15, bottom: -15, near: 4, far: 70 });
+    sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03; sun.shadow.radius = 3; scene.add(sun, sun.target);
+
+    const hall = buildHall(scene, renderer, opts, reg);
+    hall.spots.forEach(([x, z]) => {
+      const sp = new T.SpotLight(0xfff0dc, 0.3, 38, 0.85, 0.85, 1.4); sp.position.set(x, HH - 1.9, z); sp.target.position.set(x, 0, z); scene.add(sp, sp.target);
+    });
+    const heat = makeHeat(); scene.add(heat.mesh);
+    const synGroup = new T.Group(); scene.add(synGroup);
+    const haloGroup = new T.Group(); scene.add(haloGroup);
+    const playerGroup = new T.Group(); scene.add(playerGroup);
+
+    /* ---------- controls d'òrbita propis (rotació / pan / zoom / pinch) ---------- */
+    const target = new T.Vector3(0, 1, 0), sph = new T.Spherical(), tmpV = new T.Vector3();
+    const goal = { pos: new T.Vector3(), tgt: new T.Vector3(), on: false };
+    const vel = { th: 0, ph: 0 };
+    function syncSph() { sph.setFromVector3(tmpV.copy(cam.position).sub(target)); }
+    function applySph() {
+      sph.phi = clamp(sph.phi, 0.05, Math.PI / 2 - 0.015); sph.radius = clamp(sph.radius, 4, 85);
+      cam.position.copy(target).add(tmpV.setFromSpherical(sph)); cam.lookAt(target);
+    }
+    function flyTo(pos, tgt, snap) {
+      goal.pos.copy(pos); goal.tgt.copy(tgt); goal.on = !snap;
+      if (snap) { cam.position.copy(pos); target.copy(tgt); cam.lookAt(target); syncSph(); }
+    }
+    // Allunya la càmera en pantalles estretes perquè la pista (44 m) hi càpiga sencera
+    function fitPreset(name) {
+      const p = PRESETS[name], pos = new T.Vector3(...p.pos), tgt = new T.Vector3(...p.tgt);
+      if (name === 'broadcast' || name === 'zenital' || name === 'carrils') {
+        const w = stage.clientWidth || 800, h = stage.clientHeight || 500, off = pos.clone().sub(tgt), len = off.length();
+        const need = 54 / Math.max(0.4, w / h), k = clamp(need / len, 1, 2.3);
+        pos.copy(tgt).addScaledVector(off, k);
+      }
+      return { pos, tgt };
+    }
+    function setCamera(name) {
+      const p = PRESETS[name]; if (!p) return;
+      st.cam = name; const f = fitPreset(name); flyTo(f.pos, f.tgt, false);
+      container.querySelectorAll('[data-cam]').forEach(b => b.classList.toggle('on', b.dataset.cam === name));
+    }
+    const ptrs = new Map(); let downAt = null, moved = 0, pinch = 0;
+    const rect = () => renderer.domElement.getBoundingClientRect();
+    function panBy(dx, dy) {
+      const k = sph.radius * 0.0016, r = new T.Vector3().setFromMatrixColumn(cam.matrix, 0), f = new T.Vector3().setFromMatrixColumn(cam.matrix, 0).cross(new T.Vector3(0, 1, 0)).negate();
+      f.y = 0; f.normalize(); r.y = 0; r.normalize();
+      target.addScaledVector(r, -dx * k).addScaledVector(f, dy * k);
+      target.x = clamp(target.x, -26, 26); target.z = clamp(target.z, -16, 16); target.y = clamp(target.y, 0, 6);
+    }
+    on(renderer.domElement, 'contextmenu', e => e.preventDefault());
+    on(renderer.domElement, 'pointerdown', e => {
+      renderer.domElement.setPointerCapture && renderer.domElement.setPointerCapture(e.pointerId);
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, b: e.button, sh: e.shiftKey });
+      goal.on = false; vel.th = vel.ph = 0;
+      if (ptrs.size === 1) { downAt = { t: performance.now(), x: e.clientX, y: e.clientY }; moved = 0; }
+      if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); }
+    });
+    on(renderer.domElement, 'pointermove', e => {
+      const p = ptrs.get(e.pointerId);
+      if (!p) { hover(e); return; }
+      const dx = e.clientX - p.x, dy = e.clientY - p.y;
+      if (ptrs.size === 1) {
+        moved += Math.abs(dx) + Math.abs(dy);
+        syncSph();
+        if (p.b === 2 || p.b === 1 || p.sh) { panBy(dx, dy); applySph(); }
+        else { sph.theta -= dx * 0.0055; sph.phi -= dy * 0.0055; vel.th = -dx * 0.0055; vel.ph = -dy * 0.0055; applySph(); }
+      } else if (ptrs.size === 2) {
+        const o = [...ptrs.entries()].find(([id]) => id !== e.pointerId)[1];
+        const d0 = Math.hypot(p.x - o.x, p.y - o.y), d1 = Math.hypot(e.clientX - o.x, e.clientY - o.y);
+        syncSph(); sph.radius *= d0 / Math.max(10, d1); panBy(dx / 2, dy / 2); applySph(); moved += 20;
+      }
+      p.x = e.clientX; p.y = e.clientY;
+    });
+    const up = e => {
+      const p = ptrs.get(e.pointerId); ptrs.delete(e.pointerId);
+      if (p && downAt && ptrs.size === 0 && moved < 6 && performance.now() - downAt.t < 600 && e.type === 'pointerup') pick(e);
+    };
+    on(renderer.domElement, 'pointerup', up); on(renderer.domElement, 'pointercancel', up);
+    on(renderer.domElement, 'wheel', e => { e.preventDefault(); goal.on = false; syncSph(); sph.radius *= Math.exp(e.deltaY * 0.0011); applySph(); }, { passive: false });
+
+    /* ---------- selecció (raycast) ---------- */
+    const ray = new T.Raycaster(), ndc = new T.Vector2();
+    function raycast(e) {
+      const r = rect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, cam);
+      const hits = ray.intersectObjects([...actors.values()].map(a => a.av.hit), false);
+      return hits.length ? hits[0].object.userData.pid : null;
+    }
+    let hoverId = null, hoverT = 0;
+    function hover(e) {
+      const now = performance.now(); if (now - hoverT < 60) return; hoverT = now;
+      const id = raycast(e); if (id !== hoverId) { hoverId = id; renderer.domElement.style.cursor = id ? 'pointer' : 'grab'; }
+    }
+    function pick(e) { const id = raycast(e); select(id); }
+
+    /* ---------- construcció dels jugadors ---------- */
+    function clearActors() {
+      actors.forEach(a => {
+        [a.av.root, a.halo].forEach(o => { o.parent && o.parent.remove(o); o.traverse(n => { if (n.geometry) n.geometry.dispose(); }); });
+        a.av.allMats.forEach(m => m.dispose()); a.av.numTex.dispose(); a.halo.material.dispose(); a.label.remove();
+      });
+      actors = new Map(); labelsEl.innerHTML = '';
+      while (synGroup.children.length) { const c = synGroup.children.pop(); c.geometry && c.geometry.dispose(); c.material && c.material.dispose(); }
+      links = [];
+    }
+    function buildActors() {
+      const pos = layoutPositions(D.players);
+      D.players.forEach(p => {
+        const id = String(p.id), b = pos[p.id] || { x: 0, z: 0 };
+        const av = buildAvatar(p);
+        av.allMats.forEach(m => { if (m.envMapIntensity !== undefined) m.envMapIntensity = 0.4; });
+        av.root.position.set(b.x, 0, b.z); av.root.rotation.y = Math.PI / 2;
+        if (p.status === 'baixa') av.allMats.forEach(m => { m.transparent = true; m.opacity = 0.35; });
+        playerGroup.add(av.root);
+        const halo = buildHalo(); halo.position.x = b.x; halo.position.z = b.z; haloGroup.add(halo);
+        const label = document.createElement('div'); label.className = 'nk3d-lbl';
+        label.innerHTML = `<b>${esc(p.dorsal)}</b><span>${esc(p.short || p.name)}</span><em></em>`;
+        label.addEventListener('click', ev => { ev.stopPropagation(); select(id); });
+        labelsEl.appendChild(label);
+        actors.set(id, { id, p, av, halo, label, base: new T.Vector3(b.x, 0, b.z), cur: { acwr: null, frac: 0, col: [0.39, 0.45, 0.55], acute: 0, chronic: 0 }, tgt: { acwr: null, frac: 0, col: [0.39, 0.45, 0.55], acute: 0, chronic: 0 }, em: label.querySelector('em'), lastTxt: '', mw: 0, mh: 0 });
+      });
+      // etiquetes de grup per al mode "Calor"
+      glabels = LINE_ORDER.map(k => { const d = document.createElement('div'); d.className = 'nk3d-glbl'; d.style.display = 'none'; labelsEl.appendChild(d); return { k, el: d }; });
+    }
+    let links = [], glabels = [];
+
+    /* ---------- sinergies ---------- */
+    function buildSynergy() {
+      while (synGroup.children.length) { const c = synGroup.children.pop(); c.geometry && c.geometry.dispose(); c.material && c.material.dispose(); }
+      links = [];
+      if (!st.synergy) return;
+      synergyPairs(st.synMode, actors, D.units).forEach(([a, b]) => {
+        const mid = a.base.clone().add(b.base).multiplyScalar(0.5); mid.y = 0.28 + a.base.distanceTo(b.base) * 0.035;
+        const curve = new T.QuadraticBezierCurve3(a.base.clone().setY(0.07), mid, b.base.clone().setY(0.07));
+        const tube = new T.Mesh(new T.TubeGeometry(curve, 28, 0.05, 6, false), new T.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.8, depthWrite: false }));
+        tube.renderOrder = 3;
+        const pulse = new T.Mesh(new T.SphereGeometry(0.13, 10, 8), new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95, depthWrite: false }));
+        synGroup.add(tube, pulse);
+        links.push({ a, b, curve, tube, pulse, ph: Math.random() });
+      });
+    }
+
+    /* ---------- setmana / dades ---------- */
+    const lineOf = p => LINE_OF[p.pos];
+    function weekOf(p) { return (p.history || [])[st.week]; }
+    function setTargets() {
+      actors.forEach(a => {
+        const h = weekOf(a.p);
+        if (!h) { a.tgt = { acwr: null, frac: 0, col: [0.39, 0.45, 0.55], acute: 0, chronic: 0 }; return; }
+        a.tgt = { acwr: h.acwr, frac: clamp(h.minutes4 / (D._max.minutes4 || 1), 0, 1), col: acwrRGB(h.acwr), acute: h.acute, chronic: h.chronic };
+      });
+      heatDirty = true; st.whatif = null; updateHud(); if (st.sel) renderPanel();
+    }
+    function teamStats() {
+      const v = [...actors.values()].map(a => a.tgt.acwr).filter(x => x != null);
+      return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null;
+    }
+    function updateHud() {
+      const w = (D.weeks || [])[st.week] || {};
+      $('.nk3d-title').textContent = (D.meta && D.meta.title) || 'Pista Tàctica 3D';
+      $('.nk3d-sub').textContent = (D.meta && D.meta.subtitle) || '';
+      const ta = teamStats(), s = acwrStatus(ta);
+      $('[data-r=team]').innerHTML = `<i style="background:${s.color}"></i>Equip · ACWR ${fmt2(ta)} · ${esc(s.label)}`;
+      $('[data-r=wk]').textContent = w.label || (nW ? 'Setmana ' + (st.week + 1) : 'Sense dades');
+      $('[data-r=wm]').textContent = w.match || w.range || '';
+      rangeEl.value = st.week;
+      hall.setScore({ top: 'ACWR ' + fmt2(ta), mid: 'S' + String(st.week + 1).padStart(2, '0'), bottom: String(w.match || '').toUpperCase().slice(0, 18) });
+    }
+    function setWeek(i) { st.week = clamp(Math.round(i), 0, Math.max(0, nW - 1)); setTargets(); }
+    function setData(nd, resetWeek) {
+      if (resetWeek) firstLoad = true;
+      D = prepare(nd); nW = Math.max((D.weeks || []).length, ...D.players.map(p => (p.history || []).length), 0);
+      if (!D.weeks || D.weeks.length < nW) D.weeks = Array.from({ length: nW }, (_, i) => (D.weeks && D.weeks[i]) || { label: 'Setm. ' + (i + 1) });
+      clearActors(); buildActors(); buildSynergy();
+      rangeEl.max = Math.max(0, nW - 1); st.week = firstLoad ? Math.max(0, nW - 1) : clamp(st.week, 0, Math.max(0, nW - 1)); firstLoad = false; rangeEl.disabled = nW < 2;
+      const sr = $('[data-r=src]'); sr.innerHTML = opts.onSwapSource ? `<button class="nk3d-btn" data-act="swap">${esc((D.meta && D.meta.swapLabel) || 'Canvia les dades')}</button>` : '';
+      setTargets();
+      actors.forEach(a => { a.cur = Object.assign({}, a.tgt, { col: a.tgt.col.slice() }); });
+      if (st.sel && !actors.has(st.sel)) select(null);
+    }
+
+    /* ---------- panell d'inspecció ---------- */
+    function groupAvg(p, w) {
+      const line = LINE_OF[p.pos], grp = D.players.filter(q => LINE_OF[q.pos] === line), all = D.players;
+      const vals = q => { const h = (q.history || [])[w]; return h ? radarVals(q, h) : null; };
+      const mean = arr => { const v = arr.map(vals).filter(Boolean); if (!v.length) return null; return v[0].map((_, i) => v.reduce((s, r) => s + r[i], 0) / v.length); };
+      return { grp: mean(grp), all: mean(all) };
+    }
+    function radarVals(p, h) {
+      return [clamp(h.acute / D._max.acute * 100, 0, 100), clamp(h.chronic / D._max.acute * 100, 0, 100), clamp((h.acwr == null ? 0 : h.acwr) / 2 * 100, 0, 100), clamp(h.minutes4 / D._max.minutes4 * 100, 0, 100), clamp((+h.rpe || 0) * 10, 0, 100), clamp(p.impact || 0, 0, 100)];
+    }
+    const AXES = ['C. aguda', 'C. crònica', 'ACWR', 'Minuts', 'RPE', 'Impacte'];
+    function drawRadar(cv, series) {
+      const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth || 300, H = 220;
+      cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+      const cx = W / 2, cy = H / 2 + 4, R = Math.min(W, H) / 2 - 34, n = AXES.length;
+      const pt = (i, v) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + Math.cos(a) * R * v / 100, cy + Math.sin(a) * R * v / 100]; };
+      g.strokeStyle = 'rgba(148,163,184,.22)'; g.lineWidth = 1;
+      [25, 50, 75, 100].forEach(l => { g.beginPath(); for (let i = 0; i < n; i++) { const [x, y] = pt(i, l); i ? g.lineTo(x, y) : g.moveTo(x, y); } g.closePath(); g.stroke(); });
+      g.fillStyle = '#94a3b8'; g.font = '600 10px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (let i = 0; i < n; i++) { const [x, y] = pt(i, 100), [lx, ly] = pt(i, 122); g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, y); g.stroke(); g.fillText(AXES[i], lx, ly); }
+      series.forEach(s => {
+        if (!s.vals) return;
+        g.beginPath(); s.vals.forEach((v, i) => { const [x, y] = pt(i, v); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath();
+        if (s.fill) { g.fillStyle = s.fill; g.fill(); }
+        g.setLineDash(s.dash || []); g.strokeStyle = s.color; g.lineWidth = s.w || 2; g.stroke(); g.setLineDash([]);
+      });
+    }
+    function drawLine(cv, p) {
+      const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth || 300, H = 126;
+      cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+      const Hh = p.history || [], n = Hh.length; if (!n) return;
+      const maxV = Math.max(1, ...Hh.map(h => Math.max(h.acute, h.chronic))) * 1.1, L0 = 8, R0 = W - 10, T0 = 10, B0 = H - 20;
+      const X = i => n === 1 ? (L0 + R0) / 2 : L0 + (R0 - L0) * i / (n - 1), Y = v => B0 - (B0 - T0) * v / maxV;
+      g.strokeStyle = 'rgba(148,163,184,.18)'; g.lineWidth = 1;
+      for (let k = 0; k <= 3; k++) { const y = T0 + (B0 - T0) * k / 3; g.beginPath(); g.moveTo(L0, y); g.lineTo(R0, y); g.stroke(); }
+      const path = (key, col, wd) => { g.beginPath(); Hh.forEach((h, i) => i ? g.lineTo(X(i), Y(h[key])) : g.moveTo(X(i), Y(h[key]))); g.strokeStyle = col; g.lineWidth = wd; g.stroke(); };
+      path('chronic', '#38bdf8', 2); path('acute', '#f43f5e', 2);
+      const cx = X(st.week); g.strokeStyle = 'rgba(255,255,255,.55)'; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(cx, T0); g.lineTo(cx, B0); g.stroke(); g.setLineDash([]);
+      [['acute', '#f43f5e'], ['chronic', '#38bdf8']].forEach(([k, c]) => { g.fillStyle = c; g.beginPath(); g.arc(cx, Y(Hh[st.week] ? Hh[st.week][k] : 0), 3.6, 0, Math.PI * 2); g.fill(); });
+      g.fillStyle = '#64748b'; g.font = '600 9.5px system-ui,sans-serif'; g.textAlign = 'left'; g.fillText('S1', L0, H - 6); g.textAlign = 'right'; g.fillText('S' + n, R0, H - 6);
+    }
+    function whatIf(p) {
+      const H = p.history || [], w = st.week; if (!H[w]) return null;
+      const last = H.slice(Math.max(0, w - 2), w + 1), trainBase = last.reduce((s, h) => s + h.train, 0) / last.length;
+      const proj = trainBase + st.wiMin * st.wiRpe;
+      const win = H.slice(Math.max(0, w - 2), w + 1).map(h => h.acute).concat([proj]);
+      const chronic = win.reduce((s, x) => s + x, 0) / win.length;
+      return { proj, chronic, acwr: chronic > 0 ? proj / chronic : null };
+    }
+    function renderPanel() {
+      const a = actors.get(st.sel); if (!a) { panel.classList.remove('open'); return; }
+      const p = a.p, h = weekOf(p), s = acwrStatus(h ? h.acwr : null);
+      const stLabel = { disponible: 'Disponible', limitat: 'Disponibilitat limitada', baixa: 'Baixa' }[p.status] || 'Disponible';
+      const kp = (l, v, extra) => `<div class="nk3d-k"><small>${l}</small><b${extra || ''}>${v}</b></div>`;
+      const ga = groupAvg(p, st.week), me = h ? radarVals(p, h) : null;
+      const wi = whatIf(p), ws = wi ? acwrStatus(wi.acwr) : acwrStatus(null);
+      const tot = (p.history || []).slice(0, st.week + 1).reduce((s, x) => s + x.minutes, 0);
+      panel.innerHTML = `
+        <div class="nk3d-ph"><div class="dn">${esc(p.dorsal)}</div><div><strong>${esc(p.name)}</strong><small>${esc(ROLE_LABEL[p.pos] || p.pos)} · ${esc(stLabel)}</small></div><button class="nk3d-btn x" data-act="close">✕</button></div>
+        <div class="nk3d-kpis">
+          ${kp('ACWR', fmt2(h && h.acwr), ` style="color:${s.color}"`)}${kp('C. aguda', h ? Math.round(h.acute) : '—')}${kp('C. crònica', h ? Math.round(h.chronic) : '—')}
+          ${kp('Min. 4 setm.', h ? h.minutes4 : '—')}${kp('RPE', fmt1(h && h.rpe))}${kp('Impacte', p.impact != null ? Math.round(p.impact) : '—')}
+        </div>
+        <div class="nk3d-sec"><span>Perfil vs. demarcació i equip</span><span style="color:${s.color}">${esc(s.label)}</span></div>
+        <canvas data-c="radar"></canvas>
+        <div class="nk3d-lg"><span><i style="background:#f43f5e"></i>${esc(p.short || p.name)}</span><span><i style="background:#38bdf8"></i>${esc(LINE_LABEL[LINE_OF[p.pos]] || '')}</span><span><i style="background:#cbd5e1"></i>Equip</span></div>
+        <div class="nk3d-sec"><span>Evolució aguda / crònica</span><span>${tot} min temporada</span></div>
+        <canvas data-c="line"></canvas>
+        <div class="nk3d-lg"><span><i style="background:#f43f5e"></i>Aguda</span><span><i style="background:#38bdf8"></i>Crònica</span><span>Assistència ${p.attendance != null ? Math.round(p.attendance) + '%' : '—'}</span></div>
+        <div class="nk3d-sec"><span>Simulador What-If · proper partit</span></div>
+        <div class="nk3d-wi">
+          <label><span>Minuts a pista</span><b data-r="wiMinV">${st.wiMin}'</b></label><input type="range" min="0" max="40" step="1" value="${st.wiMin}" data-wi="min">
+          <label><span>Intensitat (RPE)</span><b data-r="wiRpeV">${st.wiRpe}</b></label><input type="range" min="1" max="10" step="0.5" value="${st.wiRpe}" data-wi="rpe">
+          <div class="nk3d-gauge"><u data-r="gauge" style="left:${gaugePos(wi)}%"></u></div>
+          <div class="nk3d-verdict" data-r="verdict" style="color:${ws.color}">${wiText(wi, ws)}</div>
+        </div>`;
+      drawRadar(panel.querySelector('[data-c=radar]'), [
+        { vals: ga.all, color: '#cbd5e1', dash: [4, 3], w: 1.5 }, { vals: ga.grp, color: '#38bdf8', fill: 'rgba(56,189,248,.12)', w: 1.5 }, { vals: me, color: '#f43f5e', fill: 'rgba(244,63,94,.22)', w: 2.2 }]);
+      drawLine(panel.querySelector('[data-c=line]'), p);
+    }
+    const gaugePos = wi => wi && wi.acwr != null ? clamp(wi.acwr / 2 * 100, 0, 100) : 0;
+    const wiText = (wi, ws) => !wi || wi.acwr == null ? 'Sense dades per simular.' : `ACWR projectat ${fmt2(wi.acwr)} · ${esc(ws.label)}`;
+    function wiUpdate(user) {
+      const a = actors.get(st.sel); if (!a) return; const wi = whatIf(a.p), ws = acwrStatus(wi ? wi.acwr : null);
+      panel.querySelector('[data-r=wiMinV]').textContent = st.wiMin + "'"; panel.querySelector('[data-r=wiRpeV]').textContent = st.wiRpe;
+      panel.querySelector('[data-r=gauge]').style.left = gaugePos(wi) + '%';
+      const v = panel.querySelector('[data-r=verdict]'); v.style.color = ws.color; v.innerHTML = wiText(wi, ws);
+      st.whatif = user && wi && wi.acwr != null ? { id: st.sel, acwr: wi.acwr } : null;
+    }
+    on(panel, 'input', e => {
+      const k = e.target.dataset && e.target.dataset.wi; if (!k) return;
+      if (k === 'min') st.wiMin = +e.target.value; else st.wiRpe = +e.target.value; wiUpdate(true);
+    });
+
+    function select(id) {
+      id = id == null ? null : String(id);
+      if (id && !actors.has(id)) id = null;
+      st.sel = (st.sel === id && id) ? st.sel : id; st.whatif = null;
+      actors.forEach(a => a.label.classList.toggle('sel', a.id === st.sel));
+      if (st.sel) {
+        const a = actors.get(st.sel);
+        renderPanel(); wiUpdate(); panel.classList.add('open');
+        const dir = cam.position.clone().sub(target).normalize(); if (dir.y < 0.35) dir.y = 0.35; dir.normalize();
+        const tg = a.base.clone().setY(0.9); flyTo(tg.clone().addScaledVector(dir, 11), tg, false);
+        container.querySelectorAll('[data-cam]').forEach(b => b.classList.remove('on'));
+      } else { panel.classList.remove('open'); }
+      if (opts.onSelect) opts.onSelect(st.sel);
+    }
+
+    /* ---------- UI (delegació d'events) ---------- */
+    function applyToggles() {
+      haloGroup.visible = st.halos; heat.mesh.material.opacity = 0; labelsEl.style.display = st.labels ? '' : 'none';
+      container.querySelectorAll('[data-tg]').forEach(b => b.classList.toggle('on', !!st[b.dataset.tg]));
+      container.querySelector('[data-r=synrow]').style.display = st.synergy ? 'flex' : 'none';
+      const hasUnits = !!(D && D.units && D.units.length); if (!hasUnits && st.synMode === 'unit') st.synMode = 'line';
+      container.querySelectorAll('[data-syn]').forEach(b => { b.classList.toggle('on', b.dataset.syn === st.synMode); if (b.dataset.syn === 'unit') b.style.display = hasUnits ? '' : 'none'; });
+      glabels.forEach(g => g.el.style.display = st.heat ? '' : 'none');
+      heatDirty = true;
+    }
+    function setMode(m) { Object.assign(st, m || {}); applyToggles(); buildSynergy(); }
+    function play(on_) {
+      st.playing = on_ !== undefined ? on_ : !st.playing; playBtn.textContent = st.playing ? '❚❚' : '▶';
+      clearInterval(playTimer);
+      if (st.playing) {
+        if (st.week >= nW - 1) setWeek(0);
+        playTimer = setInterval(() => { if (st.week >= nW - 1) { play(false); return; } setWeek(st.week + 1); }, 1350);
+      }
+    }
+    on(container, 'click', e => {
+      const b = e.target.closest('button,[data-cam]'); if (!b || !container.contains(b)) return;
+      if (b.dataset.cam) { select(null); setCamera(b.dataset.cam); }
+      else if (b.dataset.tg) { st[b.dataset.tg] = !st[b.dataset.tg]; applyToggles(); if (b.dataset.tg === 'synergy') buildSynergy(); }
+      else if (b.dataset.syn) { st.synMode = b.dataset.syn; applyToggles(); buildSynergy(); }
+      else if (b.dataset.act === 'play') play();
+      else if (b.dataset.act === 'close') select(null);
+      else if (b.dataset.act === 'fs') { if (document.fullscreenElement) document.exitFullscreen(); else if (container.requestFullscreen) container.requestFullscreen(); }
+      else if (b.dataset.act === 'swap') { opts.onSwapSource && opts.onSwapSource(); }
+    });
+    on(rangeEl, 'input', () => { play(false); setWeek(+rangeEl.value); });
+
+    /* ---------- etiquetes: projecció, escala per distància i anti-col·lisió ---------- */
+    const pv = new T.Vector3();
+    function updateLabels() {
+      if (!st.labels && !st.heat) return;
+      if (st.heat && !st.sel && !glabels.length) return;
+      const r = rect(), W = r.width, H = r.height, items = [];
+      actors.forEach(a => {
+        pv.set(a.base.x, 2.12, a.base.z).project(cam);
+        const gone = pv.z > 1 || pv.z < -1 || Math.abs(pv.x) > 1.25 || Math.abs(pv.y) > 1.25;
+        const hide = gone || !st.labels || (st.heat && a.id !== st.sel);
+        a.label.classList.toggle('gone', hide);
+        if (hide) return;
+        const d = cam.position.distanceTo(a.base), s = clamp(21 / d, 0.6, 0.92);
+        const w = (a.mw || 110) * s, h = (a.mh || 26) * s;
+        items.push({ a, x: (pv.x * 0.5 + 0.5) * W, y: (-pv.y * 0.5 + 0.5) * H, w, h, s, d });
+      });
+      const placed = [];
+      items.sort((u, v) => u.y - v.y).forEach(it => {
+        let tries = 0;
+        const clash = () => placed.some(q => Math.abs(q.x - it.x) < (q.w + it.w) / 2 + 3 && Math.abs(q.y - it.y) < (q.h + it.h) / 2 + 2);
+        while (clash() && tries++ < 8) it.y -= it.h + 3;
+        placed.push(it);
+        it.a.label.style.transform = `translate(${(it.x - it.w / 2 / it.s).toFixed(1)}px,${(it.y - it.h / it.s).toFixed(1)}px) scale(${it.s.toFixed(3)})`;
+        it.a.label.style.zIndex = String(Math.round(1000 - it.d * 10));
+      });
+      if (st.heat) glabels.forEach(g => {
+        const m = g.el._pos; if (!m) return; pv.set(m.x, 0.5, m.z).project(cam);
+        g.el.style.transform = `translate(${((pv.x * 0.5 + 0.5) * W).toFixed(1)}px,${((-pv.y * 0.5 + 0.5) * H).toFixed(1)}px) translate(-50%,-50%)`;
+      });
+    }
+    let heatDirty = true, heatTick = 0;
+    function updateHeat() {
+      if (!st.heat) { heat.mesh.material.opacity = Math.max(0, heat.mesh.material.opacity - 0.08); heat.mesh.visible = heat.mesh.material.opacity > 0.01; return; }
+      heat.mesh.visible = true; heat.mesh.material.opacity = Math.min(0.92, heat.mesh.material.opacity + 0.08);
+      if (!heatDirty || (++heatTick % 3)) return;
+      const pts = [], by = {};
+      actors.forEach(a => { const v = clamp(a.cur.acute / (D._max.acute || 1), 0, 1.1); pts.push({ x: a.base.x, z: a.base.z, v }); (by[lineOf(a.p)] = by[lineOf(a.p)] || []).push({ a, v }); });
+      heat.update(pts);
+      glabels.forEach(g => {
+        const arr = by[g.k]; if (!arr || !arr.length) { g.el.style.display = 'none'; return; }
+        const mean = arr.reduce((s, x) => s + x.v, 0) / arr.length, cx = arr.reduce((s, x) => s + x.a.base.x, 0) / arr.length, cz = arr.reduce((s, x) => s + x.a.base.z, 0) / arr.length;
+        const ac = arr.map(x => x.a.cur.acwr).filter(x => x != null), am = ac.length ? ac.reduce((s, x) => s + x, 0) / ac.length : null;
+        g.el._pos = { x: cx, z: g.k === 'ALA' ? 0 : cz }; g.el.style.display = '';
+        g.el.innerHTML = `<b>${LINE_LABEL[g.k]}</b>Desgast ${Math.round(mean * 100)}% · ACWR ${fmt2(am)}`;
+      });
+      heatDirty = false;   // es torna a marcar quan canvien els valors (frame loop)
+    }
+
+    /* ---------- bucle de render ---------- */
+    let last = performance.now(), tAcc = 0, rafHeat = 0;
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      if (disposed || !visible || document.hidden) { last = now; return; }
+      const dt = Math.min(0.1, (now - last) / 1000); last = now; tAcc += dt;
+      // transició de càmera suau
+      if (goal.on) {
+        const k = 1 - Math.exp(-dt * 3.4);
+        cam.position.lerp(goal.pos, k); target.lerp(goal.tgt, k); cam.lookAt(target);
+        if (cam.position.distanceTo(goal.pos) < 0.04 && target.distanceTo(goal.tgt) < 0.04) { goal.on = false; syncSph(); }
+        syncSph();
+      } else if (Math.abs(vel.th) > 1e-4 || Math.abs(vel.ph) > 1e-4) {
+        if (!ptrs.size) { syncSph(); sph.theta += vel.th * 0.9; sph.phi += vel.ph * 0.9; vel.th *= 0.9; vel.ph *= 0.9; applySph(); }
+      }
+      hall.roof.visible = cam.position.y < HH + 0.4;
+      // valors actuals → objectius (colors, anells)
+      const ke = 1 - Math.exp(-dt * 4.5); let changing = false;
+      actors.forEach(a => {
+        const c = a.cur, t = a.tgt;
+        for (let i = 0; i < 3; i++) { const d = t.col[i] - c.col[i]; if (Math.abs(d) > 0.002) { c.col[i] += d * ke; changing = true; } }
+        ['frac', 'acute', 'chronic'].forEach(k => { const d = t[k] - c[k]; if (Math.abs(d) > (k === 'frac' ? 0.001 : 0.2)) { c[k] += d * ke; changing = true; } else c[k] = t[k]; });
+        if (t.acwr == null || c.acwr == null) c.acwr = t.acwr; else { const d = t.acwr - c.acwr; if (Math.abs(d) > 0.002) { c.acwr += d * ke; changing = true; } else c.acwr = t.acwr; }
+        const u = a.halo.material.uniforms, wi = st.whatif && st.whatif.id === a.id ? st.whatif.acwr : null;
+        const col = wi != null ? acwrRGB(wi) : c.col, ac = wi != null ? wi : t.acwr;
+        u.uFrac.value = c.frac; u.uCol.value.setRGB(col[0], col[1], col[2]); u.uTime.value = tAcc; u.uPulse.value = ac != null && ac > 1.5 ? 1 : (ac != null && ac > 1.3 ? 0.4 : 0);
+        u.uSel.value = a.id === st.sel ? 1 : 0; u.uOp.value = st.heat ? 0.7 : 1; u.uDim.value = a.p.status === 'baixa' ? 1 : 0; u.uCone.value = a.id === st.sel || hoverId === a.id ? 1.6 : 1;
+        const txt = c.acwr == null ? '—' : fmt2(c.acwr); if (txt !== a.lastTxt) { a.lastTxt = txt; a.em.textContent = txt; a.mw = a.label.offsetWidth; a.mh = a.label.offsetHeight; a.em.style.color = rgbCss(col.map(x => Math.min(1, x * 1.15 + 0.1))); }
+        // respiració / postura activa
+        const ph = a.av.phase, bt = tAcc * 1.7 + ph;
+        a.av.torso.scale.y = 1 + 0.018 * Math.sin(bt); a.av.torso.scale.x = 1 + 0.012 * Math.sin(bt + 1);
+        a.av.body.position.y = 0.012 * Math.sin(bt + 1.2); a.av.body.rotation.z = 0.012 * Math.sin(tAcc * 0.6 + ph);
+        a.av.armL.rotation.x = 0.09 * Math.sin(tAcc * 1.1 + ph); a.av.armR.rotation.x = -0.09 * Math.sin(tAcc * 1.1 + ph);
+        a.av.head.rotation.y = 0.28 * Math.sin(tAcc * 0.45 + ph);
+      });
+      if (changing) heatDirty = true;
+      links.forEach(l => {
+        const diff = Math.abs((l.a.cur.acwr == null ? 1 : l.a.cur.acwr) - (l.b.cur.acwr == null ? 1 : l.b.cur.acwr));
+        const c = acwrRGB(1 + diff * 1.4); l.tube.material.color.setRGB(c[0], c[1], c[2]);
+        l.ph = (l.ph + dt * (0.18 + diff * 0.2)) % 1; l.curve.getPoint(l.ph, l.pulse.position);
+        l.pulse.material.color.setRGB(Math.min(1, c[0] + 0.4), Math.min(1, c[1] + 0.4), Math.min(1, c[2] + 0.4));
+      });
+      updateHeat();
+      renderer.render(scene, cam);
+      updateLabels();
+    }
+
+    /* ---------- resize, visibilitat, alliberament ---------- */
+    function resize() {
+      const w = stage.clientWidth || 800, h = stage.clientHeight || 500;
+      renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+    }
+    const ro = new ResizeObserver(() => { if (!disposed) resize(); }); ro.observe(stage);
+    let io = null;
+    if ('IntersectionObserver' in window) { io = new IntersectionObserver(es => { visible = es.some(e => e.isIntersecting); }, { threshold: 0.01 }); io.observe(container); }
+    on(renderer.domElement, 'webglcontextlost', e => { e.preventDefault(); });
+
+    function dispose() {
+      if (disposed) return; disposed = true;
+      cancelAnimationFrame(raf); clearInterval(playTimer);
+      L.forEach(([t, e, f, o]) => t.removeEventListener(e, f, o));
+      ro.disconnect(); io && io.disconnect();
+      clearActors();
+      scene.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+        ms.forEach(m => { Object.keys(m).forEach(k => { const v = m[k]; if (v && v.isTexture) v.dispose(); }); m.dispose(); });
+      });
+      heat.tex.dispose(); envRT.dispose();
+      renderer.dispose(); renderer.forceContextLoss();
+      if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+      container.innerHTML = ''; container.classList.remove('nk3d');
+    }
+
+    /* ---------- arrencada ---------- */
+    container.classList.add('nk3d');
+    resize();
+    setData(data || mockData());
+    applyToggles();
+    setCamera('broadcast'); { const f = fitPreset('broadcast'); flyTo(f.pos, f.tgt, true); }
+    raf = requestAnimationFrame(frame);
+
+    return {
+      setData, setWeek, setCamera, setMode, select, play, dispose, resize,
+      get state() { return st; }, get renderer() { return renderer; }, get scene() { return scene; }, get camera() { return cam; }
+    };
+  };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
 </body>
 </html>
