@@ -84,6 +84,28 @@
                 transform: none; box-shadow: none;
             }
         }
+        /* Plantilla: graella de targetes a tot l'ample + resum plegable */
+        @media (min-width:1024px){
+            #squad-cards-grid:not(.hidden) { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1.5rem 2rem; }
+            #squad-cards-grid > .squad-pos-group { margin-top: 0; }
+            #squad-cards-grid .squad-pos-group > div { display: grid; grid-template-columns: repeat(var(--n, 4), 190px); gap: 1rem; }
+        }
+        #squad-summary > summary { list-style: none; }
+        #squad-summary > summary::-webkit-details-marker { display: none; }
+        #squad-summary[open] > summary .squad-chev { transform: rotate(180deg); }
+        /* Estadística: franja fina de KPIs d'equip */
+        .kpi-strip { display: flex; flex-wrap: wrap; background: rgba(15,23,42,.8); border-radius: 1rem; box-shadow: 0 8px 24px -14px rgba(0,0,0,.55); overflow: hidden; }
+        .kpi-strip .ks-cell { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-start; gap: .15rem; padding: .7rem 1.4rem; min-width: 0; }
+        .kpi-strip .ks-cell + .ks-cell { border-left: 1px solid rgba(51,65,85,.55); }
+        .kpi-strip .ks-lbl { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; }
+        .kpi-strip .ks-val { font-size: 1.3rem; font-weight: 800; color: #fff; line-height: 1.15; white-space: nowrap; }
+        .kpi-strip .ks-sub { font-size: 10.5px; color: #64748b; }
+        .kpi-strip .ks-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; background: #1e293b; min-width: 64px; margin-top: .1rem; }
+        .kpi-strip .ks-ha { display: flex; align-items: baseline; gap: .45rem; font-size: 1rem; line-height: 1.25; }
+        .kpi-strip .ks-hl { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #64748b; width: 1.9rem; }
+        @media (max-width: 767px) {
+            .kpi-strip .ks-cell { flex: 1 1 45%; border-left: 0 !important; border-bottom: 1px solid rgba(51,65,85,.4); padding: .6rem 1rem; }
+        }
     </style>
 <style id="tailwind-compiled">/* Tailwind 3.4.17 compilat (CLI, minificat). La paleta "granate" és a les variables --granate-* (color de marca per club). */
 :root{--granate-50:251 241 242;--granate-100:248 225 227;--granate-200:240 194 199;--granate-300:226 150 158;--granate-400:207 85 102;--granate-500:181 51 74;--granate-600:153 36 56;--granate-700:127 31 48;--granate-800:107 28 43;--granate-900:92 27 40;--granate-950:52 10 17}
@@ -751,10 +773,8 @@
 
             <!-- 1 · PLANTILLA -->
             <section id="tab-plantilla" class="tab-content space-y-6">
-                <div id="squad-kpis" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="xl:col-span-2 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden flex flex-col">
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden flex flex-col">
                         <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div>
                                 <h4 class="font-bold text-white text-base">Fitxa de la plantilla</h4>
@@ -797,17 +817,6 @@
                         </div>
                     </div>
 
-                    <div class="xl:col-span-1 space-y-6">
-                        <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
-                            <h4 class="font-bold text-white text-base">Repartiment per posicio</h4>
-                            <p class="text-xs text-slate-400 mb-4">Jugadors per demarcacio</p>
-                            <div class="relative h-56"><canvas id="squadPositionChart"></canvas></div>
-                        </div>
-                        <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
-                            <h4 class="font-bold text-white text-base mb-4">Per any de naixement</h4>
-                            <div id="squad-years" class="space-y-2.5"></div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Control d'assistència (mogut des de Control de càrregues) -->
@@ -839,6 +848,31 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Resum de la plantilla (secundari, plegat per defecte) -->
+                <details id="squad-summary" class="group bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden" ontoggle="if(this.open&&chartSquad)chartSquad.resize()">
+                    <summary class="list-none cursor-pointer select-none px-6 py-4 flex items-center justify-between gap-3 hover:bg-slate-800/30 transition-all">
+                        <div>
+                            <h4 class="font-bold text-white text-base">Resum de la plantilla</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">Jugadors, posicions i edats.</p>
+                        </div>
+                        <i data-lucide="chevron-down" class="squad-chev w-4 h-4 text-slate-400 transition-transform"></i>
+                    </summary>
+                    <div class="p-6 pt-2 space-y-6 border-t border-slate-800">
+                        <div id="squad-kpis" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-slate-950/40 rounded-2xl p-6">
+                                <h4 class="font-bold text-white text-base">Repartiment per posicio</h4>
+                                <p class="text-xs text-slate-400 mb-4">Jugadors per demarcacio</p>
+                                <div class="relative h-56"><canvas id="squadPositionChart"></canvas></div>
+                            </div>
+                            <div class="bg-slate-950/40 rounded-2xl p-6">
+                                <h4 class="font-bold text-white text-base mb-4">Per any de naixement</h4>
+                                <div id="squad-years" class="space-y-2.5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </section>
 
 
@@ -1037,7 +1071,7 @@
                         <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
                     </div>
 
-                    <div id="stats-kpis" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5"></div>
+                    <div id="stats-kpis" class="kpi-strip"></div>
 
                     <!-- MILLORA 3: Selector d'estadístiques de jugadors vs equip -->
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-4">
@@ -2811,8 +2845,16 @@
             </div>
             <!-- estadístiques -->
             <div class="p-6 space-y-6">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Període</p>
+                    <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
+                        <button onclick="setProfilePeriod('tot')" id="pm-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
+                        <button onclick="setProfilePeriod('pretemporada')" id="pm-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
+                        <button onclick="setProfilePeriod('lliga')" id="pm-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
+                    </div>
+                </div>
                 <div id="pm-hero-wrap" class="hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">La temporada</p>
+                    <p id="pm-hero-title" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">La temporada</p>
                     <div id="pm-indicators"></div>
                     <div id="pm-insights" class="mt-4"></div>
                     <div id="pm-obj" class="mt-4"></div>
@@ -5441,9 +5483,9 @@
         list.forEach(p => { const k = p.posicio || 'Sense posició'; (groups[k] = groups[k] || []).push(p); });
         const orderedKeys = SQUAD_POS_ORDER.filter(k => groups[k]).concat(Object.keys(groups).filter(k => !SQUAD_POS_ORDER.includes(k)));
 
-        grid.innerHTML = orderedKeys.map(k => `<div class="squad-pos-group">
+        grid.innerHTML = orderedKeys.map(k => `<div class="squad-pos-group" style="--n:${Math.min(groups[k].length, 5)}">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">${esc(k)} <span class="text-slate-600 normal-case font-medium">· ${groups[k].length}</span></p>
-                <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
+                <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-4">
                     ${groups[k].map(squadCardHTML).join('')}
                 </div>
             </div>`).join('');
@@ -5923,27 +5965,28 @@
         const gf = played.reduce((a, c) => a + c.gf, 0);
         const gc = played.reduce((a, c) => a + c.gc, 0);
 
-        const cards = [
-            { label: 'Partits disputats', value: played.length, note: `${cal.length} jornades al calendari.`, icon: 'calendar-check', tone: 'emerald' },
-            { label: 'Balanç', value: `${w}<span class="text-slate-500">-</span>${e}<span class="text-slate-500">-</span>${l}`, note: 'Victòries · empats · derrotes.', icon: 'trophy', tone: 'blue' },
-            { label: 'Gols', value: `${gf} <span class="text-sm font-semibold text-slate-400">/ ${gc}</span>`, note: `Diferència ${gf - gc >= 0 ? '+' : ''}${gf - gc} en ${played.length || 0} partits.`, icon: 'target', tone: 'amber' }
-        ];
-
-        // 4a finestra: victòries/derrotes a casa i a fora
+        // Franja fina: punts (només partits de lliga), J amb barra V/E/D, balanç, gols i casa/fora.
         const isHome = c => { const k = key(c.camp); return k.startsWith('l') || k.startsWith('casa'); };
         const isAway = c => { const k = key(c.camp); return k.startsWith('v') || k.startsWith('fora'); };
         const rec = arr => ['V', 'E', 'D'].map(t => arr.filter(c => c.res === t).length);
-        const home = played.filter(isHome), away = played.filter(isAway);
-        const [hw, he, hl] = rec(home);
-        const [aw, ae, al] = rec(away);
-        const line = (lbl, w, e2, l2) => `<span class="flex items-baseline gap-1.5"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 w-9 shrink-0">${lbl}</span><span>${w}<span class="text-slate-600">-</span>${e2}<span class="text-slate-600">-</span>${l2}</span></span>`;
-        cards.push({
-            label: 'Local / Visitant',
-            value: `<span class="flex flex-col gap-1 text-2xl leading-tight">${line('Casa', hw, he, hl)}${line('Fora', aw, ae, al)}</span>`,
-            note: `Balanç V-E-D · ${home.length} partits a casa i ${away.length} a fora.`,
-            icon: 'home', tone: 'rose'
-        });
-        document.getElementById('stats-kpis').innerHTML = cards.map(kpiCardHTML).join('');
+        const [hw, he, hl] = rec(played.filter(isHome));
+        const [aw, ae, al] = rec(played.filter(isAway));
+        const lligaPlayed = played.filter(c => matchPeriod(c) === 'lliga');
+        const pts = (statsPeriod === 'pretemporada' || !lligaPlayed.length) ? null
+            : lligaPlayed.reduce((a, c) => a + (c.res === 'V' ? 3 : c.res === 'E' ? 1 : 0), 0);
+        const dash = '<span class="text-slate-600">-</span>';
+        const diff = gf - gc;
+        const bar = played.length
+            ? `<div class="ks-bar" title="${w} victòries · ${e} empats · ${l} derrotes">${[[w, '#10b981'], [e, '#f59e0b'], [l, '#f43f5e']].filter(x => x[0]).map(x => `<span style="flex:${x[0]};background:${x[1]}"></span>`).join('')}</div>`
+            : '<div class="ks-bar"></div>';
+        const cell = (lbl, val, sub, extra) => `<div class="ks-cell"><span class="ks-lbl">${lbl}</span><span class="ks-val">${val}</span>${sub ? `<span class="ks-sub">${sub}</span>` : ''}${extra || ''}</div>`;
+        document.getElementById('stats-kpis').innerHTML = [
+            cell('Punts', pts === null ? '<span class="text-slate-600">—</span>' : `<span style="color:#34d399">${pts}</span>`, pts === null ? (statsPeriod === 'pretemporada' ? 'Només a lliga' : 'Cap partit de lliga') : 'Lliga'),
+            cell('J', played.length, `de ${cal.length} jornades`, bar),
+            cell('Balanç', `${w}${dash}${e}${dash}${l}`, 'V · E · D'),
+            cell('Gols', `${gf} <span style="font-size:.85rem;font-weight:600;color:#94a3b8">/ ${gc}</span>`, `Diferència ${diff >= 0 ? '+' : ''}${diff}`),
+            cell('Local / Visitant', `<span class="ks-ha"><span class="ks-hl">Casa</span><span>${hw}${dash}${he}${dash}${hl}</span></span><span class="ks-ha"><span class="ks-hl">Fora</span><span>${aw}${dash}${ae}${dash}${al}</span></span>`, '')
+        ].join('');
     }
 
     let statsPeriod = 'tot';
@@ -6420,15 +6463,47 @@
 
     /* ============== FITXA DEL JUGADOR: mètriques, mitjanes, objectius ============== */
 
+    /* Període de la fitxa del jugador (Tot / Pretemporada / Lliga). Propi de la fitxa: s'inicialitza amb el
+       filtre d'Estadística en obrir-la, però canviar-lo aquí no toca el filtre d'Estadística. */
+    let profilePeriod = 'tot';
+    // Executa fn amb l'àmbit global d'estadístiques forçat al període de la fitxa (i sense partit concret),
+    // reutilitzant el càlcul d'Estadística; en acabar restaura l'àmbit i la memòria cau.
+    function withProfilePeriod(fn) {
+        const sp = statsPeriod, sk = statsMatchKey, cs = curStats;
+        statsPeriod = profilePeriod; statsMatchKey = null; curStats = null;
+        try { return fn(); } finally { statsPeriod = sp; statsMatchKey = sk; curStats = cs; }
+    }
+    function updateProfilePeriodPills() {
+        ['tot', 'pretemporada', 'lliga'].forEach(k => {
+            const b = document.getElementById('pm-period-' + k); if (!b) return;
+            const on = profilePeriod === k;
+            b.className = `px-2.5 py-1 rounded-md transition-all ${on ? 'bg-emerald-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-100'}`;
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+    function setProfilePeriod(k) {
+        if (k !== 'tot' && k !== 'pretemporada' && k !== 'lliga') return;
+        profilePeriod = k;
+        updateProfilePeriodPills();
+        const pl = pmPlayerId ? playerById(pmPlayerId) : null; if (!pl) return;
+        renderProfileHero(pl, 'pm');
+        renderProfileStats(pl);
+        renderProfileGoals(pl);
+        renderProfileEvolution(pl);
+        lucide.createIcons();
+    }
+
     // Mètriques individuals d'un jugador des dels partits arxivats, opcionalment
     // acotades a un rang de dates [fromD, toD] (objectes Date, o null = tota la
     // temporada). Font única per als indicadors de la fitxa, les mitjanes
     // d'equip i el seguiment automàtic d'objectius.
-    function computePlayerMetrics(pid, fromD, toD) {
+    // `period` (opcional): 'pretemporada' | 'lliga' per acotar-ho a aquell tipus de partit; buit o 'tot' = tots.
+    function computePlayerMetrics(pid, fromD, toD, period) {
         const noFilter = fromD == null && toD == null;
         let partits = 0, minuts = 0, gols = 0, assist = 0, gf = 0, gc = 0;
         (ensureMatchArchive() || []).forEach(a => {
             const m = a && a.match; if (!m) return;
+            if (period && period !== 'tot' && matchPeriod(m) !== period) return;
             if (!noFilter) {
                 const d = m.date ? toDate(m.date) : null;
                 if (!d) return;
@@ -6453,8 +6528,8 @@
 
     // Mitjana de l'equip (jugadors amb almenys 1 partit) per comparar un jugador
     // amb "com juga l'equip de mitjana" en les mateixes mètriques per 40'.
-    function computeTeamAverageMetrics(fromD, toD) {
-        const rows = activePlayers().map(p => computePlayerMetrics(p.id, fromD, toD)).filter(r => r.partits > 0);
+    function computeTeamAverageMetrics(fromD, toD, period) {
+        const rows = activePlayers().map(p => computePlayerMetrics(p.id, fromD, toD, period)).filter(r => r.partits > 0);
         const n = rows.length;
         const avgPer40 = key => n ? rows.reduce((a, r) => a + per40(r[key], r.minuts), 0) / n : 0;
         return { n, ga40: avgPer40('ga'), gc40: avgPer40('gc'), pm40: avgPer40('pm'), gols40: avgPer40('gols') };
@@ -6462,9 +6537,9 @@
 
     // Forma recent: mètriques partit a partit dels darrers `n` partits arxivats
     // en què el jugador ha tingut minuts. Per a la mini-tendència de la fitxa.
-    function playerRecentForm(pid, n) {
+    function playerRecentForm(pid, n, period) {
         const arr = (ensureMatchArchive() || [])
-            .filter(a => a && a.match && minutesInArchive(a.match, pid) > 0)
+            .filter(a => a && a.match && (!period || period === 'tot' || matchPeriod(a.match) === period) && minutesInArchive(a.match, pid) > 0)
             .map(a => {
                 const m = a.match; let gf = 0, gc = 0, gols = 0, assist = 0;
                 (m.events || []).forEach(e => {
@@ -6485,12 +6560,12 @@
     // Genera fins a un "punt fort" i un "a treballar" comparant el jugador amb
     // la mitjana de l'equip en 3 dimensions (ofensiu, defensiu, impacte).
     // Amb mostra petita (< 3 partits), evita treure conclusions.
-    function playerInsights(pid) {
-        const pm = computePlayerMetrics(pid, null, null);
+    function playerInsights(pid, period) {
+        const pm = computePlayerMetrics(pid, null, null, period);
         // Es dona sempre la informació real, sense esperar un mínim de partits;
         // qui la llegeix ja té criteri per valorar-la amb la mostra que hi ha.
         if (pm.partits === 0) return { lowSample: true, partits: pm.partits };
-        const team = computeTeamAverageMetrics(null, null);
+        const team = computeTeamAverageMetrics(null, null, period);
         if (!team.n) return { lowSample: true, partits: pm.partits };
         const ga40 = per40(pm.ga, pm.minuts), gc40 = per40(pm.gc, pm.minuts), pmv40 = per40(pm.pm, pm.minuts);
         const dims = [
@@ -9376,6 +9451,8 @@
         document.getElementById('pm-tags').innerHTML = tags.map(t =>
             `<span class="text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 px-2 py-1 rounded">${esc(t)}</span>`).join('');
 
+        profilePeriod = (statsPeriod === 'pretemporada' || statsPeriod === 'lliga') ? statsPeriod : 'tot';
+        updateProfilePeriodPills();
         renderProfileHero(p, 'pm');
         renderProfileStats(p);
         renderProfileVideo(p);
@@ -9427,11 +9504,12 @@
     }
 
     /* -- evolució partit a partit, a partir dels arxius de minutatge -- */
-    function computePlayerEvolution(pid) {
+    function computePlayerEvolution(pid, period) {
         const archives = ensureMatchArchive().slice().reverse(); // més antic primer
         const out = [];
         archives.forEach(a => {
             const m = a && a.match; if (!m) return;
+            if (period && period !== 'tot' && matchPeriod(m) !== period) return;
             withMatch(m, () => {
                 const mins = minutesOf(pid);
                 if (!mins) return;
@@ -9450,7 +9528,7 @@
         const wrap = document.getElementById('pm-evolution-wrap');
         const box = document.getElementById('pm-evolution');
         if (!wrap || !box || !p) return;
-        const rows = computePlayerEvolution(p.id);
+        const rows = computePlayerEvolution(p.id, profilePeriod);
         if (!rows.length) { wrap.classList.add('hidden'); return; }
         wrap.classList.remove('hidden');
         const totals = rows.reduce((a, r) => ({ minutes: a.minutes + r.minutes, gols: a.gols + r.gols, assist: a.assist + r.assist, grogues: a.grogues + r.grogues, vermelles: a.vermelles + r.vermelles }), { minutes: 0, gols: 0, assist: 0, grogues: 0, vermelles: 0 });
@@ -9554,7 +9632,7 @@
     }
 
     /* -- gols per tipus del jugador (marcats + encaixats a pista), de tots els partits -- */
-    function playerGoalClass(pid) {
+    function playerGoalClass(pid, period) {
         const id = String(pid);
         const scored = {}, conceded = {}, forOn = {}, team = {};
         let scoredTotal = 0, concededOnCourt = 0, scoredUncl = 0, concededUncl = 0, assists = 0;
@@ -9573,8 +9651,12 @@
                 if (onc.includes(id)) { concededOnCourt++; if (pl.cat) conceded[pl.cat] = (conceded[pl.cat] || 0) + 1; else concededUncl++; }
             }
         });
-        if (state.match) scan(state.match);
-        (state.matchArchive || []).forEach(a => scan(a.match));
+        const allPeriods = !period || period === 'tot';
+        if (state.match && allPeriods) scan(state.match);   // el partit en curs no té període encara
+        (state.matchArchive || []).forEach(a => {
+            if (!allPeriods && !(a && a.match && matchPeriod(a.match) === period)) return;
+            scan(a && a.match);
+        });
         return { scored, conceded, forOn, team, scoredTotal, concededOnCourt, scoredUncl, concededUncl, assists, forOnTotal, forOnUncl, teamGF, teamGC, teamAssisted, teamUnclGF, teamUnclGC };
     }
     // Cada xifra del jugador va acompanyada del total de l'equip (p. ex. 12/33): així es veu quina part hi té.
@@ -9583,7 +9665,7 @@
         const wrap = document.getElementById(prefix + '-goals-wrap');
         const box = document.getElementById(prefix + '-goals');
         if (!wrap || !box) return;
-        const d = playerGoalClass(p.id);
+        const d = playerGoalClass(p.id, prefix === 'pm' ? profilePeriod : null);
         if (!d.scoredTotal && !d.concededOnCourt && !d.forOnTotal && !d.assists) { wrap.classList.add('hidden'); box.innerHTML = ''; return; }
         wrap.classList.remove('hidden');
         const tile = (label, v, tot, cls) => `<div class="bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2.5 text-center"><p class="text-[9px] font-bold uppercase tracking-wider text-slate-500">${label}</p><p class="text-xl font-extrabold ${cls} mt-0.5 tabular-nums">${v}<span class="text-sm font-bold text-slate-500"> / ${tot}</span></p></div>`;
@@ -9671,8 +9753,10 @@
         const empty = document.getElementById(prefix + '-stats-empty');
         if (!box) return;
         const att = seasonAttendance(p);
-        const row = statsRowForPlayer(p);
-        const pmet = computePlayerMetrics(p.id, null, null);
+        const per = prefix === 'pm' ? profilePeriod : null;
+        // A la fitxa de l'entrenador el període és el propi de la fitxa (no el filtre global d'Estadística).
+        const row = prefix === 'pm' ? withProfilePeriod(() => statsRowForPlayer(p)) : statsRowForPlayer(p);
+        const pmet = computePlayerMetrics(p.id, null, null, per);
         const val = (...ks) => { if (!row) return null; const c = statCol(...ks); return c ? statVal(row, c) : null; };
         const cards = [{ icon: 'calendar-check', label: 'Assistència', v: att.total ? att.pct + '%' : '—', tone: 'text-cyan-400' }];
         const push = (icon, label, v, tone) => { if (v !== null && v !== undefined) cards.push({ icon, label, v: fmt(v), tone: tone || 'text-white' }); };
@@ -9722,25 +9806,29 @@
         if (!wrap || !indEl) return;
         wrap.classList.remove('hidden');
 
-        const pmet = computePlayerMetrics(p.id, null, null);
-        const team = computeTeamAverageMetrics(null, null);
+        const per = prefix === 'pm' ? profilePeriod : null;
+        const noData = (per && per !== 'tot') ? 'Cap partit de ' + (PERIOD_LABEL[per] || per).toLowerCase() : 'Encara sense partits arxivats';
+        const heroTitle = document.getElementById(prefix + '-hero-title');
+        if (heroTitle) heroTitle.textContent = (per && per !== 'tot') ? 'La temporada · ' + (PERIOD_LABEL[per] || per) : 'La temporada';
+        const pmet = computePlayerMetrics(p.id, null, null, per);
+        const team = computeTeamAverageMetrics(null, null, per);
         const hasTeam = team.n > 0 && pmet.partits > 0;
         const ga40 = per40(pmet.ga, pmet.minuts), gc40 = per40(pmet.gc, pmet.minuts), pm40 = per40(pmet.pm, pmet.minuts);
         const lowSampleTag = pmet.partits > 0 && pmet.partits < 3
             ? '<span class="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded ml-1">mostra petita</span>' : '';
         const cmpRow = (val, avg, higherIsBetter, rawLabel) => {
-            if (!hasTeam) return '<p class="text-[10px] text-slate-600 mt-1">Encara sense partits arxivats</p>';
+            if (!hasTeam) return `<p class="text-[10px] text-slate-600 mt-1">${noData}</p>`;
             const diff = higherIsBetter ? (val - avg) : (avg - val);
             const cls = diff > 0.05 ? 'text-emerald-400' : diff < -0.05 ? 'text-rose-400' : 'text-slate-500';
             return `<p class="text-[10px] text-slate-500 mt-1">${rawLabel}</p><p class="text-[10px] font-semibold ${cls} mt-0.5">${diff >= 0 ? '+' : ''}${diff.toFixed(1)} vs equip <span class="text-slate-600 font-normal">(${avg.toFixed(1)})</span>${lowSampleTag}</p>`;
         };
-        const form = playerRecentForm(p.id, 3);
+        const form = playerRecentForm(p.id, 3, per);
         const formHTML = form.length
             ? `<div class="flex gap-1 mt-1.5">${form.map(f => {
                   const cls = f.pm > 0 ? 'bg-emerald-500 text-slate-950' : f.pm < 0 ? 'bg-rose-500/90 text-white' : 'bg-slate-700 text-slate-300';
                   return `<div class="flex-1 h-8 rounded-lg ${cls} flex items-center justify-center text-[11px] font-extrabold" title="${esc(f.rival || 'Partit')}">${f.pm > 0 ? '+' : ''}${f.pm}</div>`;
               }).join('')}</div>`
-            : `<p class="text-[10px] text-slate-600 mt-1.5">Encara sense partits arxivats</p>`;
+            : `<p class="text-[10px] text-slate-600 mt-1.5">${noData}</p>`;
         const tile = (icon, label, value, extraHTML) => `
             <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3.5">
                 <div class="flex items-center gap-1.5 text-slate-500"><i data-lucide="${icon}" class="w-3.5 h-3.5 shrink-0"></i><p class="text-[9px] font-bold uppercase tracking-wider truncate">${label}</p></div>
@@ -9761,7 +9849,7 @@
         if (rd) rd.textContent = playerReading(pmet, team, ga40, gc40, pm40);
 
         if (insEl) {
-            const insights = playerInsights(p.id);
+            const insights = playerInsights(p.id, per);
             if (insights.lowSample) {
                 insEl.innerHTML = `<div class="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3.5"><p class="text-xs text-slate-500">Encara amb poca mostra (${insights.partits} partit${insights.partits === 1 ? '' : 's'} arxivat${insights.partits === 1 ? '' : 's'}) per treure conclusions fiables.</p></div>`;
             } else if (insights.strong || insights.weak) {
