@@ -2626,14 +2626,6 @@
                 <p class="text-[10px] text-slate-500 leading-relaxed">Copia un resum de les dades i obre Claude perqu&egrave; hi conversis lliurement amb la teva subscripci&oacute; habitual, sense cap cost afegit. Nom&eacute;s l&rsquo;has d&rsquo;enganxar.</p>
                 <button onclick="copyForClaudeApp()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2"><i data-lucide="copy" class="w-3.5 h-3.5"></i>Copia les dades i obre Claude</button>
             </div>
-            <div class="coach-only space-y-2 pt-3 border-t border-slate-800">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Conversa dins l&rsquo;app (servidor de NurvKor)</p>
-                <p class="text-[10px] text-slate-500 leading-relaxed">Opcional i amb cost per consulta. Les preguntes s&rsquo;envien al servidor de NurvKor, que les respon amb Claude; cap clau no es desa al navegador. Nom&eacute;s per a l&rsquo;entrenador.</p>
-                <label class="flex items-center justify-between gap-3 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 cursor-pointer">
-                    <span class="flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-slate-400"></i>Activa la conversa amb Claude</span>
-                    <input type="checkbox" id="assistant-ai" onchange="setAssistantAi(this.checked)" class="accent-granate-600 w-4 h-4">
-                </label>
-            </div>
         </div>
         <div id="assistant-messages" class="flex-1 min-h-0 overflow-y-auto p-4 space-y-3"></div>
         <div class="shrink-0 p-3 border-t border-slate-800">
@@ -12092,12 +12084,11 @@
     function toggleAssistantSettings() {
         const st = document.getElementById('assistant-settings'); st.classList.toggle('hidden');
         document.getElementById('assistant-voiceout').checked = voiceOut;
-        const ai = document.getElementById('assistant-ai'); if (ai) ai.checked = localStorage.getItem('cfse-assist-ai') === '1';
         updateAssistantStatus(); lucide.createIcons();
     }
     function updateAssistantStatus() {
         const st = document.getElementById('assistant-status'); if (!st) return;
-        st.innerText = aiMode() ? 'Mode conversa (Claude) actiu' : "Pregunta'm sobre les dades";
+        st.innerText = "Pregunta'm sobre les dades";
     }
     function pushAssistant(role, text, chips, actionId) {
         assistantMessages.push({ role, text, chips: chips && chips.length ? chips : undefined, actionId: actionId || undefined });
@@ -12142,14 +12133,8 @@
         if (jp) { pushAssistant('assistant', jp.text, null, jp.actionId); return; }
         assistantThinking = true; renderAssistantMessages();
         let res;
-        try {
-            if (aiMode()) res = assistantActionIntent(q) || { text: await callClaude(q) };
-            else res = assistantAnswer(q);
-        } catch (e) {
-            let loc = { text: '' };
-            try { loc = assistantAnswer(q); } catch (_) {}
-            res = { text: (loc.text || "No he pogut respondre.") + (aiMode() ? "\n\n(No he pogut connectar amb Claude: " + (e && e.message ? e.message : e) + ")" : ''), chips: loc.chips };
-        }
+        try { res = assistantAnswer(q); }
+        catch (e) { res = { text: "No he pogut respondre." }; }
         assistantThinking = false; pushAssistant('assistant', res.text, res.chips, res.actionId);
     }
 
@@ -12185,45 +12170,8 @@
         updateAssistantStatus();
     }
 
-    /* --- Claude (opcional, via servidor) --- */
-    // (Fase C) La clau d'Anthropic ja no viu al navegador: les preguntes van a la Edge Function "assistant" del
-    // projecte (Supabase), que valida la sessió i el rol, fixa el model i guarda la clau com a secret.
-    // Neteja de les claus que les versions anteriors deixaven a localStorage.
-    (function () { try { localStorage.removeItem('cfse-claude-key'); localStorage.removeItem('cfse-claude-model'); } catch (e) {} })();
-    // Mode conversa: interruptor de l'entrenador (per defecte apagat; l'assistent local funciona sempre).
-    function aiMode() {
-        try { return localStorage.getItem('cfse-assist-ai') === '1' && typeof isCoachView === 'function' && isCoachView() && !!window.CFSE_EQUIP_ID; }
-        catch (e) { return false; }
-    }
-    function setAssistantAi(on) {
-        try { if (on) localStorage.setItem('cfse-assist-ai', '1'); else localStorage.removeItem('cfse-assist-ai'); } catch (e) {}
-        toast(on ? 'Assistent: mode conversa activat.' : 'Assistent: mode conversa desactivat.'); updateAssistantStatus();
-    }
-    const AI_ERRORS = {
-        401: 'la sessió ha caducat; torna a entrar.',
-        403: "només l'entrenador pot fer servir la conversa.",
-        404: "l'assistent de conversa encara no està activat al servidor.",
-        413: 'la consulta és massa llarga.',
-        429: 'has fet massa preguntes seguides; espera uns minuts.',
-        503: "l'assistent no està configurat al servidor.",
-        504: 'Claude no ha respost a temps; torna-ho a provar.'
-    };
-    async function callClaude(q) {
-        const sys = "Ets l'assistent del tauler de l'equip de futbol sala " + (window.CFSE_CLUB_EQUIP_LABEL || "aquest equip") + ". Respon SEMPRE en català, breu i concret. Basa't únicament en aquestes dades del tauler; si una cosa no hi és, digues-ho.\n\nDADES DEL TAULER:\n" + buildDataSummary();
-        let msgs = assistantMessages.slice(-8).map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: String(m.text || '').slice(0, 5900) }));
-        while (msgs.length && msgs[0].role !== 'user') msgs.shift();
-        const { data: sessData } = await sb.auth.getSession();
-        const session = sessData && sessData.session;
-        if (!session) throw new Error('cal tenir la sessió iniciada.');
-        const res = await fetch(SB_URL + '/functions/v1/assistant', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-            body: JSON.stringify({ equip_id: window.CFSE_EQUIP_ID, system: sys, messages: msgs })
-        });
-        let data = null; try { data = await res.json(); } catch (e) {}
-        if (!res.ok || !data || data.error) throw new Error(AI_ERRORS[res.status] || ('error del servidor (' + res.status + ')'));
-        return ((data.content || []).map(c => c.text || '').join('') || '').trim() || '(resposta buida)';
-    }
+    /* --- Neteja de restes de versions anteriors (clau d'Anthropic i mode conversa) --- */
+    (function () { try { ['cfse-claude-key', 'cfse-claude-model', 'cfse-assist-ai'].forEach(k => localStorage.removeItem(k)); } catch (e) {} })();
 
     /* --- motor local sobre les dades --- */
     function statFor(row, ...keys) { if (!row) return null; const c = statCol(...keys); return c ? statVal(row, c) : null; }
