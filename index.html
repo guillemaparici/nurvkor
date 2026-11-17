@@ -199,6 +199,11 @@
                 box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 24px 60px -24px rgba(0,0,0,.8) !important; }
         }
         #main-nav { position: relative; }
+        #sidebar .overflow-y-auto { overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+        #sidebar .overflow-y-auto::-webkit-scrollbar { width: 6px; height: 0; }
+        #sidebar .overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 6px; }
+        #main-nav > .tab-btn { max-width: 100%; box-sizing: border-box; }
+        .nk-nav-pill { max-width: 100%; }
         #main-nav > .tab-btn { position: relative; z-index: 1; padding: .5rem .85rem; border-radius: 1rem; font-weight: 500; font-size: 13.5px; letter-spacing: .005em; gap: .8rem; background: transparent; }
         #main-nav > .tab-btn svg { width: 18px; height: 18px; stroke-width: 1.6; flex-shrink: 0; transition: color .25s, transform .35s cubic-bezier(.34,1.56,.64,1); }
         #main-nav > .tab-btn:hover { background: rgba(255,255,255,.05); transform: none; }
@@ -256,6 +261,46 @@
         .mn-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem 1.75rem; margin-top: .25rem; }
         @media (min-width: 768px) { .mn-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
         .mn-right > :first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+
+        /* Barra compacta de desar minut (sota la banqueta) */
+        .mn-minibar { position: sticky; bottom: .6rem; z-index: 5; display: flex; align-items: center; gap: .5rem; margin-top: 1.1rem; padding: .5rem; border-radius: 1rem;
+            background: rgba(23,23,23,.92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid #3a3a3a; box-shadow: 0 10px 24px -10px rgba(0,0,0,.7); }
+        @media (max-width: 767px) { .mn-minibar { bottom: 5.4rem; } }
+        .mn-mb-step { width: 2.4rem; height: 2.4rem; flex: none; display: flex; align-items: center; justify-content: center; border-radius: .75rem; background: #2a2a2a; color: #cfcfcf; transition: background .2s, transform .15s; }
+        .mn-mb-step:hover { background: #3a3a3a; } .mn-mb-step:active { transform: scale(.93); }
+        .mn-mb-min { display: flex; flex-direction: column; align-items: center; min-width: 3.6rem; line-height: 1; }
+        .mn-mb-min b { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; color: #fff; }
+        .mn-mb-min span { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-top: .2rem; white-space: nowrap; }
+        .mn-mb-save { flex: 1 1 auto; min-width: 0; height: 2.4rem; padding: 0 .75rem; border-radius: .75rem; background: #10b981; color: #0b0b0b; font-weight: 800; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background .2s, transform .15s; }
+        .mn-mb-save:hover { background: #34d399; } .mn-mb-save:active { transform: scale(.97); }
+        .mn-mb-save.is-changed { background: #f59e0b; } .mn-mb-save.is-changed:hover { background: #fbbf24; }
+
+        /* Exportar partit: accions secundàries discretes, "Tanca i arxiva" com a principal */
+        .mn-export-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .mn-ghost-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: .6rem; font-size: 11px; font-weight: 600; color: #b5b5b5;
+            background: transparent; border: 1px solid #3a3a3a; transition: background .2s, color .2s, border-color .2s, transform .15s; }
+        .mn-ghost-btn:hover { background: rgba(255,255,255,.06); color: #fff; border-color: #555; }
+        .mn-ghost-btn:active { transform: scale(.96); }
+        .mn-primary-archive { font-size: 15px; letter-spacing: .01em; }
+
+        /* ===== Navegació flotant mòbil (cápsula vertical a l'esquerra) ===== */
+        .fab-nav { display: none; }
+        @media (max-width: 767px) {
+            .fab-nav { display: block; position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 35; max-height: calc(100vh - 150px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
+            body.sb-open .fab-nav { opacity: 0; transform: translate(-24px, -50%); pointer-events: none; visibility: hidden; transition: opacity .2s, transform .25s, visibility 0s .25s; }
+            .fab-nav-track { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .55rem .4rem; max-height: calc(100vh - 150px); overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+                border-radius: 999px; background: rgba(22,22,22,.94); border: 1px solid rgba(255,255,255,.09); box-shadow: 0 18px 40px -12px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.07);
+                -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+            .fab-nav-track::-webkit-scrollbar { display: none; }
+            .fab-nav-track.is-locked { opacity: .4; pointer-events: none; }
+            .fab-nav-btn { flex: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #9a9a9a; background: transparent; border: 0;
+                transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
+            .fab-nav-btn svg { width: 19px; height: 19px; stroke-width: 1.7; }
+            .fab-nav-btn span { display: none; }
+            .fab-nav-btn:active { transform: scale(.88); }
+            .fab-nav-btn.is-active { color: #fff; background: linear-gradient(135deg, rgb(var(--granate-400)), rgb(var(--granate-600))); box-shadow: 0 6px 16px -4px rgb(var(--granate-500) / .85), inset 0 1px 0 rgba(255,255,255,.25); }
+            main.overflow-y-auto { padding-left: 4.3rem !important; padding-right: .9rem !important; }
+        }
     </style>
 <style id="tailwind-compiled">/* Tailwind 3.4.17 compilat (CLI, minificat). La paleta "granate" és a les variables --granate-* (color de marca per club). */
 :root{--granate-50:251 241 242;--granate-100:248 225 227;--granate-200:240 194 199;--granate-300:226 150 158;--granate-400:207 85 102;--granate-500:181 51 74;--granate-600:153 36 56;--granate-700:127 31 48;--granate-800:107 28 43;--granate-900:92 27 40;--granate-950:52 10 17}
@@ -801,6 +846,7 @@
         </div>
     </aside>
 
+    <div id="fab-nav" class="fab-nav" aria-label="Navegació ràpida"><div class="fab-nav-track" id="fab-nav-track"></div></div>
     <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm hidden md:hidden"></div>
 
     <div class="md:hidden shrink-0 z-30 px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center gap-3">
@@ -1310,7 +1356,7 @@
                                 <p class="text-sm font-bold text-white flex items-center gap-1.5"><i data-lucide="alarm-clock" class="w-4 h-4 text-rose-400"></i>Finestres de perill</p>
                                 <span id="danger-windows-count" class="text-[10px] text-slate-500"></span>
                             </div>
-                            <p class="text-[11px] text-slate-500 mb-3">Gols marcats i encaixats per trams de la part, sumant tots els partits arxivats.</p>
+                            <p class="text-[11px] text-slate-500 mb-3">Gols marcats i encaixats per trams de la part, sumant els partits del període triat.</p>
                             <div class="relative h-56"><canvas id="dangerWindowsChart"></canvas></div>
                             <p id="danger-windows-inf-note" class="text-[9px] text-slate-600 mt-2"></p>
                         </div>
@@ -2048,6 +2094,12 @@
                         <div id="court-list" class="flex flex-wrap gap-2 min-h-[52px] p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20"></div>
                         <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-5 mb-2">Banqueta</p>
                         <div id="bench-list" class="flex flex-wrap gap-2"></div>
+                        <div class="mn-minibar">
+                            <button onclick="stepMinute(-1)" class="mn-mb-step" aria-label="Minut anterior"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                            <div class="mn-mb-min"><b id="mini-minute">1</b><span id="mini-minute-state">Sense desar</span></div>
+                            <button onclick="stepMinute(1)" class="mn-mb-step" aria-label="Minut següent"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                            <button id="mini-save-minute" onclick="saveMinute()" class="mn-mb-save"></button>
+                        </div>
                     </div>
                 </div>
 
@@ -2140,12 +2192,12 @@
                         <h4 class="font-bold text-white text-base">Exportar el partit</h4>
                         <p class="text-xs text-slate-400 mt-1 mb-5">Els jugadors surten en el mateix ordre que a l'Excel, així pots enganxar cada columna directament al bloc corresponent de la pestanya Estadística.</p>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <button onclick="exportMatchXLSX()" class="py-3.5 rounded-xl bg-granate-500 hover:bg-granate-400 active:scale-[0.98] transition-all text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2">
-                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Descarregar Excel del partit
+                        <div class="mn-export-row">
+                            <button onclick="exportMatchXLSX()" class="mn-ghost-btn">
+                                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Descarregar Excel del partit
                             </button>
-                            <button onclick="copyMatchTable()" class="py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-[0.98] transition-all text-slate-100 font-bold text-sm flex items-center justify-center gap-2">
-                                <i data-lucide="clipboard-copy" class="w-4 h-4"></i> Copiar la taula sencera
+                            <button onclick="copyMatchTable()" class="mn-ghost-btn">
+                                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> Copiar la taula sencera
                             </button>
                         </div>
 
@@ -2153,7 +2205,7 @@
                         <div id="copy-column-buttons" class="flex flex-wrap gap-2"></div>
 
                         <div class="mt-6 pt-5 border-t border-slate-800">
-                            <button onclick="openMatchArchiveModal()" class="w-full py-3 rounded-xl bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"><i data-lucide="archive" class="w-4 h-4"></i>Tanca i arxiva el partit</button>
+                            <button onclick="openMatchArchiveModal()" class="mn-primary-archive w-full py-3.5 rounded-xl bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"><i data-lucide="archive" class="w-4 h-4"></i>Tanca i arxiva el partit</button>
                             <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">Desa tota la informació d'aquest partit i buida el panell per al següent.</p>
                         </div>
                     </div>
@@ -5870,7 +5922,7 @@
     // l'equip pateix (o brilla) de forma sistemàtica, no puntual d'un sol dia.
     let chartDangerWindows = null;
     function computeDangerWindows() {
-        const archives = ensureMatchArchive();
+        const archives = ensureMatchArchive().filter(inScopeArch);
         const N_WINDOWS = 4; // trams per part
         const mk = () => Array.from({ length: N_WINDOWS * 2 }, () => ({ gf: 0, gc: 0, gcInf: 0 }));
         const buckets = mk();
@@ -6154,8 +6206,8 @@
     // temporada — a diferència de les finestres de perill, que miren DINS
     // d'un partit, això mira ENTRE partits.
     let chartSeasonForm = null;
-    function computeSeasonForm() {
-        return ensureMatchArchive().slice().reverse() // més antic primer
+    function computeSeasonForm(allSeason) {
+        return ensureMatchArchive().filter(a => allSeason || inScopeArch(a)).reverse() // més antic primer
             .filter(a => a && a.match)
             .map(a => {
                 const m = a.match, gf = m.gf || 0, gc = m.gc || 0;
@@ -6713,7 +6765,7 @@
     }
 
     function computeTeamStats() {
-        const arch = ensureMatchArchive();
+        const arch = ensureMatchArchive().filter(inScopeArch);
         const stats = {
             totalGF: 0, totalGC: 0, matchesPlayed: 0,
             goalsByPeriod: { '0-10': {gf:0,gc:0}, '10-20': {gf:0,gc:0}, '20-30': {gf:0,gc:0}, '30-40': {gf:0,gc:0} },
@@ -9146,6 +9198,19 @@
         const btn = document.getElementById('btn-save-minute');
         btn.innerText = changed ? `ACTUALITZAR MINUT ${clockMin(m.min, m.halfLength)}` : saved ? `DESAR DE NOU I AVANÇAR` : `DESAR MINUT ${clockMin(m.min, m.halfLength)}`;
         btn.className = `w-full py-3.5 rounded-xl font-extrabold text-sm transition-all active:scale-[0.98] ${changed ? 'bg-amber-500 hover:bg-amber-400 text-slate-950' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'}`;
+
+        // Barra compacta de la banqueta: mateix estat que la finestra de minuts
+        const mm = document.getElementById('mini-minute');
+        if (mm) {
+            mm.innerText = clockMin(m.min, m.halfLength);
+            mm.style.color = saved && !changed ? '#34d399' : '#fff';
+            const ms = document.getElementById('mini-minute-state');
+            ms.innerText = changed ? 'Modificat' : saved ? 'Desat' : 'Sense desar';
+            ms.style.color = changed ? '#fbbf24' : saved ? '#34d399' : '#8a8a8a';
+            const mb = document.getElementById('mini-save-minute');
+            mb.innerText = changed ? `ACTUALITZAR ${clockMin(m.min, m.halfLength)}` : saved ? 'DESAR I AVANÇAR' : `DESAR ${clockMin(m.min, m.halfLength)}`;
+            mb.classList.toggle('is-changed', !!changed);
+        }
 
         document.getElementById('btn-half').innerText = m.half === 1 ? 'Passar a la 2a part' : 'Finalitzar el partit';
 
@@ -13825,7 +13890,7 @@ ${userText}`;
         const pageW = doc.internal.pageSize.getWidth();
         let y = pdfBrandHeader(doc, 'INFORME DE TEMPORADA', 'CFS Eixample · SAM · Temporada 26-27');
 
-        const form = computeSeasonForm();
+        const form = computeSeasonForm(true);
         const w = form.filter(r => r.result === 'V').length, e = form.filter(r => r.result === 'E').length, d = form.filter(r => r.result === 'D').length;
         const gf = form.reduce((a, r) => a + r.gf, 0), gc = form.reduce((a, r) => a + r.gc, 0);
         const kpis = [['Partits', form.length], ['Victòries', w], ['Empats', e], ['Derrotes', d], ['GF', gf], ['GC', gc]];
@@ -14476,18 +14541,55 @@ ${userText}`;
         let q = 0; const sched = () => { if (q) return; q = requestAnimationFrame(() => { q = 0; nkNavMove(); }); };
         new MutationObserver(sched).observe(nav, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
         window.addEventListener('resize', sched);
+        // El menú s'ajusta a l'espai disponible: si apareix/desapareix la barra de scroll vertical, la píndola es recalcula.
+        if (window.ResizeObserver) new ResizeObserver(sched).observe(nav);
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
         sched();
     })();
+
+    /* Navegació flotant (només mòbil): botons rodons sempre a mà; s'amaguen quan es desplega la barra lateral. */
+    (function initFabNav() {
+        const nav = document.getElementById('main-nav'), track = document.getElementById('fab-nav-track');
+        if (!nav || !track) return;
+        let q = 0;
+        const build = () => {
+            q = 0;
+            const btns = [...nav.querySelectorAll(':scope > .tab-btn')].filter(b => getComputedStyle(b).display !== 'none');
+            const locked = nav.classList.contains('pointer-events-none');
+            track.classList.toggle('is-locked', locked);
+            const sig = btns.map(b => b.id + (b.classList.contains('bg-granate-600') ? '*' : '')).join('|');
+            if (track.dataset.sig === sig) return;
+            track.dataset.sig = sig; track.innerHTML = '';
+            let active = null;
+            btns.forEach(b => {
+                const el = document.createElement('button'); el.type = 'button';
+                const on = b.classList.contains('bg-granate-600');
+                el.className = 'fab-nav-btn' + (on ? ' is-active' : '');
+                const label = b.textContent.trim();
+                el.title = label; el.setAttribute('aria-label', label);
+                const src = b.querySelector('[data-lucide]'), ic = document.createElement('i'); ic.setAttribute('data-lucide', (src && src.getAttribute('data-lucide')) || 'circle'); el.appendChild(ic);
+                const sp = document.createElement('span'); sp.textContent = label; el.appendChild(sp);
+                el.addEventListener('click', () => b.click());
+                track.appendChild(el); if (on) active = el;
+            });
+            try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+            if (active) requestAnimationFrame(() => { try { track.scrollTo({ top: active.offsetTop - track.clientHeight / 2 + 20, behavior: 'smooth' }); } catch (e) { track.scrollTop = active.offsetTop - track.clientHeight / 2 + 20; } });
+        };
+        const sched = () => { if (!q) q = requestAnimationFrame(build); };
+        new MutationObserver(sched).observe(nav, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
+        window.addEventListener('resize', sched);
+        setTimeout(sched, 300); setTimeout(sched, 1500); sched();
+    })();
     function openSidebar() {
         const sb = document.getElementById('sidebar'); if (!sb) return;
-        sb.classList.remove('-translate-x-full'); sb.classList.add('translate-x-0');
+        sb.classList.remove('-translate-x-full'); sb.classList.add('translate-x-0'); document.body.classList.add('sb-open');
         const bd = document.getElementById('sidebar-backdrop'); if (bd) bd.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
     function closeSidebar() {
         const sb = document.getElementById('sidebar'); if (!sb) return;
-        sb.classList.add('-translate-x-full'); sb.classList.remove('translate-x-0');
+        sb.classList.add('-translate-x-full'); sb.classList.remove('translate-x-0'); document.body.classList.remove('sb-open');
         const bd = document.getElementById('sidebar-backdrop'); if (bd) bd.classList.add('hidden');
         document.body.style.overflow = '';
     }
