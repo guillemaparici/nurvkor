@@ -283,24 +283,32 @@
         .mn-ghost-btn:active { transform: scale(.96); }
         .mn-primary-archive { font-size: 15px; letter-spacing: .01em; }
 
-        /* ===== Navegació flotant mòbil (cápsula vertical a l'esquerra) ===== */
+        /* ===== Navegació flotant mòbil (cápsula horitzontal superposada) ===== */
         .fab-nav { display: none; }
         @media (max-width: 767px) {
-            .fab-nav { display: block; position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 35; max-height: calc(100vh - 150px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
-            body.sb-open .fab-nav { opacity: 0; transform: translate(-24px, -50%); pointer-events: none; visibility: hidden; transition: opacity .2s, transform .25s, visibility 0s .25s; }
-            .fab-nav-track { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .55rem .4rem; max-height: calc(100vh - 150px); overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
-                border-radius: 999px; background: rgba(22,22,22,.94); border: 1px solid rgba(255,255,255,.09); box-shadow: 0 18px 40px -12px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.07);
-                -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+            .fab-nav { display: flex; justify-content: center; position: fixed; left: 10px; right: 10px; bottom: 16px; z-index: 35; pointer-events: none; transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
+            body.sb-open .fab-nav { opacity: 0; transform: translateY(20px); visibility: hidden; transition: opacity .2s, transform .25s, visibility 0s .25s; }
+            .fab-nav-track { pointer-events: auto; display: flex; align-items: center; gap: .15rem; max-width: 100%; padding: .22rem .3rem; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; border-radius: 999px;
+                background: rgba(22,22,22,.42); border: 1px solid rgba(255,255,255,.07); box-shadow: 0 8px 20px -10px rgba(0,0,0,.5);
+                -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+                transition: background .3s, border-color .3s, box-shadow .3s, padding .3s, gap .3s; }
             .fab-nav-track::-webkit-scrollbar { display: none; }
             .fab-nav-track.is-locked { opacity: .4; pointer-events: none; }
-            .fab-nav-btn { flex: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #9a9a9a; background: transparent; border: 0;
-                transition: background .25s, color .25s, transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
-            .fab-nav-btn svg { width: 19px; height: 19px; stroke-width: 1.7; }
+            .fab-nav-btn { flex: none; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: rgba(214,214,214,.8); background: transparent; border: 0;
+                transition: width .3s cubic-bezier(.2,.8,.2,1), height .3s cubic-bezier(.2,.8,.2,1), background .25s, color .25s, box-shadow .25s, transform .2s; }
+            .fab-nav-btn svg { width: 16px; height: 16px; stroke-width: 1.7; transition: width .3s, height .3s; }
             .fab-nav-btn span { display: none; }
             .fab-nav-btn:active { transform: scale(.88); }
-            .fab-nav-btn.is-active { color: #fff; background: linear-gradient(135deg, rgb(var(--granate-400)), rgb(var(--granate-600))); box-shadow: 0 6px 16px -4px rgb(var(--granate-500) / .85), inset 0 1px 0 rgba(255,255,255,.25); }
-            main.overflow-y-auto { padding-left: 4.3rem !important; padding-right: .9rem !important; }
+            .fab-nav-btn.is-active { color: #fff; background: rgb(var(--granate-600) / .75); }
+            /* Activa (després de tocar-la): una mica més gran i opaca */
+            .fab-nav.is-engaged .fab-nav-track { background: rgba(22,22,22,.96); border-color: rgba(255,255,255,.12); padding: .32rem .4rem; gap: .25rem; box-shadow: 0 16px 34px -10px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.08); }
+            .fab-nav.is-engaged .fab-nav-btn { width: 44px; height: 44px; color: #d8d8d8; }
+            .fab-nav.is-engaged .fab-nav-btn svg { width: 20px; height: 20px; }
+            .fab-nav.is-engaged .fab-nav-btn.is-active { color: #fff; background: linear-gradient(135deg, rgb(var(--granate-400)), rgb(var(--granate-600))); box-shadow: 0 6px 16px -4px rgb(var(--granate-500) / .85), inset 0 1px 0 rgba(255,255,255,.25); }
         }
+
+        /* Botó flotant de l'assistent: amagat (no s'utilitza) */
+        #assistant-fab { display: none !important; }
     </style>
 <style id="tailwind-compiled">/* Tailwind 3.4.17 compilat (CLI, minificat). La paleta "granate" és a les variables --granate-* (color de marca per club). */
 :root{--granate-50:251 241 242;--granate-100:248 225 227;--granate-200:240 194 199;--granate-300:226 150 158;--granate-400:207 85 102;--granate-500:181 51 74;--granate-600:153 36 56;--granate-700:127 31 48;--granate-800:107 28 43;--granate-900:92 27 40;--granate-950:52 10 17}
@@ -14573,13 +14581,22 @@ ${userText}`;
                 track.appendChild(el); if (on) active = el;
             });
             try { if (window.lucide) lucide.createIcons(); } catch (e) {}
-            if (active) requestAnimationFrame(() => { try { track.scrollTo({ top: active.offsetTop - track.clientHeight / 2 + 20, behavior: 'smooth' }); } catch (e) { track.scrollTop = active.offsetTop - track.clientHeight / 2 + 20; } });
+            if (active) requestAnimationFrame(() => { try { track.scrollTo({ left: active.offsetLeft - track.clientWidth / 2 + 22, behavior: 'smooth' }); } catch (e) { track.scrollLeft = active.offsetLeft - track.clientWidth / 2 + 22; } });
         };
         const sched = () => { if (!q) q = requestAnimationFrame(build); };
         new MutationObserver(sched).observe(nav, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
         window.addEventListener('resize', sched);
         setTimeout(sched, 300); setTimeout(sched, 1500); sched();
+        // Estat actiu: en tocar la barra creix i s'opaca; en desplaçar el contingut (o passats uns segons) torna a ser petita i translúcida.
+        const dock = document.getElementById('fab-nav'); let tmr = 0, touching = false;
+        const rest = () => { clearTimeout(tmr); dock.classList.remove('is-engaged'); };
+        const engage = () => { dock.classList.add('is-engaged'); clearTimeout(tmr); tmr = setTimeout(() => { if (!touching) rest(); }, 3500); };
+        track.addEventListener('pointerdown', () => { touching = true; engage(); });
+        ['pointerup', 'pointercancel'].forEach(ev => window.addEventListener(ev, () => { if (touching) { touching = false; engage(); } }));
+        track.addEventListener('scroll', () => { if (dock.classList.contains('is-engaged')) engage(); }, { passive: true });
+        const mainEl = document.querySelector('main');
+        if (mainEl) mainEl.addEventListener('scroll', () => { if (!touching) rest(); }, { passive: true });
     })();
     function openSidebar() {
         const sb = document.getElementById('sidebar'); if (!sb) return;
