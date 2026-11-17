@@ -517,6 +517,9 @@
         .stc-verdict { margin-top: .7rem; padding: .5rem .7rem; }
         @media (max-width: 1279px) { .stm-row { max-height: none; } .stc-col { gap: 1.5rem; } }
 
+        /* Pantalla d'accés: mentre es recupera la sessió guardada no es mostra el formulari */
+        #auth-gate.auth-resuming > * { visibility: hidden; }
+        #auth-gate.auth-resuming::after { content: 'Recuperant la sessió…'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #9a9a9a; font: 600 14px system-ui, sans-serif; letter-spacing: .02em; }
         /* ===== Fitxa del jugador (modal): gran, foto al costat del nom, obertura des de baix ===== */
         #player-modal .pm-backdrop { opacity: 0; transition: opacity .35s ease; }
         #player-modal.is-open .pm-backdrop { opacity: 1; }
@@ -560,7 +563,9 @@
             background: rgba(16, 185, 129, .1); box-shadow: inset 0 0 0 1px rgba(16, 185, 129, .3); font-weight: 900; font-size: 1.4rem; color: #34d399; }
         .pm-figure.no-img::before { display: none; }
         .pm-body { display: flex; flex-direction: column; gap: 1.5rem; padding: 1.25rem 1rem calc(2rem + env(safe-area-inset-bottom)); }
-        .pm-top { display: grid; gap: 1.5rem; }
+        .pm-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+        #player-modal .pm-sheet { overflow-x: hidden; }
+        .pm-body > *, .pm-top-main > * { min-width: 0; }
         .pm-top > * { min-width: 0; }
         .pm-cols > * { break-inside: avoid; margin-bottom: 1.5rem; }
         .pm-cols > *:last-child { margin-bottom: 0; }
@@ -591,8 +596,8 @@
             .pm-top-main { display: flex; flex-direction: column; gap: 1.9rem; min-width: 0; }
             #pm-hero-wrap, #pm-part-wrap, #pm-evolution-wrap { order: 0; }
         }
-        /* Vista de jugador (mòbil): foto sense marc, com a la fitxa d'escriptori */
-        @media (max-width: 767px) {
+        /* Vista de jugador: capçalera igual que la fitxa (foto sense marc, text a baix, dorsal gran) */
+        @media (min-width: 0px) {
             #tab-inici .hero-figure { display: block; position: absolute; left: 1rem; bottom: 0; height: 10rem; aspect-ratio: 520 / 650; pointer-events: none; z-index: 0; }
             #tab-inici .hero-figure::before { content: ''; position: absolute; inset: 6% -24% 0 -24%; z-index: -1; filter: blur(9px);
                 background: radial-gradient(closest-side at 50% 55%, rgb(var(--granate-500) / .55), transparent 100%); }
@@ -600,8 +605,19 @@
             #tab-inici .hero-figure img.is-sil { filter: none; }
             #tab-inici #ph-watermark ~ .relative.flex { padding-left: 8.6rem; min-height: 10rem; align-items: flex-end; }
             #tab-inici div:has(> .hero-figure) { padding-bottom: 1.1rem; padding-top: 1rem; }
-            #tab-inici #ph-name { white-space: normal; line-height: 1.1; }
+            #tab-inici #ph-name { display: flex; flex-direction: column; white-space: normal; overflow: visible; line-height: 1.02; overflow-wrap: anywhere; }
+            #tab-inici #ph-name .pm-first { opacity: .6; }
             #tab-inici div:has(> .hero-figure) #ph-avatar { display: none; }
+        }
+        @media (min-width: 768px) {
+            #tab-inici .hero-figure { left: 2rem; right: auto; height: 13.2rem; max-height: none; }
+            #tab-inici .hero-figure::before { inset: 6% -24% 0 -24%; }
+            #tab-inici .hero-figure img { -webkit-mask-image: none; mask-image: none; object-position: 50% 100%; filter: drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
+            #tab-inici .hero-figure img.is-sil { filter: none; }
+            #tab-inici #ph-watermark ~ .relative.flex { padding-left: 12.6rem; min-height: 13.2rem; padding-bottom: .4rem; }
+            #tab-inici div:has(> .hero-figure) { padding-top: 1.2rem; padding-bottom: 1.4rem; padding-left: 2rem; padding-right: 2rem; }
+            #tab-inici #ph-watermark { clip-path: none; font-size: 15rem; right: 3rem; top: -1.6rem; color: rgba(255,255,255,.045); }
+            #tab-inici #player-home > .relative.overflow-hidden { overflow: hidden; border-radius: 1rem 1rem 0 0; }
         }
         /* Participació a l'equip */
         .pt-card { background: rgba(0, 0, 0, .26); border: 1px solid rgba(255, 255, 255, .06); border-radius: 1rem; padding: 1.1rem; }
@@ -665,6 +681,19 @@
 
     <!-- ===== PANTALLA D'ACCÉS (Supabase Auth) — tapa el tauler fins iniciar sessió ===== -->
     <div id="auth-gate" class="fixed inset-0 z-[999] bg-[#08090b] flex overflow-y-auto">
+        <script>
+            (function () {
+                try {
+                    var has = false;
+                    for (var i = 0; i < localStorage.length; i++) { if (/^sb-.+-auth-token$/.test(localStorage.key(i) || '')) { has = true; break; } }
+                    var g = document.getElementById('auth-gate');
+                    if (has && g && !/[?&#]type=(invite|recovery)\b/.test(location.href)) {
+                        g.classList.add('auth-resuming');
+                        setTimeout(function () { g.classList.remove('auth-resuming'); }, 15000);   // ssortida d'emergència
+                    }
+                } catch (e) {}
+            })();
+        </script>
         <!-- PANEL ESQUERRE — identitat, només visible en pantalla ampla -->
         <div class="hidden lg:flex lg:w-[52%] relative flex-col p-16 overflow-hidden">
             <div class="absolute inset-0" style="background: linear-gradient(125deg, #08090b 0%, #08090b 26%, rgba(201,138,43,0.16) 42%, rgba(153,36,56,0.55) 50%, rgba(201,138,43,0.16) 58%, #08090b 74%, #08090b 100%); background-size: 200% 200%; animation: authSheen 16s ease-in-out infinite;"></div>
@@ -15449,7 +15478,7 @@ ${userText}`;
         document.getElementById('ph-avatar').innerText = (initials || p.name.slice(0, 2)).toUpperCase();
         setHeroPhoto(document.getElementById('ph-watermark').parentElement, p, document.getElementById('ph-avatar'));
         document.getElementById('ph-dorsal').innerText = p.dorsal != null ? `Dorsal ${p.dorsal}` : 'Jugador';
-        document.getElementById('ph-name').innerText = p.name;
+        { const q = nameParts(p.name); document.getElementById('ph-name').innerHTML = (q.first ? `<span class="pm-first">${esc(q.first)}</span>` : '') + `<span class="pm-last">${esc(q.last)}</span>`; }
         document.getElementById('ph-tags').innerHTML = tags.map(t =>
             `<span class="text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 px-2 py-1 rounded">${esc(t)}</span>`).join('');
 
@@ -17859,18 +17888,29 @@ ${userText}`;
         }
 
         async function agCheckSessionAndEnter() {
+            try { await agCheckSessionAndEnterInner(); }
+            finally { const g = document.getElementById('auth-gate'); if (g) g.classList.remove('auth-resuming'); }
+        }
+        async function agCheckSessionAndEnterInner() {
             if (awaitingPasswordSetup) return;
             let session = null, sessErr = null;
-            try {
-                const r = await sb.auth.getSession();
-                session = r && r.data ? r.data.session : null;
-                sessErr = r ? r.error : null;
-            } catch (e) { sessErr = e; }
+            // Si el navegador té una sessió guardada, no es dona per perduda a la primera: es reintenta
+            // (p. ex. si dues lectures simultànies es trepitgen en carregar la pàgina).
+            for (let i = 0; i < 3; i++) {
+                session = null; sessErr = null;
+                try {
+                    const r = await sb.auth.getSession();
+                    session = r && r.data ? r.data.session : null;
+                    sessErr = r ? r.error : null;
+                } catch (e) { sessErr = e; }
+                if (session || !hasStoredAuthToken()) break;
+                await new Promise(res => setTimeout(res, 600 * (i + 1)));
+            }
 
             if (!session) {
                 // Sense sessió. Si és perquè no hi ha connexió (i aquest dispositiu ja hi havia entrat),
                 // no és un "no has entrat": es treballa amb la còpia local.
-                if ((sessErr && sbIsTransient({ error: sessErr })) || navigator.onLine === false) {
+                if ((sessErr && (sbIsTransient({ error: sessErr }) || hasStoredAuthToken())) || navigator.onLine === false) {
                     if (hasStoredAuthToken() && await enterOfflineFromCache(null)) return;
                 }
                 return;
