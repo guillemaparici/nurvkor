@@ -544,12 +544,13 @@
         .pm-head { position: relative; border-bottom: 1px solid rgba(255, 255, 255, .06); overflow: hidden;
             background: radial-gradient(ellipse 70% 130% at 8% 100%, rgb(var(--granate-700) / .38), transparent 72%), linear-gradient(180deg, rgba(255, 255, 255, .02), transparent); }
         .pm-grab { display: none; position: absolute; top: .5rem; left: 50%; width: 2.4rem; height: .28rem; margin-left: -1.2rem; border-radius: 99px; background: rgba(255, 255, 255, .22); }
-        .pm-id { display: flex; align-items: flex-end; gap: 1rem; padding: 2.9rem 1rem 0 1rem; }
-        .pm-id-text { min-width: 0; flex: 1 1 auto; padding-bottom: 1rem; }
+        .pm-id { position: relative; display: flex; align-items: flex-end; gap: 1rem; padding: 1.6rem 1rem 0 1rem; }
+        .pm-wm { position: absolute; right: .9rem; top: -.9rem; font-size: 8.5rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,.045); pointer-events: none; user-select: none; }
+        .pm-id-text { min-width: 0; flex: 1 1 auto; padding-bottom: .9rem; }
         .pm-name { display: flex; flex-direction: column; line-height: 1.02; color: #fff; overflow-wrap: anywhere; }
         .pm-first { font-size: .95rem; font-weight: 600; opacity: .6; letter-spacing: .01em; }
         .pm-last { font-size: 1.7rem; font-weight: 800; letter-spacing: -.01em; }
-        .pm-figure { position: relative; flex: none; width: 5.8rem; aspect-ratio: 520 / 650; }
+        .pm-figure { position: relative; flex: none; width: 7.8rem; aspect-ratio: 520 / 650; }
         .pm-figure::before { content: ''; position: absolute; inset: 6% -24% 0 -24%; z-index: 0; filter: blur(9px);
             background: radial-gradient(closest-side at 50% 55%, rgb(var(--granate-500) / .55), transparent 100%); }
         .pm-figure img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%;
@@ -566,11 +567,12 @@
         .pm-chart { height: 11rem; }
         @media (min-width: 768px) {
             .pm-grab { display: none !important; }
-            .pm-id { gap: 1.75rem; padding: 1.6rem 6.5rem 0 2rem; }
-            .pm-id-text { padding-bottom: 1.5rem; }
+            .pm-id { gap: 1.75rem; padding: 1.2rem 6.5rem 0 2rem; }
+            .pm-id-text { padding-bottom: 1.4rem; }
             .pm-first { font-size: 1.1rem; }
             .pm-last { font-size: 2.4rem; }
-            .pm-figure { width: 8.6rem; }
+            .pm-figure { width: 10.6rem; }
+            .pm-wm { font-size: 15rem; right: 6.5rem; top: -1.6rem; }
             .pm-figure.no-img { width: 6rem; font-size: 1.9rem; margin-bottom: 1.5rem; }
             .pm-body { gap: 1.9rem; padding: 1.75rem 2rem 2.25rem; }
             .pm-chart { height: 14rem; }
@@ -588,6 +590,18 @@
         @media (min-width: 1024px) {
             .pm-top-main { display: flex; flex-direction: column; gap: 1.9rem; min-width: 0; }
             #pm-hero-wrap, #pm-part-wrap, #pm-evolution-wrap { order: 0; }
+        }
+        /* Vista de jugador (mòbil): foto sense marc, com a la fitxa d'escriptori */
+        @media (max-width: 767px) {
+            #tab-inici .hero-figure { display: block; position: absolute; left: 1rem; bottom: 0; height: 10rem; aspect-ratio: 520 / 650; pointer-events: none; z-index: 0; }
+            #tab-inici .hero-figure::before { content: ''; position: absolute; inset: 6% -24% 0 -24%; z-index: -1; filter: blur(9px);
+                background: radial-gradient(closest-side at 50% 55%, rgb(var(--granate-500) / .55), transparent 100%); }
+            #tab-inici .hero-figure img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 8px 10px rgba(0,0,0,.55)); }
+            #tab-inici .hero-figure img.is-sil { filter: none; }
+            #tab-inici #ph-watermark ~ .relative.flex { padding-left: 8.6rem; min-height: 10rem; align-items: flex-end; }
+            #tab-inici div:has(> .hero-figure) { padding-bottom: 1.1rem; padding-top: 1rem; }
+            #tab-inici #ph-name { white-space: normal; line-height: 1.1; }
+            #tab-inici div:has(> .hero-figure) #ph-avatar { display: none; }
         }
         /* Participació a l'equip */
         .pt-card { background: rgba(0, 0, 0, .26); border: 1px solid rgba(255, 255, 255, .06); border-radius: 1rem; padding: 1.1rem; }
@@ -3383,6 +3397,7 @@
             </div>
             <!-- capçalera: foto + nom -->
             <div class="pm-head">
+                <span id="pm-watermark" class="pm-wm" aria-hidden="true"></span>
                 <span class="pm-grab" aria-hidden="true"></span>
                 <div class="pm-id">
                     <div id="pm-figure" class="pm-figure"></div>
@@ -10360,6 +10375,7 @@
 
         setPmFigure(p);
         document.getElementById('pm-dorsal').innerText = p.extern ? 'Sènior B' : (p.dorsal != null ? `Dorsal ${p.dorsal}` : (p.actiu === false ? 'Baixa' : 'Sense dorsal'));
+        const wm = document.getElementById('pm-watermark'); if (wm) wm.textContent = p.dorsal != null ? String(p.dorsal) : '';
         const q = nameParts(p.name);
         document.getElementById('pm-name').innerHTML = (q.first ? `<span class="pm-first">${esc(q.first)}</span>` : '') + `<span class="pm-last">${esc(q.last)}</span>`;
 
