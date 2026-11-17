@@ -87,7 +87,7 @@
         /* Plantilla: graella de targetes a tot l'ample + resum plegable */
         /* Plantilla: cada posició = resum del grup (esquerra) + targetes (dreta) */
         .squad-pos-group { --pc: #a78bfa; }
-        .spg-sum { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1.1rem; margin-bottom: .75rem; padding: .6rem .9rem; border-radius: .9rem; background: rgba(31,31,31,.8); box-shadow: inset 3px 0 0 var(--pc); }
+        .spg-sum { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1.1rem; margin-bottom: .75rem; padding: .6rem .9rem; border-radius: .9rem; background: #171717; box-shadow: inset 3px 0 0 var(--pc); }
         .spg-name { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pc); }
         .spg-count { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1; }
         .spg-count small { font-size: 11px; font-weight: 600; color: #9f9f9f; margin-left: .3rem; }
@@ -160,10 +160,10 @@
         .bg-slate-900\/80.rounded-2xl:not(.squad-card) { background-image: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 38%), linear-gradient(135deg, rgb(var(--granate-600) / .09), transparent 50%); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px -16px rgba(0,0,0,.6) !important; }
         /* Fitxes de jugador */
         .spg-grid > .squad-card { transition: transform .38s cubic-bezier(.2,.8,.2,1), box-shadow .38s, background-color .3s; }
-        .spg-grid > .squad-card { isolation: isolate; }
+        .spg-grid > .squad-card { isolation: isolate; background-color: #171717; }
         .spg-grid > .squad-card::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s;
             background: radial-gradient(220px circle at var(--mx,50%) var(--my,0%), color-mix(in srgb, var(--pc) 26%, transparent), transparent 70%); }
-        .spg-grid > .squad-card:hover { transform: translateY(-4px); box-shadow: inset 0 2px 0 var(--pc), 0 18px 36px -16px color-mix(in srgb, var(--pc) 55%, #000) !important; background-color: rgba(42,42,42,.92); }
+        .spg-grid > .squad-card:hover { transform: translateY(-4px); box-shadow: inset 0 2px 0 var(--pc), 0 18px 36px -16px color-mix(in srgb, var(--pc) 55%, #000) !important; background-color: #202020; }
         .spg-grid > .squad-card:hover::before { opacity: 1; }
         .spg-grid > .squad-card:active { transform: translateY(-1px) scale(.985); transition-duration: .12s; }
         .spg-grid > .squad-card > :first-child { transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
@@ -232,6 +232,30 @@
         #nav-collapse-btn { display: none; }
         @media (min-width: 768px) { #nav-collapse-btn { display: flex; } }
         #nav-collapse-btn svg { transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+
+        /* ===== Minutatge: nova distribució ===== */
+        .mn-ctx { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem 1.5rem; padding: .85rem 1.25rem; }
+        .mn-ctx-title { align-self: center; white-space: nowrap; }
+        .mn-ctx-fields { display: grid; grid-template-columns: minmax(150px,1.1fr) 150px minmax(150px,1.4fr) 180px; gap: .75rem; flex: 1 1 640px; }
+        .mn-ctx-fields .mt-2 { margin-top: .3rem; }
+        .mn-ctx-fields input, .mn-ctx-fields select { padding-top: .45rem; padding-bottom: .45rem; }
+        .mn-ctx-fields #camp-L, .mn-ctx-fields #camp-V { padding-top: .45rem; padding-bottom: .45rem; }
+        .mn-ctx-actions { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; align-self: center; }
+        @media (max-width: 900px) { .mn-ctx-fields { grid-template-columns: 1fr 1fr; flex-basis: 100%; } .mn-ctx-actions { flex-direction: row; gap: 1rem; } }
+        @media (min-width: 1100px) { #tab-minutatge .mn-split { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); } }
+        .mn-score { display: flex; align-items: center; justify-content: center; gap: 1.1rem; margin: 1rem 0 .25rem; padding: .85rem 1rem; border-radius: 1rem; position: relative;
+            background: linear-gradient(135deg, rgb(var(--granate-600) / .14), transparent 60%), #171717; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+        .mn-score-side { display: flex; flex-direction: column; align-items: center; min-width: 90px; }
+        .mn-score-side b { font-size: 3.4rem; line-height: 1; font-weight: 900; font-variant-numeric: tabular-nums; }
+        .mn-score-side b.gf { color: #34d399; } .mn-score-side b.gc { color: #fb7185; }
+        .mn-score-side span { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8a8a8a; margin-top: .3rem; }
+        .mn-score-sep { font-size: 2rem; font-weight: 800; color: #4a4a4a; }
+        .mn-score-adj { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: .3rem; }
+        .mn-score-adj button { padding: .25rem .6rem; border-radius: .5rem; font-size: 10px; font-weight: 700; background: #2a2a2a; color: #cfcfcf; transition: background .2s, transform .15s; }
+        .mn-score-adj button:hover { background: #3a3a3a; } .mn-score-adj button:active { transform: scale(.94); }
+        .mn-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem 1.75rem; margin-top: .25rem; }
+        @media (min-width: 768px) { .mn-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+        .mn-right > :first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     </style>
 <style id="tailwind-compiled">/* Tailwind 3.4.17 compilat (CLI, minificat). La paleta "granate" és a les variables --granate-* (color de marca per club). */
 :root{--granate-50:251 241 242;--granate-100:248 225 227;--granate-200:240 194 199;--granate-300:226 150 158;--granate-400:207 85 102;--granate-500:181 51 74;--granate-600:153 36 56;--granate-700:127 31 48;--granate-800:107 28 43;--granate-900:92 27 40;--granate-950:52 10 17}
@@ -1863,17 +1887,10 @@
             <!-- 6 · MINUTATGE I DADES -->
             <section id="tab-minutatge" class="tab-content hidden space-y-6">
 
-                <!-- CONTEXT DEL PARTIT -->
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="xl:col-span-2 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
-                        <div class="flex items-center justify-between gap-3 mb-5">
-                            <h4 class="font-bold text-white text-base">Context del partit</h4>
-                            <div class="flex items-center gap-3">
-                                <button onclick="openNarrationImportAndPaste()" class="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"><i data-lucide="mic" class="w-3 h-3"></i>Des de Claude</button>
-                                <button onclick="resetMatch()" class="text-[10px] font-semibold text-slate-500 hover:text-rose-400 underline transition-colors">Nou partit (esborra tot)</button>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <!-- CONTEXT DEL PARTIT (a tot l'ample, fi) -->
+                <div class="mn-ctx bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl">
+                    <h4 class="mn-ctx-title font-bold text-white text-base">Context del partit</h4>
+                    <div class="mn-ctx-fields">
                             <div>
                                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Jornada</label>
                                 <select id="match-jornada" onchange="setJornada(this.value)" class="mt-2 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-semibold"></select>
@@ -1894,38 +1911,32 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-
-                    <div class="xl:col-span-1 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-center">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 text-center">Marcador</p>
-                        <div class="flex items-center justify-center gap-4 mt-3">
-                            <div class="text-center">
-                                <p class="text-5xl font-black text-emerald-400" id="score-gf">0</p>
-                                <p class="text-[10px] font-bold uppercase text-slate-500 mt-1">SAM</p>
+                    <div class="mn-ctx-actions">
+                                <button onclick="openNarrationImportAndPaste()" class="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"><i data-lucide="mic" class="w-3 h-3"></i>Des de Claude</button>
+                                <button onclick="resetMatch()" class="text-[10px] font-semibold text-slate-500 hover:text-rose-400 underline transition-colors">Nou partit (esborra tot)</button>
                             </div>
-                            <span class="text-3xl font-black text-slate-700">-</span>
-                            <div class="text-center">
-                                <p class="text-5xl font-black text-rose-400" id="score-gc">0</p>
-                                <p class="text-[10px] font-bold uppercase text-slate-500 mt-1 truncate max-w-[80px]" id="score-rival">Rival</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 mt-5">
-                            <button onclick="adjustScore('gf',-1)" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-[10px] font-bold transition-all">&minus; GF</button>
-                            <button onclick="adjustScore('gc',-1)" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-[10px] font-bold transition-all">&minus; GC</button>
-                        </div>
-                        <p class="text-[9px] text-slate-500 mt-2 text-center leading-relaxed">Correcció manual: no toca les dades dels jugadors.</p>
-                    </div>
                 </div>
 
                 <!-- CRONÒMETRE + PISTA -->
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="xl:col-span-1 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6 flex flex-col">
+                <div class="mn-split grid grid-cols-1 gap-6">
+                    <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6 flex flex-col">
                         <div class="flex items-center justify-between">
                             <h4 class="font-bold text-white text-base">Minut de partit</h4>
                             <span id="match-half-badge" class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-slate-800 text-slate-300"></span>
                         </div>
 
+                                                <div class="mn-score">
+                            <div class="mn-score-side"><b id="score-gf" class="gf">0</b><span>SAM</span></div>
+                            <span class="mn-score-sep">-</span>
+                            <div class="mn-score-side"><b id="score-gc" class="gc">0</b><span id="score-rival" class="truncate max-w-[110px]">Rival</span></div>
+                            <div class="mn-score-adj" title="Correcció manual: no toca les dades dels jugadors">
+                                <button onclick="adjustScore('gf',-1)">&minus; GF</button>
+                                <button onclick="adjustScore('gc',-1)">&minus; GC</button>
+                            </div>
+                        </div>
+
+                        <div class="mn-cols">
+                            <div class="mn-left">
                         <div class="flex items-center justify-center gap-4 my-5">
                             <button onclick="stepMinute(-1)" class="w-11 h-11 shrink-0 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center text-slate-300">
                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
@@ -1948,7 +1959,11 @@
                             <button id="btn-save-minute" onclick="saveMinute()" class="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition-all active:scale-[0.98]"></button>
                             <button id="btn-half" onclick="nextHalf()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all active:scale-[0.98]"></button>
                         </div>
-
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-6 mb-2">Mapa de la part</p>
+                        <div id="minute-map" class="grid grid-cols-10 gap-1.5"></div>
+                        <p class="text-[9px] text-slate-500 mt-2.5 leading-relaxed">Fes clic a qualsevol minut per revisar-lo o corregir-ne l'alineació.</p>
+                            </div>
+                            <div class="mn-right">
                         <div class="mt-4 pt-4 border-t border-slate-800/80">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Registra un gol</p>
                             <div class="grid grid-cols-2 gap-2">
@@ -2017,13 +2032,11 @@
                                 <div id="card-panel-chips" class="flex flex-wrap gap-2"></div>
                             </div>
                         </div>
-
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-6 mb-2">Mapa de la part</p>
-                        <div id="minute-map" class="grid grid-cols-10 gap-1.5"></div>
-                        <p class="text-[9px] text-slate-500 mt-2.5 leading-relaxed">Fes clic a qualsevol minut per revisar-lo o corregir-ne l'alineació.</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="xl:col-span-2 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
+                    <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
                             <div>
                                 <h4 class="font-bold text-white text-base">Pista i banqueta</h4>
@@ -5617,7 +5630,7 @@
     }
     const SQUAD_POS_ORDER = ['Porter', 'Tanca', 'Tancament', 'Ala', 'Pivot', 'Universal'];
     const SQUAD_POS_COLOR = { Porter: '#10b981', Tanca: '#38bdf8', Tancament: '#38bdf8', Ala: '#f59e0b', Pivot: '#f43f5e', Universal: '#a78bfa' };
-    const squadTotals = p => computePlayerEvolution(p.id).reduce((a, r) => ({ min: a.min + r.minutes, gols: a.gols + r.gols, assist: a.assist + r.assist }), { min: 0, gols: 0, assist: 0 });
+    const squadTotals = p => computePlayerEvolution(p.id, 'lliga').reduce((a, r) => ({ min: a.min + r.minutes, gols: a.gols + r.gols, assist: a.assist + r.assist }), { min: 0, gols: 0, assist: 0 });
     function squadCardHTML(p, tot) {
         const age = ageOf(p.anyNaixement);
         const baixa = p.actiu === false;
@@ -6276,7 +6289,10 @@
         const lligaPlayed = played.filter(c => matchPeriod(c) === 'lliga');
         const pts = (statsPeriod === 'pretemporada' || !lligaPlayed.length) ? null
             : lligaPlayed.reduce((a, c) => a + (c.res === 'V' ? 3 : c.res === 'E' ? 1 : 0), 0);
-        const diff = gf - gc, total = cal.length, pj = played.length;
+        const LLIGA_JORNADES = 30;
+        const calLliga = cal.filter(c => matchPeriod(c) === 'lliga').length, calResta = cal.length - calLliga;
+        const total = statsMatchKey != null ? cal.length : statsPeriod === 'pretemporada' ? cal.length : statsPeriod === 'lliga' ? Math.max(LLIGA_JORNADES, calLliga) : calResta + Math.max(LLIGA_JORNADES, calLliga);
+        const diff = gf - gc, pj = played.length;
         const seg = (arr, rest) => `<div class="ks-bar">${arr.filter(x => x[0]).map(x => `<span style="flex:${x[0]};background:${x[1]}"></span>`).join('')}${rest > 0 ? `<span style="flex:${rest};background:transparent"></span>` : ''}</div>`;
         const aprof = (pts !== null && lligaPlayed.length) ? Math.round(pts / (lligaPlayed.length * 3) * 100) : null;
         const ring = pct => `<svg class="ks-ring" viewBox="0 0 36 36" title="Aprofitament de punts"><circle cx="18" cy="18" r="15" fill="none" stroke="#2f2f2f" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-dasharray="${(pct / 100 * 94.25).toFixed(1)} 94.25" transform="rotate(-90 18 18)"/><text x="18" y="21.3" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff">${pct}%</text></svg>`;
@@ -6286,7 +6302,7 @@
         const ptsSub = pts === null ? (statsPeriod === 'pretemporada' ? 'Només a lliga' : 'Cap partit de lliga') : `${lligaPlayed.length} PJ · lliga`;
         document.getElementById('stats-kpis').innerHTML = [
             cell('Punts', `<div class="ks-row"><div><span class="ks-val">${pts === null ? '<span style="color:#5a5a5a">—</span>' : `<span style="color:#34d399">${pts}</span>`}</span><div class="ks-sub" style="margin-top:.3rem">${ptsSub}</div></div>${aprof !== null ? ring(aprof) : ''}</div>`),
-            cell('J', `<div class="ks-row"><span class="ks-val">${pj}<small>/ ${total}</small></span><span class="ks-sub">${total ? Math.round(pj / total * 100) : 0}% jugat</span></div>${seg([[w, '#10b981'], [e, '#f59e0b'], [l, '#f43f5e']], Math.max(0, total - pj))}`),
+            cell('Partits jugats', `<div class="ks-row"><span class="ks-val">${pj}<small>/ ${total}</small></span><span class="ks-sub">${total ? Math.round(pj / total * 100) : 0}% jugat</span></div>${seg([[w, '#10b981'], [e, '#f59e0b'], [l, '#f43f5e']], Math.max(0, total - pj))}`),
             cell('Balanç', `<div class="ks-tri"><span style="--c:#10b981"><b>${w}</b><i>V</i></span><span style="--c:#f59e0b"><b>${e}</b><i>E</i></span><span style="--c:#f43f5e"><b>${l}</b><i>D</i></span></div>`),
             cell('Gols', `<div class="ks-gl"><b class="gf">${gf}</b><b class="sep">/</b><b class="gc">${gc}</b><span class="ks-diff ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero'}">${diff > 0 ? '+' : ''}${diff}</span></div>${seg([[gf, '#34d399'], [gc, '#fb7185']], (gf + gc) ? 0 : 1)}`),
             cell('Local / Visitant', haRow('Casa', hw, he, hl) + haRow('Fora', aw, ae, al))
