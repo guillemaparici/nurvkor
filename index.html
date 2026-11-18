@@ -5553,6 +5553,7 @@
         applyRoleUI();
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('app-content').classList.remove('hidden');
+        try { nkSyncHeader(); } catch (e) {}
         document.getElementById('main-nav').classList.remove('opacity-40', 'pointer-events-none');
 
         renderSourceBox();
@@ -13678,6 +13679,11 @@
         if (host) { if (b.parentNode !== host) host.appendChild(b); hdr.classList.add('hidden'); }
         else { if (b.parentNode !== hdr) hdr.appendChild(b); hdr.classList.remove('hidden'); }
     }
+    // En obrir l'app no es crida switchTab (la pestanya inicial ja és visible): sincronitza la capçalera amb la pestanya visible.
+    function nkSyncHeader() {
+        const t = document.querySelector('#app-content > .tab-content:not(.hidden)');
+        nkPlaceHeader(t ? t.id.replace(/^tab-/, '') : 'plantilla');
+    }
     function switchTab(tabId) {
         if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'inici';
         if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'inici';
@@ -20829,7 +20835,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-n';
+const APP_VERSION = '2026.11.18-o';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
