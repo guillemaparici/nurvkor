@@ -549,7 +549,18 @@
         .nk-hero .kpi-strip::before { display: none; }
         #squad-hero .kpi-strip { grid-template-columns: repeat(4, 1fr); }
         #squad-hero .ks-val { white-space: normal; }
-        @media (max-width: 767px) { #squad-hero .ks-val[style*="font-size"] { font-size: 1.05rem !important; } }
+        #squad-hero .kpi-strip { grid-template-columns: .8fr 1fr 1.7fr .8fr; }
+        @media (min-width: 768px) { body.nk-herotab main { padding-top: 12px !important; } }
+        body.nk-herotab #app-content > .tab-content { margin-top: 0 !important; }
+        body.nk-herotab #tab-estadistica > div, body.nk-herotab #tab-estadistica #stats-wrapper { margin-top: 0 !important; }
+        @media (max-width: 767px) {
+            #squad-hero .kpi-strip { grid-template-columns: repeat(3, 1fr) !important; }
+            #squad-hero .kpi-strip .ks-cell { border-top: 0 !important; border-left: 0 !important; }
+            #squad-hero .kpi-strip .ks-cell:nth-child(2), #squad-hero .kpi-strip .ks-cell:nth-child(4) { border-left: 1px solid rgba(255,255,255,.07) !important; }
+            #squad-hero .kpi-strip .ks-cell:nth-child(3) { grid-column: 1 / -1; order: 4; border-top: 1px solid rgba(255,255,255,.07) !important; }
+            #squad-hero .kpi-strip .ks-cell:nth-child(4) { order: 3; grid-column: auto; }
+            #squad-hero .kpi-strip .ks-cell { padding: .75rem .8rem; }
+        }
         .nk-edit { margin-left: .4rem; width: 1.5rem; height: 1.5rem; border-radius: .5rem; background: rgba(255,255,255,.08); color: #bdbdbd; display: inline-grid; place-items: center; cursor: pointer; border: 0; }
         .nk-edit:hover { background: rgba(255,255,255,.16); color: #fff; }
         .nk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap; }
@@ -7017,7 +7028,7 @@
         st.innerHTML = [
             cell('Jugadors', `<span class="ks-val">${act.length}</span>`, 'Plantilla activa'),
             cell('Edat mitjana', `<span class="ks-val">${avg === null ? '—' : avg.toFixed(1)}<small>anys</small></span>`, ages.length ? `${Math.min(...ages)}–${Math.max(...ages)} anys` : ''),
-            cell('Categoria', `<span class="ks-val" style="font-size:1.3rem;line-height:1.1">${esc(COMP_INFO.categoria)}</span>`, esc(COMP_INFO.esport)),
+            cell('Categoria', `<span class="ks-val">${esc(COMP_INFO.categoria)}</span>`, esc(COMP_INFO.esport)),
             cell('Grup', `<span class="ks-val">${esc(COMP_INFO.grup)}</span>`, 'Temporada 2026-27')
         ].join('');
     }
@@ -13592,11 +13603,21 @@
 
 
     /* ------------------------------ navegació ----------------------------- */
+    // Plantilla i Estadística: microcicle i data viuen dins la capçalera del club; la barra de títol antiga s'amaga.
+    function nkPlaceHeader(tabId) {
+        const hdr = document.getElementById('app-page-header'), b = document.getElementById('hdr-badges');
+        const host = tabId === 'plantilla' ? document.getElementById('squad-hero-badges') : tabId === 'estadistica' ? document.getElementById('stats-hero-badges') : null;
+        document.body.classList.toggle('nk-herotab', !!host);
+        if (!hdr || !b) return;
+        if (host) { if (b.parentNode !== host) host.appendChild(b); hdr.classList.add('hidden'); }
+        else { if (b.parentNode !== hdr) hdr.appendChild(b); hdr.classList.remove('hidden'); }
+    }
     function switchTab(tabId) {
         if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'inici';
         if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'inici';
         if (appRole !== 'player' && tabId === 'inici') tabId = 'plantilla';
         closeSidebar();
+        try { nkPlaceHeader(tabId); } catch (e) {}
         document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
         const target = document.getElementById(`tab-${tabId}`);
         if (target) target.classList.remove('hidden');
@@ -13641,13 +13662,6 @@
             rivals:      ['Rivals', 'Fitxa de cada rival, comparatives i anàlisi dels nostres partits. Només per a l\'entrenador.'],
             convocatories: ['Convocatòries', 'Registre de convocats i no convocats per jornada, amb el motiu i l\'històric per preparar les properes.']
         };
-        (function () {
-            const hdr = document.getElementById('app-page-header'), b = document.getElementById('hdr-badges');
-            const host = tabId === 'plantilla' ? document.getElementById('squad-hero-badges') : tabId === 'estadistica' ? document.getElementById('stats-hero-badges') : null;
-            if (!hdr || !b) return;
-            if (host) { if (b.parentNode !== host) host.appendChild(b); hdr.classList.add('hidden'); }
-            else { if (b.parentNode !== hdr) hdr.appendChild(b); hdr.classList.remove('hidden'); }
-        })();
         if (titles[tabId]) {
             document.getElementById('section-title').innerText = titles[tabId][0];
             document.getElementById('section-subtitle').innerText = titles[tabId][1];
@@ -20746,7 +20760,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-j';
+const APP_VERSION = '2026.11.18-k';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
