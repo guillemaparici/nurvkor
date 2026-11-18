@@ -525,9 +525,11 @@
             background: radial-gradient(closest-side, rgb(var(--granate-500) / .28), transparent 72%); }
         .nk-wm { position: absolute; right: 1.4rem; top: -1.2rem; font-size: clamp(9rem, 22vw, 16rem); font-weight: 900; line-height: 1; letter-spacing: -.04em;
             color: rgba(255,255,255,.05); pointer-events: none; user-select: none; font-variant-numeric: tabular-nums; }
-        .nk-hero-badges { position: absolute; top: 1.1rem; right: 1.3rem; z-index: 2; display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
+        .nk-hero-badges { position: relative; z-index: 2; display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-start; padding: 1.15rem 2rem 0; }
+        .nk-hero-badges + .nk-hero-top { padding-top: .85rem; min-height: 9.8rem; }
+        #app-page-header { flex-direction: column-reverse !important; align-items: flex-start !important; justify-content: flex-end !important; gap: .9rem !important; }
         .nk-hero-badges #current-date-badge { background: rgba(0,0,0,.32) !important; box-shadow: none !important; display: inline-block; }
-        .nk-hero-badges #current-date-badge::first-letter { text-transform: uppercase; }
+        #current-date-badge::first-letter { text-transform: uppercase; }
         .nk-title.sec .l { font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1; }
         .nk-hero-top { align-items: stretch; }
         .nk-crest { align-self: center; }
@@ -575,7 +577,7 @@
         .nk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap; }
         @media (max-width: 767px) {
             .nk-hero { border-radius: 1.3rem; }
-            .nk-hero-badges { position: relative; top: auto; right: auto; justify-content: flex-start; padding: .9rem 1.1rem 0; }
+            .nk-hero-badges { padding: .9rem 1.1rem 0; }
             .nk-hero-badges + .nk-hero-top { padding-top: .8rem; min-height: 7.5rem; }
             .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
             .nk-crest { width: 5.6rem; height: 5.6rem; }
@@ -616,7 +618,22 @@
         .cal-hor-sum { display: flex; flex-wrap: wrap; gap: .5rem; }
         .cal-hchip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; font-weight: 700; color: #e5e5e5; padding: .3rem .65rem; border-radius: .6rem; background: rgba(255,255,255,.06); font-variant-numeric: tabular-nums; }
         .cal-hchip b { color: #34d399; font-weight: 800; }
-        @media (max-width: 480px) { .cal-chips { width: 100%; padding-left: 2.95rem; } .cal-gen span { display: none; } }
+        @media (max-width: 639px) {
+            .cal-top { gap: .6rem; }
+            .cal-sum { min-height: 0; height: auto; padding: .7rem 2.5rem .7rem .95rem; gap: .35rem .6rem; position: relative; }
+            .cal-ico { display: none; }
+            .cal-sum-main { flex: 1 1 100%; gap: .2rem; }
+            .cal-sum-line { font-size: .95rem; }
+            .cal-chips { width: auto; padding-left: 0; gap: .4rem; }
+            .cal-chip { padding: .22rem .5rem; font-size: 11px; }
+            .cal-chev { position: absolute; right: .85rem; top: .95rem; margin: 0; }
+            .cal-hor-sum { gap: .35rem; }
+            .cal-hchip { padding: .22rem .5rem; }
+            .cal-gen { position: absolute; right: 2.5rem; top: .55rem; padding: .4rem; border-radius: .55rem; }
+            .cal-gen span { display: none; }
+            #cal-hor .cal-sum-main { padding-right: 2.6rem; }
+            .cal-body { padding: .8rem .95rem 1rem; }
+        }
         .cg-card { border-radius: 1.3rem; padding: 1.1rem 1.1rem 1rem; background: rgba(31,31,31,.8); background-image: linear-gradient(135deg, rgb(var(--granate-600) / .08), transparent 55%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px -14px rgba(0,0,0,.55); }
         .cg-top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin: .1rem .2rem .8rem; }
         .cg-title { font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: -.01em; text-transform: capitalize; }
@@ -784,7 +801,8 @@
                 transition: transform .5s cubic-bezier(.32, .72, 0, 1); }
         }
         @media (min-width: 768px) {
-            #player-modal .pm-sheet { width: min(100%, 68rem); max-height: 92vh; border-radius: 1.4rem; opacity: 0;
+            #player-modal { padding: 12px !important; }
+            #player-modal .pm-sheet { width: min(100%, 68rem); height: calc(100vh - 24px); height: calc(100dvh - 24px); max-height: none; border-radius: 28px; opacity: 0;
                 transform: translate3d(0, 22px, 0) scale(.97);
                 transition: transform .4s cubic-bezier(.2, .8, .2, 1), opacity .3s ease; }
         }
@@ -814,7 +832,7 @@
         .pm-name { display: flex; flex-direction: column; line-height: 1.02; color: #fff; overflow-wrap: anywhere; }
         .pm-first { font-size: .95rem; font-weight: 600; opacity: .6; letter-spacing: .01em; }
         .pm-last { font-size: 1.7rem; font-weight: 800; letter-spacing: -.01em; }
-        .pm-figure { position: relative; flex: none; width: 7.8rem; aspect-ratio: 520 / 650; }
+        .pm-figure { position: relative; flex: none; width: 10.4rem; aspect-ratio: 520 / 650; }
         .pm-figure::before { content: ''; position: absolute; inset: 6% -24% 0 -24%; z-index: 0; filter: blur(9px);
             background: radial-gradient(closest-side at 50% 55%, rgb(var(--granate-500) / .55), transparent 100%); }
         .pm-figure img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%;
@@ -833,11 +851,11 @@
         .pm-chart { height: 11rem; }
         @media (min-width: 768px) {
             .pm-grab { display: none !important; }
-            .pm-id { gap: 1.75rem; padding: 1.2rem 6.5rem 0 2rem; }
+            .pm-id { gap: 2rem; padding: 1.1rem 6.5rem 0 2rem; }
             .pm-id-text { padding-bottom: 1.4rem; }
             .pm-first { font-size: 1.1rem; }
             .pm-last { font-size: 2.4rem; }
-            .pm-figure { width: 10.6rem; }
+            .pm-figure { width: 14.6rem; }
             .pm-wm { font-size: 15rem; right: 6.5rem; top: -1.6rem; }
             .pm-figure.no-img { width: 6rem; font-size: 1.9rem; margin-bottom: 1.5rem; }
             .pm-body { gap: 1.9rem; padding: 1.75rem 2rem 2.25rem; }
@@ -891,7 +909,7 @@
             #tab-inici #player-home > .relative.overflow-hidden { padding: 1.7rem 2rem 1.5rem !important; }
             #tab-inici #ph-watermark ~ .relative.flex { min-height: 8.6rem; padding-left: 12.2rem; padding-bottom: 0; align-items: stretch; }
             #tab-inici #player-home .hero-figure { height: 106%; bottom: 0; left: 1.6rem; }
-            #tab-inici #player-home > .relative.overflow-hidden > .nk-hero-badges { z-index: 3; }
+            #tab-inici #player-home > .relative.overflow-hidden > .nk-hero-badges { z-index: 3; padding: 0 0 .9rem 10.6rem; }
         }
         @media (max-width: 767px) {
             #tab-inici #player-home > .relative.overflow-hidden { padding: 0 !important; }
@@ -920,11 +938,12 @@
             .spg-stat b { font-size: 14px; }
         }
         @media (max-width: 639px) {
-            #ph-stats, #pm-stats { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; gap: .4rem !important; }
-            #ph-stats > *:nth-child(-n+3), #pm-stats > *:nth-child(-n+3) { grid-column: span 2; }
-            #ph-stats > *:nth-child(n+4), #pm-stats > *:nth-child(n+4) { grid-column: span 3; }
+            #ph-stats, #pm-stats { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: .4rem !important; }
+            #ph-actitud, #pm-actitud { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .5rem !important; }
+            #ph-actitud > *, #pm-actitud > * { padding: .7rem .85rem !important; }
+            #ph-actitud p.truncate, #pm-actitud p.truncate { font-size: 10px !important; }
             #ph-stats p.truncate, #pm-stats p.truncate { overflow: visible; text-overflow: clip; font-size: 9px; }
-            #ph-stats > * , #pm-stats > * { padding: .6rem .7rem; }
+            #ph-stats > * , #pm-stats > * { padding: .6rem .5rem; }
         }
         @media (max-width: 767px) {
             #stats-hero .kpi-strip { grid-template-columns: 1fr 1fr !important; }
@@ -939,6 +958,42 @@
             #stats-hero .ks-tri b { font-size: 1.1rem; }
             #stats-hero .ks-ring { width: 38px; height: 38px; }
         }
+
+        /* ===== Fitxa del jugador: pestanyes Pista / Fora de pista / Seguiment ===== */
+        .pm-tabs { display: flex; gap: .35rem; padding: .3rem; border-radius: .95rem; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+        .pm-tab { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .6rem .5rem; border-radius: .7rem;
+            font-size: 12px; font-weight: 800; color: #9a9a9a; white-space: nowrap; transition: background .15s, color .15s; }
+        .pm-tab:hover { color: #e5e5e5; }
+        .pm-tab.is-on { background: rgb(var(--granate-600) / .9); color: #fff; box-shadow: 0 6px 16px -8px rgb(var(--granate-600) / .9); }
+        .pm-pane { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
+        .pm-pane.hidden { display: none !important; }
+        #pm-obj:empty { display: none; }
+        .pm-pane > * { min-width: 0; }
+        @media (min-width: 768px) { .pm-pane { gap: 1.9rem; } .pm-tab { font-size: 13px; padding: .7rem .8rem; } }
+        @media (max-width: 420px) { .pm-tab { font-size: 11px; gap: .3rem; } .pm-tab i, .pm-tab svg { width: .9rem; height: .9rem; } }
+        /* Moment del partit i rànquing */
+        .mp-card, .rk-card { background: rgba(2,6,12,.5); border: 1px solid rgba(255,255,255,.06); border-radius: .9rem; padding: .9rem 1rem; }
+        .mp-h { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin-bottom: .7rem; }
+        .mp-h b { font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a8a8a; }
+        .mp-h small { font-size: 10px; color: #6b6b6b; }
+        .mp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+        .mp-col { display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+        .mp-bars { height: 4.4rem; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: .3rem; }
+        .mp-bars i { display: block; width: 36%; max-width: 1.5rem; border-radius: .3rem .3rem 0 0; min-height: 2px; }
+        .mp-bars i.f { background: #10b981; } .mp-bars i.c { background: #f43f5e; }
+        .mp-net { font-size: 1rem; font-weight: 800; line-height: 1; }
+        .mp-lab { font-size: 9.5px; font-weight: 700; color: #8a8a8a; text-align: center; line-height: 1.2; }
+        .mp-col.best .mp-lab { color: #34d399; } .mp-col.worst .mp-lab { color: #fb7185; }
+        .mp-note { margin-top: .7rem; font-size: 11px; color: #9a9a9a; line-height: 1.45; }
+        .mp-note b { color: #e5e5e5; }
+        .rk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+        .rk-t { background: rgba(255,255,255,.03); border-radius: .75rem; padding: .7rem .8rem; }
+        .rk-t p.l { font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #8a8a8a; }
+        .rk-t p.v { font-size: 1.5rem; font-weight: 800; color: #fff; margin-top: .2rem; line-height: 1.05; }
+        .rk-t p.v small { font-size: 11px; font-weight: 600; color: #8a8a8a; }
+        .rk-t p.s { font-size: 10px; color: #8a8a8a; margin-top: .25rem; }
+        .rk-track { position: relative; height: .3rem; border-radius: 99px; background: rgba(255,255,255,.08); margin-top: .55rem; }
+        .rk-track i { position: absolute; top: 50%; width: .75rem; height: .75rem; border-radius: 50%; transform: translate(-50%, -50%); background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.22); }
         /* Participació a l'equip */
         .pt-card { background: rgba(0, 0, 0, .26); border: 1px solid rgba(255, 255, 255, .06); border-radius: 1rem; padding: 1.1rem; }
         .pt-sec + .pt-sec { margin-top: 1.15rem; padding-top: 1.15rem; border-top: 1px solid rgba(255, 255, 255, .06); }
@@ -1834,9 +1889,8 @@
                         </div>
                         <div id="ph-obj"></div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">El teu resum</p>
-                            <div id="ph-stats" class="grid grid-cols-5 gap-1.5 sm:gap-2.5"></div>
-                            <p id="ph-stats-empty" class="hidden text-xs text-slate-500 leading-relaxed"></p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">El teu compromís</p>
+                            <div id="ph-actitud" class="grid grid-cols-4 gap-1.5 sm:gap-2.5"></div>
                         </div>
                         <div>
                             <div class="flex items-center justify-between gap-3 mb-3">
@@ -1853,13 +1907,6 @@
                         <div id="ph-fines-wrap" class="hidden">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Multes</p>
                             <div id="ph-fines"></div>
-                        </div>
-                        <div id="ph-video-wrap" class="hidden">
-                            <div class="flex items-center justify-between gap-3 mb-3">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Els meus moments de vídeo</p>
-                                <span id="ph-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
-                            </div>
-                            <div id="ph-video" class="space-y-2"></div>
                         </div>
                     </div>
                 </div>
@@ -1928,11 +1975,18 @@
                             </div>
                         </div>
                         <div id="ph-season" class="space-y-6">
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">El teu resum</p>
+                            <div id="ph-stats" class="grid grid-cols-4 gap-1.5 sm:gap-2.5"></div>
+                            <p id="ph-stats-empty" class="hidden text-xs text-slate-500 leading-relaxed"></p>
+                        </div>
                         <div id="ph-hero-wrap" class="hidden">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">La teva temporada</p>
                             <div id="ph-indicators"></div>
                             <p id="ph-reading" class="mt-3 text-[11.5px] text-slate-400 leading-relaxed"></p>
                             <div id="ph-insights" class="mt-4"></div>
+                            <div id="ph-moment" class="mt-4"></div>
+                            <div id="ph-rank" class="mt-4"></div>
                             
                         </div>
                         
@@ -1943,6 +1997,13 @@
                         </div>
                         
                         
+                        <div id="ph-video-wrap" class="hidden">
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Els meus moments de vídeo</p>
+                                <span id="ph-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
+                            </div>
+                            <div id="ph-video" class="space-y-2"></div>
+                        </div>
                         <div id="ph-progression-wrap" class="hidden">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Progressió a la temporada</p>
                             <p class="text-[11px] text-slate-500 mb-3">+/- per partit (a favor menys en contra amb tu a pista) &mdash; el criteri m&eacute;s objectiu per veure com evoluciona el teu impacte real, partit a partit.</p>
@@ -3782,85 +3843,105 @@
                 </div>
             </div>
             <div class="pm-body">
-                <div class="flex items-center justify-between gap-3">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Període</p>
-                    <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
-                        <button onclick="setProfilePeriod('tot')" id="pm-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
-                        <button onclick="setProfilePeriod('pretemporada')" id="pm-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
-                        <button onclick="setProfilePeriod('lliga')" id="pm-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
-                    </div>
-                </div>
-                <!-- estadístiques principals -->
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Estadístiques principals</p>
-                    <div id="pm-stats" class="grid grid-cols-5 gap-1.5 sm:gap-2.5"></div>
-                    <p id="pm-stats-empty" class="hidden text-xs text-slate-500 leading-relaxed"></p>
-                </div>
-                <div class="pm-top">
-                    <div class="pm-top-main">
-                    <div id="pm-hero-wrap" class="hidden">
-                        <p id="pm-hero-title" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">La temporada</p>
-                        <div id="pm-indicators"></div>
-                        <div id="pm-insights" class="mt-4"></div>
-                        <div id="pm-obj" class="mt-4"></div>
-                    </div>
-                <!-- evolució partit a partit -->
-                <div id="pm-evolution-wrap" class="hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Evolució partit a partit</p>
-                    <div class="relative pm-chart mb-3"><canvas id="pmEvolutionChart"></canvas></div>
-                    <div id="pm-evolution" class="space-y-1.5"></div>
-                </div>
-                
-                    </div>
-                    <div id="pm-part-wrap">
-                        <p id="pm-part-title" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Participació a l'equip</p>
-                        <div id="pm-part" class="pt-card"></div>
-                    </div>
-                </div>
-                <div class="pm-cols">
-                <!-- moments de vídeo del jugador -->
-                <div id="pm-video-wrap" class="hidden">
-                    <div class="flex items-center justify-between gap-3 mb-3">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Moments de vídeo del jugador</p>
-                        <span id="pm-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
-                    </div>
-                    <div id="pm-video" class="space-y-2"></div>
-                </div>
-                <!-- gols per tipus -->
-                <div id="pm-goals-wrap" class="hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Gols per tipus</p>
-                    <div id="pm-goals"></div>
-                </div>
-                <!-- convocatòries -->
-                <div id="pm-conv-wrap" class="hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Convocatòries</p>
-                    <div id="pm-conv"></div>
-                </div>
-                <!-- notes qualitatives -->
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Notes i observacions</p>
-                    <div id="pm-notes" class="space-y-2"></div>
-                </div>
-                <!-- multes -->
-                <div id="pm-fines-wrap" class="hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Multes</p>
-                    <div id="pm-fines"></div>
-                </div>
-                <!-- sociograma -->
-                <div id="pm-socio-wrap" class="coach-only hidden">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Sociograma · com el veu l'equip</p>
-                    <div id="pm-socio"></div>
-                </div>
-                <!-- assistència -->
-                <div>
-                    <div class="flex items-center justify-between gap-3 mb-3">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assistència als entrenaments</p>
-                        <select id="pm-micro-select" onchange="renderProfileAttendance()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-200 focus:outline-none focus:border-emerald-500"></select>
-                    </div>
-                    <div id="pm-att-season" class="mb-3"></div>
-                    <div id="pm-attendance" class="space-y-2"></div>
+                <div class="pm-tabs" role="tablist" aria-label="Seccions de la fitxa">
+                    <button type="button" role="tab" id="pm-tab-pista" class="pm-tab is-on" onclick="setPmTab('pista')"><i data-lucide="activity" class="w-4 h-4"></i><span>Pista</span></button>
+                    <button type="button" role="tab" id="pm-tab-fora" class="pm-tab" onclick="setPmTab('fora')"><i data-lucide="clipboard-check" class="w-4 h-4"></i><span>Fora de pista</span></button>
+                    <button type="button" role="tab" id="pm-tab-seguiment" class="pm-tab coach-only" onclick="setPmTab('seguiment')"><i data-lucide="notebook-pen" class="w-4 h-4"></i><span>Seguiment</span></button>
                 </div>
 
+                <!-- ===== PISTA: rendiment dins del terreny de joc ===== -->
+                <div id="pm-pane-pista" class="pm-pane">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Període</p>
+                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
+                            <button onclick="setProfilePeriod('tot')" id="pm-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
+                            <button onclick="setProfilePeriod('pretemporada')" id="pm-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
+                            <button onclick="setProfilePeriod('lliga')" id="pm-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Estadístiques principals</p>
+                        <div id="pm-stats" class="grid grid-cols-4 gap-1.5 sm:gap-2.5"></div>
+                        <p id="pm-stats-empty" class="hidden text-xs text-slate-500 leading-relaxed"></p>
+                    </div>
+                    <div class="pm-top">
+                        <div class="pm-top-main">
+                            <div id="pm-hero-wrap" class="hidden">
+                                <p id="pm-hero-title" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">La temporada</p>
+                                <div id="pm-indicators"></div>
+                                <div id="pm-insights" class="mt-4"></div>
+                                <div id="pm-moment" class="mt-4"></div>
+                                <div id="pm-rank" class="mt-4"></div>
+                            </div>
+                            <div id="pm-evolution-wrap" class="hidden">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Evolució partit a partit</p>
+                                <div class="relative pm-chart mb-3"><canvas id="pmEvolutionChart"></canvas></div>
+                                <div id="pm-evolution" class="space-y-1.5"></div>
+                            </div>
+                        </div>
+                        <div id="pm-part-wrap">
+                            <p id="pm-part-title" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Participació a l'equip</p>
+                            <div id="pm-part" class="pt-card"></div>
+                        </div>
+                    </div>
+                    <div class="pm-cols">
+                        <div id="pm-goals-wrap" class="hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Gols per tipus</p>
+                            <div id="pm-goals"></div>
+                        </div>
+                        <div id="pm-video-wrap" class="hidden">
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Moments de vídeo del jugador</p>
+                                <span id="pm-video-badge" class="shrink-0 text-[10px] font-bold text-granate-400 bg-granate-500/10 px-2 py-0.5 rounded"></span>
+                            </div>
+                            <div id="pm-video" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== FORA DE PISTA: actitud, compromís i disponibilitat ===== -->
+                <div id="pm-pane-fora" class="pm-pane hidden">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Actitud i compromís</p>
+                        <div id="pm-actitud" class="grid grid-cols-4 gap-1.5 sm:gap-2.5"></div>
+                    </div>
+                    <div class="pm-cols">
+                        <div>
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Assistència als entrenaments</p>
+                                <select id="pm-micro-select" onchange="renderProfileAttendance()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-200 focus:outline-none focus:border-emerald-500"></select>
+                            </div>
+                            <div id="pm-att-season" class="mb-3"></div>
+                            <div id="pm-attendance" class="space-y-2"></div>
+                        </div>
+                        <div id="pm-conv-wrap" class="hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Convocatòries</p>
+                            <div id="pm-conv"></div>
+                        </div>
+                        <div id="pm-fines-wrap" class="hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Multes</p>
+                            <div id="pm-fines"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== SEGUIMENT: només cos tècnic ===== -->
+                <div id="pm-pane-seguiment" class="pm-pane hidden coach-only">
+                    <div class="pm-cols">
+                        <div id="pm-obj"></div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Notes i observacions</p>
+                            <div class="flex items-start gap-2 mb-3">
+                                <textarea id="pm-note-input" rows="2" maxlength="600" placeholder="Escriu una nota sobre aquest jugador…" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                                <button type="button" onclick="addPmNote()" class="shrink-0 h-9 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Afegeix</button>
+                            </div>
+                            <div id="pm-notes" class="space-y-2"></div>
+                        </div>
+                        <div id="pm-socio-wrap" class="hidden">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Sociograma · com el veu l'equip</p>
+                            <div id="pm-socio"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -10956,6 +11037,7 @@
 
         profilePeriod = (statsPeriod === 'pretemporada' || statsPeriod === 'lliga') ? statsPeriod : 'tot';
         updateProfilePeriodPills();
+        setPmTab('pista');
         renderProfileHero(p, 'pm');
 
         // Obertura animada: primer es pinta tancada (a baix) i després es deixa que la transició pugi la fitxa.
@@ -10973,6 +11055,7 @@
         const token = ++pmRenderToken;
         const steps = [
             () => renderProfileStats(p),
+            () => renderProfileActitud(p),
             () => renderProfileParticipation(p),
             () => renderProfileVideo(p),
             () => renderProfileGoals(p),
@@ -11440,7 +11523,7 @@
         const row = prefix === 'pm' ? withProfilePeriod(() => statsRowForPlayer(p)) : statsRowForPlayer(p);
         const pmet = computePlayerMetrics(p.id, null, null, per);
         const val = (...ks) => { if (!row) return null; const c = statCol(...ks); return c ? statVal(row, c) : null; };
-        const cards = [{ icon: 'calendar-check', label: 'Assistència', v: att.total ? att.pct + '%' : '—', tone: 'text-cyan-400' }];
+        const cards = [];
         const push = (icon, label, v, tone) => { if (v !== null && v !== undefined) cards.push({ icon, label, v: fmt(v), tone: tone || 'text-white' }); };
         push('shirt', 'Partits', val('pj', 'partitsjugats', 'partits') ?? (pmet.partits || null));
         push('clock', 'Minuts', val('mintotals', 'minuts', 'minutstotals') ?? (pmet.minuts || null));
@@ -11573,7 +11656,131 @@
                 </div>`;
             } else { objEl.innerHTML = ''; }
         }
+        renderProfileExtra(p, prefix, per);
         lucide.createIcons();
+    }
+
+    /* --- Pestanyes de la fitxa --- */
+    function setPmTab(k) {
+        if (k !== 'pista' && k !== 'fora' && k !== 'seguiment') k = 'pista';
+        ['pista', 'fora', 'seguiment'].forEach(t => {
+            const pane = document.getElementById('pm-pane-' + t), btn = document.getElementById('pm-tab-' + t);
+            if (pane) pane.classList.toggle('hidden', t !== k);
+            if (btn) { btn.classList.toggle('is-on', t === k); btn.setAttribute('aria-selected', t === k ? 'true' : 'false'); }
+        });
+        if (k === 'pista' && typeof chartPmEvolution !== 'undefined' && chartPmEvolution) { try { chartPmEvolution.resize(); } catch (e) {} }
+    }
+    function addPmNote() {
+        const inp = document.getElementById('pm-note-input'); if (!inp || !pmPlayerId) return;
+        const txt = (inp.value || '').trim(); if (!txt) { inp.focus(); return; }
+        addPlayerNote(pmPlayerId, null, txt);
+        inp.value = '';
+        renderProfileNotes(playerById(pmPlayerId));
+        saveSoon();
+    }
+
+    /* --- Fora de pista: resum d'actitud i compromís (assistència, retards, convocatòries, multes) --- */
+    function renderProfileActitud(p, prefix) {
+        prefix = prefix || 'pm';
+        const box = document.getElementById(prefix + '-actitud'); if (!box || !p) return;
+        const marks = [];
+        state.microOrder.forEach(micro => attItemsOf(micro).forEach(s => { const v = p.attendance[s.iso]; if (v) marks.push(v); }));
+        const st = attStats(marks);
+        const cv = playerConvocatories(p.id);
+        const items = ((state.fines && state.fines.items) || []).filter(f => String(f.playerId) === String(p.id));
+        const pend = items.filter(f => !f.paid).reduce((a, f) => a + (Number(f.amount) || 0), 0);
+        const money = n => (Math.round(n * 100) / 100).toString().replace('.', ',') + ' €';
+        const cards = [
+            { icon: 'calendar-check', label: 'Assistència', v: st.total ? st.pct + '%' : '—', tone: 'text-cyan-400' },
+            { icon: 'timer', label: 'Retards', v: st.total ? String(st.R) : '—', tone: st.R > 0 ? 'text-amber-400' : 'text-white' },
+            { icon: 'clipboard-list', label: 'Convocat.', v: cv.tot ? `${cv.C}/${cv.tot}` : '—', tone: 'text-emerald-400' },
+            { icon: 'wallet', label: 'Multes pend.', v: items.length ? money(pend) : '0 €', tone: pend > 0 ? 'text-rose-400' : 'text-white' }
+        ];
+        box.innerHTML = cards.map(m => `<div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-2 sm:p-3">
+            <div class="flex items-center gap-1 text-slate-500"><i data-lucide="${m.icon}" class="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0"></i><p class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider truncate">${esc(m.label)}</p></div>
+            <p class="text-lg sm:text-2xl font-extrabold ${m.tone} mt-1">${m.v}</p>
+        </div>`).join('');
+        lucide.createIcons();
+    }
+
+    /* --- Dins de pista: moment del partit i rànquing de +/- dins la plantilla --- */
+    const MOMENT_LABELS = ["0–10′", "10–20′", "20–30′", "30–40′"];
+    function playerMomentData(pid, period) {
+        const B = [0, 1, 2, 3].map(() => ({ gf: 0, gc: 0 }));
+        let n = 0;
+        (ensureMatchArchive() || []).forEach(a => {
+            const m = a && a.match; if (!m) return;
+            if (period && period !== 'tot' && matchPeriod(m) !== period) return;
+            const HL = Number(m.halfLength) || 20, win = HL / 2;
+            (m.events || []).forEach(e => {
+                if (e.type !== 'gf' && e.type !== 'gc') return;
+                const onc = (e.payload && Array.isArray(e.payload.onCourt)) ? e.payload.onCourt.map(String) : [];
+                if (!onc.includes(String(pid))) return;
+                const gm = ((Number(e.half) || 1) - 1) * HL + (Number(e.min) || 1);
+                const i = Math.max(0, Math.min(3, Math.floor((gm - 1) / win)));
+                B[i][e.type]++; n++;
+            });
+        });
+        return { B, n };
+    }
+    function playerRankPM(pid, per) {
+        const rows = activePlayers().map(q => {
+            const m = computePlayerMetrics(q.id, null, null, per);
+            return { id: String(q.id), min: m.minuts, pm: m.pm, pm40: per40(m.pm, m.minuts) };
+        }).filter(r => r.min > 0);
+        const me = rows.find(r => r.id === String(pid));
+        if (!me) return null;
+        const MIN = 20;
+        const pool40 = rows.filter(r => r.min >= MIN);
+        const rank40 = me.min >= MIN ? pool40.filter(r => r.pm40 > me.pm40 + 1e-9).length + 1 : null;
+        const rankTot = rows.filter(r => r.pm > me.pm).length + 1;
+        return { me, n: rows.length, n40: pool40.length, rank40, rankTot, MIN };
+    }
+    function renderProfileExtra(p, prefix, per) {
+        const momEl = document.getElementById(prefix + '-moment'), rkEl = document.getElementById(prefix + '-rank');
+        const sg = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
+        if (momEl) {
+            const d = playerMomentData(p.id, per);
+            if (!d.n) { momEl.innerHTML = ''; }
+            else {
+                const mx = Math.max(1, ...d.B.map(b => Math.max(b.gf, b.gc)));
+                const nets = d.B.map(b => b.gf - b.gc);
+                const hi = Math.max(...nets), lo = Math.min(...nets);
+                const bi = d.n >= 3 && hi > 0 ? nets.indexOf(hi) : -1, wi = d.n >= 3 && lo < 0 ? nets.indexOf(lo) : -1;
+                const cols = d.B.map((b, i) => `<div class="mp-col ${i === bi ? 'best' : i === wi ? 'worst' : ''}">
+                    <div class="mp-bars"><i class="f" style="height:${Math.round(b.gf / mx * 100)}%" title="${b.gf} a favor"></i><i class="c" style="height:${Math.round(b.gc / mx * 100)}%" title="${b.gc} en contra"></i></div>
+                    <span class="mp-net ${nets[i] > 0 ? 'text-emerald-400' : nets[i] < 0 ? 'text-rose-400' : 'text-slate-400'}">${sg(nets[i])}</span>
+                    <span class="mp-lab">${MOMENT_LABELS[i]}<br><span style="color:#6b6b6b;font-weight:600">${b.gf}F · ${b.gc}C</span></span>
+                </div>`).join('');
+                let note = '';
+                if (d.n < 3) note = 'Encara pocs gols amb ell a pista: les franges són orientatives.';
+                else {
+                    const parts = [];
+                    if (bi >= 0) parts.push(`Millor franja: <b>${MOMENT_LABELS[bi]}</b> (${sg(nets[bi])})`);
+                    if (wi >= 0 && wi !== bi) parts.push(`franja més fluixa: <b>${MOMENT_LABELS[wi]}</b> (${sg(nets[wi])})`);
+                    note = parts.length ? parts.join(' · ') + '.' : 'Balanç força regular durant el partit.';
+                }
+                momEl.innerHTML = `<div class="mp-card"><div class="mp-h"><b>Moment del partit</b><small>gols amb ell a pista · <span style="color:#10b981">a favor</span> / <span style="color:#f43f5e">en contra</span></small></div>
+                    <div class="mp-grid">${cols}</div><p class="mp-note">${note}</p></div>`;
+            }
+        }
+        if (rkEl) {
+            const r = playerRankPM(p.id, per);
+            if (!r) { rkEl.innerHTML = ''; }
+            else {
+                const fmt1 = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1);
+                const ord = k => k === 1 ? '1r' : k === 2 ? '2n' : k === 3 ? '3r' : k === 4 ? '4t' : k + 'è';
+                const pos = (k, n) => n > 1 ? Math.round((1 - (k - 1) / (n - 1)) * 100) : 50;
+                const t40 = r.rank40
+                    ? `<p class="v">${ord(r.rank40)}<small> de ${r.n40}</small></p><p class="s">${fmt1(r.me.pm40)} cada 40′</p><div class="rk-track"><i style="left:${pos(r.rank40, r.n40)}%"></i></div>`
+                    : `<p class="v">—</p><p class="s">Cal ≥ ${r.MIN}′ per entrar al rànquing (en té ${r.me.min}′)</p>`;
+                rkEl.innerHTML = `<div class="rk-card"><div class="mp-h"><b>Rànquing a l'equip · +/-</b><small>posició dins la plantilla</small></div>
+                    <div class="rk-grid">
+                        <div class="rk-t"><p class="l">+/- per 40′</p>${t40}</div>
+                        <div class="rk-t"><p class="l">+/- total</p><p class="v">${ord(r.rankTot)}<small> de ${r.n}</small></p><p class="s">${sg(r.me.pm)} gols amb ell a pista</p><div class="rk-track"><i style="left:${pos(r.rankTot, r.n)}%"></i></div></div>
+                    </div></div>`;
+            }
+        }
     }
 
     function seasonAttendance(p) {
@@ -16055,6 +16262,7 @@ ${userText}`;
         renderProfileNextMatch(p, 'ph');
         renderProfileHero(p, 'ph');
         renderProfileStats(p, 'ph');
+        renderProfileActitud(p, 'ph');
         renderPlayerProgressionChart(p);
         renderProfileVideo(p, 'ph');
         renderProfileGoals(p, 'ph');
@@ -20903,7 +21111,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-s';
+const APP_VERSION = '2026.11.18-u';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
