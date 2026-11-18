@@ -561,7 +561,7 @@
         #squad-hero .ks-val { white-space: normal; }
         @media (min-width: 768px) { body.nk-herotab main { padding-top: 12px !important; } }
         body.nk-herotab #app-content > .tab-content { margin-top: 0 !important; }
-        body.nk-herotab #tab-estadistica > div, body.nk-herotab #tab-estadistica #stats-wrapper { margin-top: 0 !important; }
+        body.nk-herotab #tab-estadistica > #stats-top { margin-top: 0 !important; }
         @media (max-width: 767px) {
             #squad-hero .kpi-strip { grid-template-columns: repeat(3, 1fr) !important; }
             #squad-hero .kpi-strip .ks-cell { border-top: 0 !important; border-left: 0 !important; }
@@ -879,6 +879,65 @@
             #tab-inici div:has(> .hero-figure) { padding-top: 1.2rem; padding-bottom: 1.4rem; padding-left: 2rem; padding-right: 2rem; }
             #tab-inici #ph-watermark { clip-path: none; font-size: 15rem; right: 3rem; top: -1.6rem; color: rgba(255,255,255,.045); }
             #tab-inici #player-home > .relative.overflow-hidden { overflow: hidden; border-radius: 1rem 1rem 0 0; }
+        }
+        /* Inici (jugador): mateixa alçada i estructura que les altres capçaleres (dades a dalt, títol a baix, microcicle i data a la dreta) */
+        #tab-inici .ph-txt { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: .5rem; min-width: 0; }
+        #tab-inici .ph-txt-top { display: flex; flex-direction: column; gap: .3rem; }
+        #tab-inici .ph-txt-top #ph-tags { margin-top: .1rem; }
+        #tab-inici #ph-name { display: flex !important; flex-direction: column !important; gap: 0; margin: 0; white-space: normal; overflow: visible; line-height: 1.02; }
+        #tab-inici #ph-name .pm-first { opacity: 1; font-size: 1.05rem; font-weight: 600; color: #bdbdbd; }
+        #tab-inici #ph-name .pm-last { font-size: clamp(2rem, 4.6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; color: #fff; line-height: 1.02; overflow-wrap: anywhere; }
+        @media (min-width: 768px) {
+            #tab-inici #player-home > .relative.overflow-hidden { padding: 1.7rem 2rem 1.5rem !important; }
+            #tab-inici #ph-watermark ~ .relative.flex { min-height: 8.6rem; padding-left: 12.2rem; padding-bottom: 0; align-items: stretch; }
+            #tab-inici #player-home .hero-figure { height: 106%; bottom: 0; left: 1.6rem; }
+            #tab-inici #player-home > .relative.overflow-hidden > .nk-hero-badges { z-index: 3; }
+        }
+        @media (max-width: 767px) {
+            #tab-inici #player-home > .relative.overflow-hidden { padding: 0 !important; }
+            #tab-inici #player-home > .relative.overflow-hidden > .nk-hero-badges { padding-bottom: .2rem; }
+            #tab-inici #ph-watermark ~ .relative.flex { min-height: 8rem; padding: .6rem 1.1rem 1.1rem 9.2rem; align-items: stretch; }
+            #tab-inici #player-home .hero-figure { left: .6rem; height: 9.4rem; }
+        }
+        /* ===== Mòbil: ajustos de capçaleres, plantilla i estadística ===== */
+        .nk-hero-badges #phase-badge, .nk-hero-badges #current-date-badge { white-space: nowrap; }
+        body.nk-inici.nk-herotab #tab-inici > * { margin-top: 0 !important; }
+        @media (min-width: 768px) {
+            body.nk-herotab.nk-inici main { padding-top: 2.8rem !important; }
+            #tab-inici #player-home, #tab-inici #player-home > .relative.overflow-hidden { overflow: visible !important; }
+            #tab-inici #player-home .hero-figure { height: calc(100% + 1.9rem) !important; bottom: 0; left: 1.6rem; }
+            #tab-inici #ph-watermark { top: 0 !important; bottom: 0; right: 3rem !important; display: flex; align-items: center; overflow: hidden; clip-path: none; font-size: 15rem; line-height: 1; }
+        }
+        @media (max-width: 639px) {
+            .nk-hero-badges { flex-wrap: nowrap !important; gap: .4rem !important; }
+            .nk-hero-badges #phase-badge, .nk-hero-badges #current-date-badge { font-size: 10.5px; padding: .32rem .6rem; }
+            .sq-tools { flex-wrap: nowrap !important; gap: .45rem !important; justify-content: space-between; }
+            .sq-tools label { font-size: 10.5px !important; gap: .25rem !important; }
+            .sq-tools .nk-seg button { width: 1.75rem !important; height: 1.85rem !important; }
+            .sq-tools > button { padding: .45rem .65rem !important; font-size: 11px !important; gap: .3rem !important; }
+            .spg-stats { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem !important; }
+            .spg-stat { flex-direction: column; align-items: flex-start; gap: .1rem; font-size: 9.5px; }
+            .spg-stat b { font-size: 14px; }
+        }
+        @media (max-width: 639px) {
+            #ph-stats, #pm-stats { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; gap: .4rem !important; }
+            #ph-stats > *:nth-child(-n+3), #pm-stats > *:nth-child(-n+3) { grid-column: span 2; }
+            #ph-stats > *:nth-child(n+4), #pm-stats > *:nth-child(n+4) { grid-column: span 3; }
+            #ph-stats p.truncate, #pm-stats p.truncate { overflow: visible; text-overflow: clip; font-size: 9px; }
+            #ph-stats > * , #pm-stats > * { padding: .6rem .7rem; }
+        }
+        @media (max-width: 767px) {
+            #stats-hero .kpi-strip { grid-template-columns: 1fr 1fr !important; }
+            #stats-hero .kpi-strip .ks-cell { padding: .7rem .85rem; gap: .35rem; border-left: 0 !important; border-top: 1px solid rgba(255,255,255,.07) !important; }
+            #stats-hero .kpi-strip .ks-cell:nth-child(-n+2) { border-top: 0 !important; }
+            #stats-hero .kpi-strip .ks-cell:nth-child(even) { border-left: 1px solid rgba(255,255,255,.07) !important; }
+            #stats-hero .kpi-strip .ks-cell:last-child { grid-column: auto; }
+            #stats-hero .ks-val, #stats-hero .ks-gl b { font-size: 1.35rem; }
+            #stats-hero .ks-ha { grid-template-columns: 2.3rem auto; gap: .5rem; }
+            #stats-hero .ks-ha .ks-bar { display: none; }
+            #stats-hero .ks-tri { gap: .3rem; }
+            #stats-hero .ks-tri b { font-size: 1.1rem; }
+            #stats-hero .ks-ring { width: 38px; height: 38px; }
         }
         /* Participació a l'equip */
         .pt-card { background: rgba(0, 0, 0, .26); border: 1px solid rgba(255, 255, 255, .06); border-radius: 1rem; padding: 1.1rem; }
@@ -1666,7 +1725,7 @@
                                 <h4 class="font-bold text-white text-base">Fitxa de la plantilla</h4>
                                 <p class="text-xs text-slate-400 mt-1">Fes clic en un jugador per veure'n el perfil, les estadístiques i l'assistència.</p>
                             </div>
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <div class="sq-tools flex flex-wrap items-center gap-2 sm:gap-3">
                                 <span id="squad-count" class="hidden"></span>
                                 <label class="coach-only shrink-0 whitespace-nowrap flex items-center gap-1.5 text-[11px] text-slate-400 cursor-pointer">
                                     <input type="checkbox" id="squad-show-extern" onchange="renderSquad()" class="accent-slate-500 w-3.5 h-3.5">
@@ -1682,7 +1741,7 @@
                                     <button id="squad-view-table-btn" onclick="setSquadView('table')" title="Vista de taula" class="w-8 h-8 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all"><i data-lucide="list" class="w-3.5 h-3.5"></i></button>
                                     <button id="squad-view-3d-btn" onclick="setSquadView('3d')" title="Pista 3D i telemetria d'equip" class="coach-only w-8 h-8 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all"><i data-lucide="box" class="w-3.5 h-3.5"></i></button>
                                 </div>
-                                <button onclick="openPlayerEditor()" class="coach-only shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Afegeix jugador</button>
+                                <button onclick="openPlayerEditor()" class="coach-only shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Afegeix<span class="hidden sm:inline">&nbsp;jugador</span></button>
                             </div>
                         </div>
                         <div id="squad-cards-grid" class="hidden space-y-6 p-6"></div>
@@ -1745,12 +1804,15 @@
                 <div id="player-home" class="player-only bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <div class="relative overflow-hidden bg-gradient-to-br from-granate-950/80 via-slate-900 to-slate-900 border-b border-slate-800 p-6">
                         <span id="ph-watermark" class="pointer-events-none select-none absolute -right-3 -top-8 text-[120px] font-black text-white/[0.04] leading-none"></span>
+                        <div class="nk-hero-badges" id="inici-hero-badges"></div>
                         <div class="relative flex items-center gap-4">
                             <div id="ph-avatar" class="w-16 h-16 rounded-2xl bg-granate-500/15 border border-granate-500/30 flex items-center justify-center font-black text-xl text-granate-300 shrink-0"></div>
-                            <div class="min-w-0">
-                                <p id="ph-dorsal" class="text-[10px] font-bold uppercase tracking-wider text-granate-400"></p>
-                                <h3 id="ph-name" class="text-xl font-extrabold text-white truncate"></h3>
-                                <div id="ph-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
+                            <div class="min-w-0 ph-txt">
+                                <div class="ph-txt-top">
+                                    <p id="ph-dorsal" class="text-[10px] font-bold uppercase tracking-wider text-granate-400"></p>
+                                    <div id="ph-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
+                                </div>
+                                <h2 id="ph-name" class="nk-title sec"></h2>
                             </div>
                         </div>
                     </div>
@@ -1805,11 +1867,49 @@
 
             <!-- 2 · ESTADISTICA -->
             <section id="tab-estadistica" class="tab-content hidden space-y-6">
+                <!-- Capçalera + resultats + selector de període: els veuen entrenador i jugadors -->
+                <div id="stats-top" class="space-y-6">
+                    <div id="stats-hero" class="nk-hero">
+                        <div class="nk-wm" id="stats-hero-wm"></div>
+                        <div class="nk-hero-badges" id="stats-hero-badges"></div>
+                        <div class="nk-hero-top" id="stats-hero-top"></div>
+                        <div id="stats-kpis" class="kpi-strip"></div>
+                    </div>
+                    <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
+                        <div class="px-5 py-3 border-b border-slate-800 flex flex-row items-center justify-between gap-3">
+                            <div>
+                                <h4 class="font-bold text-white text-sm" title="Toca un partit per veure'n el detall: tota la vista passa a aquell partit.">Resultats</h4>
+                                <div id="stats-scope-chip" class="hidden mt-2 inline-flex items-center gap-2 text-[11px] font-bold bg-emerald-500/15 text-emerald-300 px-2.5 py-1 rounded-full">
+                                    <span id="stats-scope-text"></span>
+                                    <button onclick="closeStatsMatch()" class="underline hover:text-emerald-200">Torna a la general</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div id="stats-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-2.5 px-5 py-3 min-w-min"></div></div>
+                        <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
+                    </div>
+
+
+                    <div class="nk-toolbar">
+                        <div class="coach-only inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold">
+                            <button onclick="setStatsMode('players')" id="stats-view-players" class="coach-only px-3 py-1.5 rounded-md transition-all bg-granate-500 text-slate-950 shadow">Jugadors</button>
+                            <button onclick="setStatsMode('team')" id="stats-view-team" class="px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-slate-100">Equip</button>
+                        </div>
+                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold" style="margin-left:auto">
+                                    <button onclick="setStatsPeriod('tot')" id="stats-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
+                                    <button onclick="setStatsPeriod('pretemporada')" id="stats-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
+                                    <button onclick="setStatsPeriod('lliga')" id="stats-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
+                                </div>
+                    </div>
+                </div>
                 <div id="player-stats" class="player-only hidden bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     
                     <div class="p-6 space-y-6">
                         
-                        <div id="ph-results-wrap" class="space-y-3">
+                        <div id="ph-results-wrap" class="hidden space-y-3">
                             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5 flex-wrap">
                                     <p class="text-sm font-bold text-white">Resultats</p>
@@ -1912,42 +2012,6 @@
                 </div>
 
                 <div id="stats-wrapper" class="hidden space-y-6">
-                    <div id="stats-hero" class="nk-hero">
-                        <div class="nk-wm" id="stats-hero-wm"></div>
-                        <div class="nk-hero-badges" id="stats-hero-badges"></div>
-                        <div class="nk-hero-top" id="stats-hero-top"></div>
-                        <div id="stats-kpis" class="kpi-strip"></div>
-                    </div>
-                    <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
-                        <div class="px-5 py-3 border-b border-slate-800 flex flex-row items-center justify-between gap-3">
-                            <div>
-                                <h4 class="font-bold text-white text-sm" title="Toca un partit per veure'n el detall: tota la vista passa a aquell partit.">Resultats</h4>
-                                <div id="stats-scope-chip" class="hidden mt-2 inline-flex items-center gap-2 text-[11px] font-bold bg-emerald-500/15 text-emerald-300 px-2.5 py-1 rounded-full">
-                                    <span id="stats-scope-text"></span>
-                                    <button onclick="closeStatsMatch()" class="underline hover:text-emerald-200">Torna a la general</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div id="stats-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-2.5 px-5 py-3 min-w-min"></div></div>
-                        <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
-                    </div>
-
-
-                    <div class="nk-toolbar">
-                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold">
-                            <button onclick="setStatsMode('players')" id="stats-view-players" class="coach-only px-3 py-1.5 rounded-md transition-all bg-granate-500 text-slate-950 shadow">Jugadors</button>
-                            <button onclick="setStatsMode('team')" id="stats-view-team" class="px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-slate-100">Equip</button>
-                        </div>
-                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
-                                    <button onclick="setStatsPeriod('tot')" id="stats-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
-                                    <button onclick="setStatsPeriod('pretemporada')" id="stats-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
-                                    <button onclick="setStatsPeriod('lliga')" id="stats-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
-                                </div>
-                    </div>
-
                     <!-- Vista estadístiques jugadors -->
                     <div id="stats-players-view" class="coach-only grid grid-cols-1 xl:grid-cols-3 gap-6">
                         <div class="xl:col-span-2 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] p-6 rounded-2xl flex flex-col">
@@ -5581,7 +5645,9 @@
         if (appRole === 'player' && playerSession) renderPlayerHome();
 
         document.getElementById('current-date-badge').innerText =
-            new Date().toLocaleDateString('ca-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            new Date().toLocaleDateString('ca-ES', window.matchMedia && window.matchMedia('(max-width: 639px)').matches
+                ? { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }
+                : { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         lucide.createIcons();
     }
 
@@ -6636,6 +6702,7 @@
         const wrap = document.getElementById('stats-wrapper');
         curStats = effectiveStats();
         const st = curStats;
+        try { renderStatsKPIs(); renderStatsCalendar(); } catch (e) { console.warn('Capçalera d\'estadística:', e); }
 
         if (!st || (!st.resum && !(st.calendar && st.calendar.length))) {
             missing.classList.remove('hidden'); wrap.classList.add('hidden');
@@ -7312,7 +7379,7 @@
             const topLeft = calTopLabel(c);
             const per = matchPeriod(c);
             const sel = c.archId && c.archId === statsMatchKey;
-            return `<button onclick="openStatsMatch(${i})" aria-pressed="${sel ? 'true' : 'false'}" class="no-lift shrink-0 w-36 text-left border ${tone} rounded-xl p-2.5 hover:border-emerald-500/60 transition-colors ${sel ? 'ring-2 ring-emerald-500' : ''}">
+            return `<button onclick="${appRole === 'player' ? (c.archId ? `selectStatsMatch(${jsArg(c.archId)})` : 'void 0') : `openStatsMatch(${i})`}" aria-pressed="${sel ? 'true' : 'false'}" class="no-lift shrink-0 w-36 text-left border ${tone} rounded-xl p-2.5 hover:border-emerald-500/60 transition-colors ${sel ? 'ring-2 ring-emerald-500' : ''}">
                 <div class="flex items-center justify-between gap-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${esc(topLeft)}</span>
                     ${c.camp ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${c.camp === 'L' ? 'bg-slate-800 text-slate-300' : 'bg-slate-800/60 text-slate-400'}">${c.camp === 'L' ? 'Local' : 'Visitant'}</span>` : ''}
@@ -13673,8 +13740,9 @@
     // Plantilla i Estadística: microcicle i data viuen dins la capçalera del club; la barra de títol antiga s'amaga.
     function nkPlaceHeader(tabId) {
         const hdr = document.getElementById('app-page-header'), b = document.getElementById('hdr-badges');
-        const host = tabId === 'plantilla' ? document.getElementById('squad-hero-badges') : tabId === 'estadistica' ? document.getElementById('stats-hero-badges') : null;
+        const host = tabId === 'inici' ? document.getElementById('inici-hero-badges') : tabId === 'plantilla' ? document.getElementById('squad-hero-badges') : tabId === 'estadistica' ? document.getElementById('stats-hero-badges') : null;
         document.body.classList.toggle('nk-herotab', !!host);
+        document.body.classList.toggle('nk-inici', tabId === 'inici');
         if (!hdr || !b) return;
         if (host) { if (b.parentNode !== host) host.appendChild(b); hdr.classList.add('hidden'); }
         else { if (b.parentNode !== hdr) hdr.appendChild(b); hdr.classList.remove('hidden'); }
@@ -20835,7 +20903,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-o';
+const APP_VERSION = '2026.11.18-s';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
