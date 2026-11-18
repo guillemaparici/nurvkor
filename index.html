@@ -542,6 +542,9 @@
         .nk-form em { font-style: normal; font-size: 10px; font-weight: 700; color: #8f8f8f; margin-right: .2rem; letter-spacing: .08em; text-transform: uppercase; }
         .nk-hero .kpi-strip { position: relative; grid-template-columns: .95fr .85fr 1fr 1.3fr 1.25fr 1.5fr; border-radius: 0; box-shadow: none; background: rgba(0,0,0,.24); border-top: 1px solid rgba(255,255,255,.07); }
         .nk-hero .kpi-strip::before { display: none; }
+        #squad-hero .kpi-strip { grid-template-columns: repeat(4, 1fr); }
+        #squad-hero .ks-val { white-space: normal; }
+        @media (max-width: 767px) { #squad-hero .ks-val[style*="font-size"] { font-size: 1.05rem !important; } }
         .nk-edit { margin-left: .4rem; width: 1.5rem; height: 1.5rem; border-radius: .5rem; background: rgba(255,255,255,.08); color: #bdbdbd; display: inline-grid; place-items: center; cursor: pointer; border: 0; }
         .nk-edit:hover { background: rgba(255,255,255,.16); color: #fff; }
         .nk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap; }
@@ -550,7 +553,8 @@
             .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
             .nk-crest { width: 5.6rem; height: 5.6rem; }
             .nk-wm { right: .6rem; top: -.2rem; font-size: 9rem; }
-            .nk-hero .kpi-strip { grid-template-columns: 1fr 1fr; }
+            .nk-hero .kpi-strip, #squad-hero .kpi-strip { grid-template-columns: 1fr 1fr; }
+            #squad-hero .kpi-strip .ks-cell:last-child { grid-column: auto; border-left: 1px solid rgba(255,255,255,.07) !important; }
         }
         /* Pista: targetes més ajustades */
         #court-list.mn-court { gap: .4rem; }
@@ -1540,7 +1544,7 @@
                     <div id="squad-hero-stats" class="kpi-strip"></div>
                 </div>
                 <!-- Resum de la plantilla (plegat per defecte, a dalt de tot) -->
-                <details id="squad-summary" class="group bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden" ontoggle="if(this.open&&chartSquad)chartSquad.resize()">
+                <details id="squad-summary" hidden class="hidden group bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden" ontoggle="if(this.open&&chartSquad)chartSquad.resize()">
                     <summary class="list-none cursor-pointer select-none px-6 py-4 flex items-center justify-between gap-3 hover:bg-slate-800/30 transition-all">
                         <div>
                             <h4 class="font-bold text-white text-base">Resum de la plantilla</h4>
@@ -1823,10 +1827,9 @@
                         <div id="stats-kpis" class="kpi-strip"></div>
                     </div>
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
-                        <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div class="px-5 py-3 border-b border-slate-800 flex flex-row items-center justify-between gap-3">
                             <div>
-                                <h4 class="font-bold text-white text-base">Resultats</h4>
-                                <p class="text-xs text-slate-400 mt-1">Toca un partit per veure'n el detall: tota la vista passa a aquell partit.</p>
+                                <h4 class="font-bold text-white text-sm" title="Toca un partit per veure'n el detall: tota la vista passa a aquell partit.">Resultats</h4>
                                 <div id="stats-scope-chip" class="hidden mt-2 inline-flex items-center gap-2 text-[11px] font-bold bg-emerald-500/15 text-emerald-300 px-2.5 py-1 rounded-full">
                                     <span id="stats-scope-text"></span>
                                     <button onclick="closeStatsMatch()" class="underline hover:text-emerald-200">Torna a la general</button>
@@ -1836,7 +1839,7 @@
                                 <div id="stats-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
                             </div>
                         </div>
-                        <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-3 px-6 py-7 min-w-min"></div></div>
+                        <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-2.5 px-5 py-3 min-w-min"></div></div>
                         <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
                     </div>
 
@@ -6990,25 +6993,23 @@
     function renderStatsHeroTop() {
         const el = document.getElementById('stats-hero-top'); if (!el) return;
         const id = heroIdentity(), a = statsMatchKey != null ? archById(statsMatchKey) : null;
-        el.innerHTML = heroTopHTML(`${id.season || 'Temporada'} · ${a ? 'Partit: ' + archLabel(a) : (PERIOD_HERO[statsPeriod] || 'Lliga')}`, _statsHeroMeta);
+        el.innerHTML = heroTopHTML(`${id.season || 'Temporada'}${a ? ' · Partit: ' + archLabel(a) : ''}`, '');
     }
+    const COMP_INFO = { categoria: '3a Divisió Nacional', esport: 'Futbol sala', grup: '2', fcfUrl: 'https://www.fcf.cat/ca/competicio/2026-2027/tercera-divisio-nacional-futbol-sala/grup-2/classificacio' };
     function renderSquadHero() {
         const top = document.getElementById('squad-hero-top'), st = document.getElementById('squad-hero-stats'); if (!top || !st) return;
-        const id = heroIdentity(), act = squadPlayers();
-        top.innerHTML = heroTopHTML(`Plantilla · ${id.season || 'Temporada'}`, '');
-        const wm = document.getElementById('squad-hero-wm'); if (wm) wm.textContent = act.length ? String(act.length) : '';
+        const id = heroIdentity(), act = squadPlayers().filter(p => !p.extern);
+        top.innerHTML = heroTopHTML(id.season || 'Temporada', '');
+        const wm = document.getElementById('squad-hero-wm'); if (wm) wm.textContent = '';
         const ages = act.map(p => ageOf(p.anyNaixement)).filter(a => a !== null && a !== undefined);
         const avg = ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length) : null;
-        const nExt = state.players.filter(p => !p.staff && p.actiu !== false && p.extern).length;
-        const grp = {}; act.forEach(p => { const k = (p.posicio === 'Tancament' ? 'Tanca' : p.posicio) || 'Sense posició'; grp[k] = (grp[k] || 0) + 1; });
-        const keys = SQUAD_POS_ORDER.filter(k => grp[k] && k !== 'Tancament').concat(Object.keys(grp).filter(k => !SQUAD_POS_ORDER.includes(k)));
-        const plural = { Porter: 'Porters', Tanca: 'Tanques', Ala: 'Ales', Pivot: 'Pivots', Universal: 'Universals' };
         const cell = (lbl, inner, sub) => `<div class="ks-cell"><span class="ks-lbl">${lbl}</span>${inner}${sub ? `<span class="ks-sub">${sub}</span>` : ''}</div>`;
-        const cells = [cell('Jugadors', `<span class="ks-val">${act.length}</span>`, nExt ? `+ ${nExt} Sènior B` : 'Plantilla activa'),
-            cell('Edat mitjana', `<span class="ks-val">${avg === null ? '—' : avg.toFixed(1)}<small>anys</small></span>`, ages.length ? `${Math.min(...ages)}–${Math.max(...ages)} anys` : '')];
-        keys.slice(0, 4).forEach(k => cells.push(cell(plural[k] || k, `<span class="ks-val" style="color:${SQUAD_POS_COLOR[k] || '#a78bfa'}">${grp[k]}</span>`, `${act.length ? Math.round(grp[k] / act.length * 100) : 0}% de la plantilla`)));
-        st.innerHTML = cells.join('');
-        st.style.gridTemplateColumns = `repeat(${cells.length}, 1fr)`;
+        st.innerHTML = [
+            cell('Jugadors', `<span class="ks-val">${act.length}</span>`, 'Plantilla activa'),
+            cell('Edat mitjana', `<span class="ks-val">${avg === null ? '—' : avg.toFixed(1)}<small>anys</small></span>`, ages.length ? `${Math.min(...ages)}–${Math.max(...ages)} anys` : ''),
+            cell('Categoria', `<span class="ks-val" style="font-size:1.3rem;line-height:1.1">${esc(COMP_INFO.categoria)}</span>`, esc(COMP_INFO.esport)),
+            cell('Grup', `<span class="ks-val">${esc(COMP_INFO.grup)}</span>`, 'Temporada 2026-27')
+        ].join('');
     }
     function refreshHeroIdentity() { try { renderStatsHeroTop(); renderSquadHero(); } catch (e) {} }
     (function watchHeroIdentity() {
@@ -7022,17 +7023,46 @@
         go();
     })();
 
-    /* Posició a la lliga: s'introdueix a mà (es pot automatitzar més endavant). */
+    /* Posició a la lliga: l'entrenador enganxa la taula de la FCF i l'app en llegeix la posició d'Eixample. */
+    function parseFcfStanding(text, teamKey) {
+        const raw = String(text || ''), key0 = (teamKey || 'eixample').toLowerCase();
+        const lines = raw.replace(/\u00a0/g, ' ').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const rows = []; let pending = null;
+        for (const l of lines) {
+            if (/^\d{1,2}$/.test(l)) { pending = parseInt(l, 10); continue; }
+            const m = l.match(/^(\d{1,2})[\s.)\-]+([A-Za-zÀ-ÿ].*)$/);
+            if (m) { rows.push({ pos: parseInt(m[1], 10), text: m[2] }); pending = null; continue; }
+            if (pending !== null && /[A-Za-zÀ-ÿ]{3,}/.test(l)) { rows.push({ pos: pending, text: l }); pending = null; }
+        }
+        const uniq = new Map(); rows.forEach(r => { if (r.pos >= 1 && r.pos <= 40 && !uniq.has(r.pos)) uniq.set(r.pos, r); });
+        const list = [...uniq.values()];
+        const mine = list.filter(r => norm(r.text).includes(key0));
+        const jm = raw.match(/jornada\s*[:\-]?\s*(\d{1,2})/i);
+        return { teams: list.length ? Math.max(...list.map(r => r.pos)) : 0, rows: list.length, pos: mine.length === 1 ? mine[0].pos : null, ambiguous: mine.length > 1, jornada: jm ? parseInt(jm[1], 10) : null };
+    }
+    // Última jornada de lliga ja disputada segons el calendari (data anterior a avui).
+    function lastPlayedLeagueRound() {
+        const today = new Date(); today.setHours(0, 0, 0, 0); let best = 0;
+        unifiedCalendar().forEach(c => { const m = String(c.jornada || c.label || '').match(/^j(?:ornada)?\s*(\d+)/i); if (m && c.date && c.date < today && matchPeriod(c) === 'lliga') best = Math.max(best, parseInt(m[1], 10)); });
+        return best || null;
+    }
     function openStandingEditor() {
-        const cur = state.leagueStanding || {};
+        const cur = state.leagueStanding || {}, jr = lastPlayedLeagueRound();
         let m = document.getElementById('standing-modal');
         if (!m) { m = document.createElement('div'); m.id = 'standing-modal'; m.className = 'fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/70'; document.body.appendChild(m); }
-        m.innerHTML = `<div class="w-full max-w-sm rounded-2xl bg-[#1b1b1b] border border-white/10 p-5 shadow-2xl">
+        const url = COMP_INFO.fcfUrl + (jr ? '?jornada=' + jr : '');
+        m.innerHTML = `<div class="w-full max-w-md rounded-2xl bg-[#1b1b1b] border border-white/10 p-5 shadow-2xl max-h-[92vh] overflow-y-auto">
             <h3 class="text-base font-extrabold text-white">Classificació a la lliga</h3>
-            <p class="text-xs text-slate-400 mt-1">Posa on és l'equip a la taula de la lliga. Ho actualitzes tu quan vulguis.</p>
-            <div class="grid grid-cols-2 gap-3 mt-4">
+            <ol class="text-xs text-slate-400 mt-2 space-y-1 list-decimal pl-4">
+                <li><a href="${esc(url)}" target="_blank" rel="noopener" class="text-emerald-400 font-bold underline">Obre la classificació de la FCF${jr ? ' (jornada ' + jr + ')' : ''}</a></li>
+                <li>Selecciona la taula, copia-la i enganxa-la aquí sota.</li>
+            </ol>
+            <textarea id="st-paste" rows="5" placeholder="Enganxa aquí la taula de la FCF…" class="mt-3 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono"></textarea>
+            <p id="st-status" class="text-[11px] mt-2 min-h-[1rem] text-slate-400"></p>
+            <div class="grid grid-cols-3 gap-3 mt-3">
                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Posició<input id="st-pos" type="number" min="1" max="40" value="${cur.pos || ''}" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></label>
-                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Equips al grup<input id="st-teams" type="number" min="2" max="40" value="${cur.teams || 16}" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></label>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Equips<input id="st-teams" type="number" min="2" max="40" value="${cur.teams || 16}" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></label>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Jornada<input id="st-jor" type="number" min="1" max="40" value="${cur.jornada || jr || ''}" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></label>
             </div>
             <div class="flex items-center justify-between gap-2 mt-5">
                 <button onclick="saveStanding(true)" class="text-xs font-bold text-slate-400 hover:text-white">Esborra</button>
@@ -7040,15 +7070,22 @@
                 <button onclick="saveStanding(false)" class="px-4 py-2 rounded-xl text-xs font-bold bg-granate-600 text-white">Desa</button></span>
             </div></div>`;
         m.classList.remove('hidden'); m.onclick = e => { if (e.target === m) closeStandingEditor(); };
-        setTimeout(() => { const i = document.getElementById('st-pos'); if (i) i.focus(); }, 30);
+        const ta = document.getElementById('st-paste'), stt = document.getElementById('st-status');
+        ta.addEventListener('input', () => {
+            const r = parseFcfStanding(ta.value, 'eixample');
+            if (!ta.value.trim()) { stt.textContent = ''; return; }
+            if (r.pos) { document.getElementById('st-pos').value = r.pos; if (r.teams >= 4) document.getElementById('st-teams').value = r.teams; if (r.jornada) document.getElementById('st-jor').value = r.jornada;
+                stt.style.color = '#34d399'; stt.textContent = `Eixample és ${r.pos}è de ${r.teams || '?'}${r.jornada ? ' · jornada ' + r.jornada : ''}. Prem Desa.`; }
+            else { stt.style.color = '#fbbf24'; stt.textContent = r.ambiguous ? 'Hi ha més d\'un equip "Eixample": escriu la posició a mà.' : (r.rows ? 'No trobo Eixample a la taula: revisa què has copiat o escriu la posició a mà.' : 'No he reconegut cap taula: copia-la tal com surt a la FCF o escriu la posició a mà.'); }
+        });
     }
     function closeStandingEditor() { const m = document.getElementById('standing-modal'); if (m) m.classList.add('hidden'); }
     function saveStanding(clear) {
         if (clear) state.leagueStanding = null;
         else {
-            const pos = parseInt(document.getElementById('st-pos').value, 10), teams = parseInt(document.getElementById('st-teams').value, 10) || 16;
-            if (!pos || pos < 1) { toast('Escriu la posició (1, 2, 3…)'); return; }
-            state.leagueStanding = { pos: Math.min(pos, teams), teams, at: Date.now() };
+            const pos = parseInt(document.getElementById('st-pos').value, 10), teams = parseInt(document.getElementById('st-teams').value, 10) || 16, jor = parseInt(document.getElementById('st-jor').value, 10) || null;
+            if (!pos || pos < 1) { toast('Escriu o enganxa la posició'); return; }
+            state.leagueStanding = { pos: Math.min(pos, teams), teams, jornada: jor, at: Date.now() };
         }
         saveSoon(); closeStandingEditor(); renderStatsKPIs();
     }
@@ -7088,11 +7125,10 @@
         const ls = state.leagueStanding, posTxt = ls && ls.pos ? ordinalCa(ls.pos) : null;
         const lastForm = played.filter(c => matchPeriod(c) === 'lliga').slice(-5);
         const fcol = { V: '#10b981', E: '#f59e0b', D: '#f43f5e' };
-        _statsHeroMeta = (lastForm.length ? `<span class="nk-form"><em>Ratxa</em>${lastForm.map(c => `<i style="--c:${fcol[c.res] || '#555'}" title="${esc(c.res || '')}"></i>`).join('')}</span>` : '')
-            + (aprof !== null ? `<span class="nk-pill">${aprof}% aprofitament</span>` : '');
+        _statsHeroMeta = '';
         renderStatsHeroTop();
         const wm = document.getElementById('stats-hero-wm'); if (wm) wm.textContent = ls && ls.pos ? String(ls.pos) : (pts !== null ? String(pts) : '');
-        const posCell = cell('Classificació', `<div class="ks-row"><span class="ks-val">${posTxt ? `<span style="color:#fbbf24">${posTxt}</span><small>/ ${ls.teams}</small>` : '<span style="color:#5a5a5a">—</span>'}</span><button type="button" class="coach-only nk-edit" onclick="openStandingEditor()" title="Edita la classificació" aria-label="Edita la classificació"><i data-lucide="pencil" class="w-3 h-3"></i></button></div><span class="ks-sub">${posTxt ? 'Actualitzat ' + new Date(ls.at || Date.now()).toLocaleDateString('ca-ES', { day: '2-digit', month: 'short' }) : 'Afegeix la posició a la lliga'}</span>`);
+        const posCell = cell('Classificació', `<div class="ks-row"><span class="ks-val">${posTxt ? `<span style="color:#fbbf24">${posTxt}</span><small>/ ${ls.teams}</small>` : '<span style="color:#5a5a5a">—</span>'}</span><button type="button" class="coach-only nk-edit" onclick="openStandingEditor()" title="Edita la classificació" aria-label="Edita la classificació"><i data-lucide="pencil" class="w-3 h-3"></i></button></div><span class="ks-sub">${posTxt ? 'Grup ' + esc(COMP_INFO.grup) + (ls.jornada ? ' · J' + ls.jornada : '') : 'Enganxa la taula de la FCF'}</span>`);
         document.getElementById('stats-kpis').innerHTML = [
             posCell,
             cell('Punts', `<div class="ks-row"><div><span class="ks-val">${pts === null ? '<span style="color:#5a5a5a">—</span>' : `<span style="color:#34d399">${pts}</span>`}</span><div class="ks-sub" style="margin-top:.3rem">${ptsSub}</div></div>${aprof !== null ? ring(aprof) : ''}</div>`),
@@ -7189,17 +7225,17 @@
             const topLeft = calTopLabel(c);
             const per = matchPeriod(c);
             const sel = c.archId && c.archId === statsMatchKey;
-            return `<button onclick="openStatsMatch(${i})" aria-pressed="${sel ? 'true' : 'false'}" class="no-lift shrink-0 w-40 text-left border ${tone} rounded-xl p-3.5 hover:border-emerald-500/60 transition-colors ${sel ? 'ring-2 ring-emerald-500' : ''}">
+            return `<button onclick="openStatsMatch(${i})" aria-pressed="${sel ? 'true' : 'false'}" class="no-lift shrink-0 w-36 text-left border ${tone} rounded-xl p-2.5 hover:border-emerald-500/60 transition-colors ${sel ? 'ring-2 ring-emerald-500' : ''}">
                 <div class="flex items-center justify-between gap-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">${esc(topLeft)}</span>
                     ${c.camp ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${c.camp === 'L' ? 'bg-slate-800 text-slate-300' : 'bg-slate-800/60 text-slate-400'}">${c.camp === 'L' ? 'Local' : 'Visitant'}</span>` : ''}
                 </div>
-                <p class="text-xs font-bold text-white mt-2 leading-snug truncate" title="${esc(c.rival)}">${esc(c.rival) || '—'}</p>
+                <p class="text-xs font-bold text-white mt-1 leading-snug truncate" title="${esc(c.rival)}">${esc(c.rival) || '—'}</p>
                 <div class="flex items-center justify-between gap-1 mt-1">
                     <p class="text-[10px] text-slate-500">${c.date ? c.date.toLocaleDateString('ca-ES', { day: '2-digit', month: 'short' }) : 'Sense data'}</p>
                     ${per !== 'altre' ? `<span class="text-[8px] font-bold px-1.5 py-0.5 rounded ${periodBadgeCls[per]}">${PERIOD_LABEL[per]}</span>` : ''}
                 </div>
-                <p class="text-xl font-black ${scoreTone} mt-2">${c.gf !== null ? `${c.gf}<span class="text-slate-600 mx-0.5">-</span>${c.gc}` : '<span class="text-sm font-bold text-slate-500">Previst</span>'}</p>
+                <p class="text-lg font-black ${scoreTone} mt-1">${c.gf !== null ? `${c.gf}<span class="text-slate-600 mx-0.5">-</span>${c.gc}` : '<span class="text-sm font-bold text-slate-500">Previst</span>'}</p>
             </button>`;
         }).join('');
     }
@@ -20693,7 +20729,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-h';
+const APP_VERSION = '2026.11.18-i';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
