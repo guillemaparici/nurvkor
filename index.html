@@ -518,6 +518,47 @@
         .live-dot { display: inline-block; width: .4rem; height: .4rem; border-radius: 50%; background: #34d399; margin-left: .35rem; box-shadow: 0 0 8px #34d399; }
         .stt-name.nornk { min-width: 9rem; }
         .stt-medal { flex: none; width: 1.2rem; text-align: center; font-size: 15px; line-height: 1; }
+        /* ===== Capçalera visual (Estadística i Plantilla): escut gran + dades clau ===== */
+        .nk-hero { position: relative; overflow: hidden; border-radius: 1.5rem; box-shadow: 0 8px 24px -14px rgba(0,0,0,.55);
+            background: linear-gradient(125deg, rgb(var(--granate-600) / .34) 0%, rgb(var(--granate-900) / .2) 40%, #181818 80%); }
+        .nk-hero::before { content: ''; position: absolute; left: -4rem; top: -5rem; width: 22rem; height: 22rem; border-radius: 50%; pointer-events: none;
+            background: radial-gradient(closest-side, rgb(var(--granate-500) / .28), transparent 72%); }
+        .nk-wm { position: absolute; right: 1.4rem; top: -1.2rem; font-size: clamp(9rem, 22vw, 16rem); font-weight: 900; line-height: 1; letter-spacing: -.04em;
+            color: rgba(255,255,255,.05); pointer-events: none; user-select: none; font-variant-numeric: tabular-nums; }
+        .nk-hero-top { position: relative; display: flex; align-items: center; gap: 1.6rem; padding: 1.7rem 2rem 1.5rem; min-height: 11rem; }
+        .nk-crest { flex: none; width: 8.6rem; height: 8.6rem; display: grid; place-items: center; filter: drop-shadow(0 16px 30px rgba(0,0,0,.6)); }
+        .nk-crest img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .nk-crest .nk-crest-ph { width: 100%; height: 100%; border-radius: 1.6rem; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: rgba(255,255,255,.7);
+            background: linear-gradient(160deg, #2a2a2a, #171717); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+        .nk-hero-txt { position: relative; min-width: 0; display: flex; flex-direction: column; gap: .55rem; }
+        .nk-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+        .nk-title { display: flex; flex-direction: column; line-height: 1.02; margin: 0; }
+        .nk-title .f { font-size: 1.05rem; font-weight: 600; color: #bdbdbd; }
+        .nk-title .l { font-size: clamp(2rem, 4.6vw, 3.2rem); font-weight: 800; letter-spacing: -.025em; color: #fff; }
+        .nk-meta { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; margin-top: .15rem; }
+        .nk-pill { font-size: 11px; font-weight: 800; padding: .28rem .65rem; border-radius: 99px; background: rgba(255,255,255,.08); color: #d6d6d6; }
+        .nk-form { display: inline-flex; gap: .28rem; align-items: center; }
+        .nk-form i { width: .8rem; height: .8rem; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
+        .nk-form em { font-style: normal; font-size: 10px; font-weight: 700; color: #8f8f8f; margin-right: .2rem; letter-spacing: .08em; text-transform: uppercase; }
+        .nk-hero .kpi-strip { position: relative; grid-template-columns: .95fr .85fr 1fr 1.3fr 1.25fr 1.5fr; border-radius: 0; box-shadow: none; background: rgba(0,0,0,.24); border-top: 1px solid rgba(255,255,255,.07); }
+        .nk-hero .kpi-strip::before { display: none; }
+        .nk-edit { margin-left: .4rem; width: 1.5rem; height: 1.5rem; border-radius: .5rem; background: rgba(255,255,255,.08); color: #bdbdbd; display: inline-grid; place-items: center; cursor: pointer; border: 0; }
+        .nk-edit:hover { background: rgba(255,255,255,.16); color: #fff; }
+        .nk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap; }
+        @media (max-width: 767px) {
+            .nk-hero { border-radius: 1.3rem; }
+            .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
+            .nk-crest { width: 5.6rem; height: 5.6rem; }
+            .nk-wm { right: .6rem; top: -.2rem; font-size: 9rem; }
+            .nk-hero .kpi-strip { grid-template-columns: 1fr 1fr; }
+        }
+        /* Pista: targetes més ajustades */
+        #court-list.mn-court { gap: .4rem; }
+        .mn-slot { min-height: 4.6rem !important; padding: .4rem .2rem .35rem !important; gap: .15rem !important; }
+        .mn-slot .mn-ph { width: 2.3rem !important; height: 2.3rem !important; font-size: .7rem; }
+        .mn-slot.empty { min-height: 4.6rem !important; font-size: 1.2rem; }
+        .mn-slot b { font-size: 11px !important; } .mn-slot small { font-size: 9.5px !important; }
+        @media (max-width: 480px) { .mn-slot, .mn-slot.empty { min-height: 4.1rem !important; } .mn-slot .mn-ph { width: 2rem !important; height: 2rem !important; } .mn-slot b { font-size: 10px !important; } }
         /* ===== Estadística: concentració i millor quinteto ===== */
         .stc-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
         .stc-big { font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1; }
@@ -594,11 +635,13 @@
         #nk-intro .ni-glow { position: absolute; width: min(150vw, 800px); aspect-ratio: 1; border-radius: 50%; opacity: 0; transform: scale(.4);
             background: radial-gradient(closest-side, rgba(153, 36, 56, .36), transparent 70%); animation: niGlow 1.1s cubic-bezier(.2, .7, .2, 1) .3s forwards; }
         #nk-intro .ni-disc { position: absolute; width: var(--d); aspect-ratio: 1; border-radius: 50%;
-            background: radial-gradient(circle at 50% 42%, #2a1218 0%, #170a0e 70%, #130a0c 100%); animation: niDisc .75s cubic-bezier(.5, 0, .2, 1) .3s forwards; }
-        #nk-intro .ni-logo { position: relative; width: calc(var(--d) * .87); aspect-ratio: 448 / 252; transform-origin: 50% 50%;
+            background: radial-gradient(circle at 30% 22%, rgba(255,255,255,.2), transparent 55%), linear-gradient(145deg, #c2334b 0%, #93213a 52%, #4d0e1b 100%); animation: niDisc .75s cubic-bezier(.5, 0, .2, 1) .3s forwards; }
+        #nk-intro .ni-logo { position: relative; width: calc(var(--d) * .83); aspect-ratio: 448 / 252; transform-origin: 50% 50%;
             animation: niLogo .85s cubic-bezier(.3, 0, .15, 1) .3s forwards; transition: transform .45s cubic-bezier(.4, 0, .2, 1), opacity .4s ease; }
         #nk-intro .ni-mark, #nk-intro .ni-shine { position: absolute; inset: 0; width: 100%; height: 100%; }
         #nk-intro .ni-shine { filter: brightness(2.6) saturate(.6); clip-path: inset(0 110% 0 -30%); animation: niShine .7s ease-in-out .75s forwards; }
+        #nk-intro .ni-white { position: absolute; inset: 0; width: 100%; height: 100%; filter: brightness(0) invert(1); animation: niWhite .55s ease .4s forwards; }
+        @keyframes niWhite { to { opacity: 0; } }
         #nk-intro.out { animation: niOut .42s ease forwards; }
         @keyframes niDisc { to { transform: scale(7); opacity: 0; } }
         @keyframes niLogo { to { transform: scale(1.55); } }
@@ -606,7 +649,7 @@
         @keyframes niShine { 0% { clip-path: inset(0 110% 0 -30%); } 100% { clip-path: inset(0 -30% 0 110%); } }
         @keyframes niOut { to { opacity: 0; } }
         @media (prefers-reduced-motion: reduce) {
-            #nk-intro .ni-disc, #nk-intro .ni-logo, #nk-intro .ni-glow, #nk-intro .ni-shine { animation: none; } #nk-intro .ni-glow { opacity: 1; transform: none; } #nk-intro .ni-shine { display: none; }
+            #nk-intro .ni-disc, #nk-intro .ni-logo, #nk-intro .ni-glow, #nk-intro .ni-shine, #nk-intro .ni-white { animation: none; } #nk-intro .ni-glow { opacity: 1; transform: none; } #nk-intro .ni-shine { display: none; }
         }
         /* El relleu de l'intro mentre acaba d'arrencar: mateix logo, mateix lloc, sense disc */
         #auth-splash .as-disc { background: none !important; box-shadow: none !important; width: min(55.3vw, 256px); aspect-ratio: 448 / 252; border-radius: 0; }
@@ -802,7 +845,7 @@
 </style>
 </head>
 <body class="h-full text-slate-100 flex flex-col md:flex-row md:overflow-hidden mode-coach">
-    <div id="nk-intro" aria-hidden="true"><div class="ni-glow"></div><div class="ni-disc"></div><div class="ni-logo"><div class="nk-icon ni-mark"></div><div class="nk-icon ni-shine"></div></div></div>
+    <div id="nk-intro" aria-hidden="true"><div class="ni-glow"></div><div class="ni-disc"></div><div class="ni-logo"><div class="nk-icon ni-mark"></div><div class="nk-icon ni-shine"></div><div class="nk-icon ni-white"></div></div></div>
     <script>
         (function () {
             var el = document.getElementById('nk-intro'); if (!el) return;
@@ -1491,6 +1534,11 @@
 
             <!-- 1 · PLANTILLA -->
             <section id="tab-plantilla" class="tab-content space-y-6">
+                <div id="squad-hero" class="nk-hero">
+                    <div class="nk-wm" id="squad-hero-wm"></div>
+                    <div class="nk-hero-top" id="squad-hero-top"></div>
+                    <div id="squad-hero-stats" class="kpi-strip"></div>
+                </div>
                 <!-- Resum de la plantilla (plegat per defecte, a dalt de tot) -->
                 <details id="squad-summary" class="group bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden" ontoggle="if(this.open&&chartSquad)chartSquad.resize()">
                     <summary class="list-none cursor-pointer select-none px-6 py-4 flex items-center justify-between gap-3 hover:bg-slate-800/30 transition-all">
@@ -1769,27 +1817,22 @@
                 </div>
 
                 <div id="stats-wrapper" class="hidden space-y-6">
+                    <div id="stats-hero" class="nk-hero">
+                        <div class="nk-wm" id="stats-hero-wm"></div>
+                        <div class="nk-hero-top" id="stats-hero-top"></div>
+                        <div id="stats-kpis" class="kpi-strip"></div>
+                    </div>
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                         <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div>
-                                <h4 class="font-bold text-white text-base">Calendari de competicio</h4>
-                                <p class="text-xs text-slate-400 mt-1">Toca un partit per veure'n el detall: tota la vista passa a aquell partit. Filtra per període.</p>
+                                <h4 class="font-bold text-white text-base">Resultats</h4>
+                                <p class="text-xs text-slate-400 mt-1">Toca un partit per veure'n el detall: tota la vista passa a aquell partit.</p>
                                 <div id="stats-scope-chip" class="hidden mt-2 inline-flex items-center gap-2 text-[11px] font-bold bg-emerald-500/15 text-emerald-300 px-2.5 py-1 rounded-full">
                                     <span id="stats-scope-text"></span>
                                     <button onclick="closeStatsMatch()" class="underline hover:text-emerald-200">Torna a la general</button>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-                                <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold">
-                            <button onclick="setStatsMode('players')" id="stats-view-players" class="coach-only px-3 py-1.5 rounded-md transition-all bg-granate-500 text-slate-950 shadow">Jugadors</button>
-                            <button onclick="setStatsMode('team')" id="stats-view-team" class="px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-slate-100">Equip</button>
-                        </div>
-                                <span class="hidden sm:block w-px h-5 bg-slate-800"></span>
-                                <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
-                                    <button onclick="setStatsPeriod('tot')" id="stats-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
-                                    <button onclick="setStatsPeriod('pretemporada')" id="stats-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
-                                    <button onclick="setStatsPeriod('lliga')" id="stats-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
-                                </div>
+                            <div class="flex items-center gap-3">
                                 <div id="stats-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
                             </div>
                         </div>
@@ -1797,7 +1840,18 @@
                         <div id="stats-match-detail" class="hidden border-t border-slate-800 p-6"></div>
                     </div>
 
-                    <div id="stats-kpis" class="kpi-strip"></div>
+
+                    <div class="nk-toolbar">
+                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold">
+                            <button onclick="setStatsMode('players')" id="stats-view-players" class="coach-only px-3 py-1.5 rounded-md transition-all bg-granate-500 text-slate-950 shadow">Jugadors</button>
+                            <button onclick="setStatsMode('team')" id="stats-view-team" class="px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-slate-100">Equip</button>
+                        </div>
+                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
+                                    <button onclick="setStatsPeriod('tot')" id="stats-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
+                                    <button onclick="setStatsPeriod('pretemporada')" id="stats-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
+                                    <button onclick="setStatsPeriod('lliga')" id="stats-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
+                                </div>
+                    </div>
 
                     <!-- Vista estadístiques jugadors -->
                     <div id="stats-players-view" class="coach-only grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -3775,7 +3829,7 @@
         stats: null,
         match: null,
         video: null,
-        matchArchive: [],
+        matchArchive: [], leagueStanding: null,
         sheetsFound: [],
         routines: DEFAULT_RUTINES(),
         competition: null,
@@ -4023,7 +4077,7 @@
             fileName: d.fileName, savedAt: d.savedAt, players: d.players || [], sessions: d.sessions || [],
             microOrder: d.microOrder || [], weekly: d.weekly || [], indicators: d.indicators || [],
             model: d.model || [], micros: d.micros || {}, months: d.months || [],
-            stats: d.stats || null, match: d.match || null, video: d.video || null, matchArchive: d.matchArchive || [],
+            stats: d.stats || null, match: d.match || null, video: d.video || null, matchArchive: d.matchArchive || [], leagueStanding: d.leagueStanding || null,
             sheetsFound: d.sheetsFound || [], routines: d.routines || DEFAULT_RUTINES(), routineCats: Array.isArray(d.routineCats) ? d.routineCats : null, competition: d.competition || null, competitions: d.competitions || null, fines: d.fines || null, sociograma: d.sociograma || null, convocatories: d.convocatories || null, convPlans: (d.convPlans && typeof d.convPlans === 'object') ? d.convPlans : {}, playerNotes: (d.playerNotes && typeof d.playerNotes === 'object') ? d.playerNotes : {}, scouting: (d.scouting && typeof d.scouting === 'object') ? d.scouting : {}, matchCards: (d.matchCards && typeof d.matchCards === 'object') ? d.matchCards : {}, staff: Array.isArray(d.staff) ? d.staff : [], rivals: (d.rivals && typeof d.rivals === 'object' && !Array.isArray(d.rivals)) ? d.rivals : {}, sv: d.sv || 0, loaded: true
         });
         normalizePlayers();
@@ -4227,7 +4281,7 @@
             players: state.players, sessions: state.sessions, microOrder: state.microOrder,
             weekly: state.weekly, indicators: state.indicators, model: state.model,
             micros: state.micros, months: state.months, stats: state.stats,
-            match: state.match, video: state.video, matchArchive: state.matchArchive,
+            match: state.match, video: state.video, matchArchive: state.matchArchive, leagueStanding: state.leagueStanding,
             sheetsFound: state.sheetsFound, routines: state.routines, routineCats: state.routineCats, competition: state.competition, competitions: state.competitions, fines: state.fines, sociograma: state.sociograma, convocatories: state.convocatories, convPlans: state.convPlans, playerNotes: state.playerNotes, scouting: state.scouting, matchCards: state.matchCards, staff: state.staff, rivals: state.rivals
         };
     }
@@ -5947,6 +6001,7 @@
             body.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-xs text-slate-500">Encara no hi ha jugadors. Prem <strong>Afegeix jugador</strong> o carrega un Excel amb la pestanya <strong>Plantilla</strong>.</td></tr>`;
             document.getElementById('squad-kpis').innerHTML = '';
             document.getElementById('squad-years').innerHTML = '';
+            try { renderSquadHero(); } catch (e) {}
             renderSquadCards([]);
             if (chartSquad) { chartSquad.destroy(); chartSquad = null; }
             return;
@@ -5991,6 +6046,7 @@
             { label: 'Edat mitjana', value: ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1) : '—', note: ages.length ? `Entre ${Math.min(...ages)} i ${Math.max(...ages)} anys.` : 'Falta l\'any de naixement.', icon: 'cake', tone: 'amber' }
         ];
         document.getElementById('squad-kpis').innerHTML = cards.map(kpiCardHTML).join('');
+        try { renderSquadHero(); } catch (e) { console.warn(e); }
 
         // Anys de naixement (només actius)
         const years = {};
@@ -6911,6 +6967,92 @@
         document.getElementById('stats-detall-controls').classList.toggle('flex', view === 'detall');
     }
 
+    /* ================= Capçalera visual (escut + dades clau) ================= */
+    const ordinalCa = n => n + (n === 1 ? 'r' : n === 2 ? 'n' : n === 3 ? 'r' : n === 4 ? 't' : 'è');
+    function heroIdentity() {
+        const nm = (document.getElementById('app-sidebar-club-nom') || {}).textContent || '';
+        const img = document.getElementById('app-sidebar-crest');
+        const crest = img && !img.classList.contains('hidden') && img.getAttribute('src') ? img.getAttribute('src') : '';
+        const season = ((document.getElementById('season-label') || {}).textContent || '').trim();
+        const name = /carregant/i.test(nm) ? '' : nm.trim();
+        const parts = name.split(/\s+/), first = parts.length > 1 ? parts[0] : '', last = parts.length > 1 ? parts.slice(1).join(' ') : name;
+        return { name, first, last, crest, season, initials: parts.map(w => w[0]).join('').slice(0, 3).toUpperCase() };
+    }
+    function heroTopHTML(eyebrow, metaHTML) {
+        const id = heroIdentity();
+        return `<div class="nk-crest">${id.crest ? `<img alt="" src="${esc(id.crest)}">` : `<div class="nk-crest-ph">${esc(id.initials || 'NK')}</div>`}</div>
+            <div class="nk-hero-txt"><span class="nk-eyebrow">${esc(eyebrow)}</span>
+            <h2 class="nk-title">${id.first ? `<span class="f">${esc(id.first)}</span>` : ''}<span class="l">${esc(id.last || 'El teu equip')}</span></h2>
+            ${metaHTML ? `<div class="nk-meta">${metaHTML}</div>` : ''}</div>`;
+    }
+    const PERIOD_HERO = { lliga: 'Lliga', pretemporada: 'Pretemporada', tot: 'Tota la temporada' };
+    let _statsHeroMeta = '';
+    function renderStatsHeroTop() {
+        const el = document.getElementById('stats-hero-top'); if (!el) return;
+        const id = heroIdentity(), a = statsMatchKey != null ? archById(statsMatchKey) : null;
+        el.innerHTML = heroTopHTML(`${id.season || 'Temporada'} · ${a ? 'Partit: ' + archLabel(a) : (PERIOD_HERO[statsPeriod] || 'Lliga')}`, _statsHeroMeta);
+    }
+    function renderSquadHero() {
+        const top = document.getElementById('squad-hero-top'), st = document.getElementById('squad-hero-stats'); if (!top || !st) return;
+        const id = heroIdentity(), act = squadPlayers();
+        top.innerHTML = heroTopHTML(`Plantilla · ${id.season || 'Temporada'}`, '');
+        const wm = document.getElementById('squad-hero-wm'); if (wm) wm.textContent = act.length ? String(act.length) : '';
+        const ages = act.map(p => ageOf(p.anyNaixement)).filter(a => a !== null && a !== undefined);
+        const avg = ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length) : null;
+        const nExt = state.players.filter(p => !p.staff && p.actiu !== false && p.extern).length;
+        const grp = {}; act.forEach(p => { const k = (p.posicio === 'Tancament' ? 'Tanca' : p.posicio) || 'Sense posició'; grp[k] = (grp[k] || 0) + 1; });
+        const keys = SQUAD_POS_ORDER.filter(k => grp[k] && k !== 'Tancament').concat(Object.keys(grp).filter(k => !SQUAD_POS_ORDER.includes(k)));
+        const plural = { Porter: 'Porters', Tanca: 'Tanques', Ala: 'Ales', Pivot: 'Pivots', Universal: 'Universals' };
+        const cell = (lbl, inner, sub) => `<div class="ks-cell"><span class="ks-lbl">${lbl}</span>${inner}${sub ? `<span class="ks-sub">${sub}</span>` : ''}</div>`;
+        const cells = [cell('Jugadors', `<span class="ks-val">${act.length}</span>`, nExt ? `+ ${nExt} Sènior B` : 'Plantilla activa'),
+            cell('Edat mitjana', `<span class="ks-val">${avg === null ? '—' : avg.toFixed(1)}<small>anys</small></span>`, ages.length ? `${Math.min(...ages)}–${Math.max(...ages)} anys` : '')];
+        keys.slice(0, 4).forEach(k => cells.push(cell(plural[k] || k, `<span class="ks-val" style="color:${SQUAD_POS_COLOR[k] || '#a78bfa'}">${grp[k]}</span>`, `${act.length ? Math.round(grp[k] / act.length * 100) : 0}% de la plantilla`)));
+        st.innerHTML = cells.join('');
+        st.style.gridTemplateColumns = `repeat(${cells.length}, 1fr)`;
+    }
+    function refreshHeroIdentity() { try { renderStatsHeroTop(); renderSquadHero(); } catch (e) {} }
+    (function watchHeroIdentity() {
+        const go = () => {
+            const n = document.getElementById('app-sidebar-club-nom'), c = document.getElementById('app-sidebar-crest'), sl = document.getElementById('season-label');
+            if (!n || !c) { setTimeout(go, 400); return; }
+            const mo = new MutationObserver(() => refreshHeroIdentity());
+            mo.observe(n, { childList: true, characterData: true, subtree: true }); mo.observe(c, { attributes: true, attributeFilter: ['src', 'class'] });
+            if (sl) mo.observe(sl, { childList: true, characterData: true, subtree: true });
+        };
+        go();
+    })();
+
+    /* Posició a la lliga: s'introdueix a mà (es pot automatitzar més endavant). */
+    function openStandingEditor() {
+        const cur = state.leagueStanding || {};
+        let m = document.getElementById('standing-modal');
+        if (!m) { m = document.createElement('div'); m.id = 'standing-modal'; m.className = 'fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/70'; document.body.appendChild(m); }
+        m.innerHTML = `<div class="w-full max-w-sm rounded-2xl bg-[#1b1b1b] border border-white/10 p-5 shadow-2xl">
+            <h3 class="text-base font-extrabold text-white">Classificació a la lliga</h3>
+            <p class="text-xs text-slate-400 mt-1">Posa on és l'equip a la taula de la lliga. Ho actualitzes tu quan vulguis.</p>
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Posició<input id="st-pos" type="number" min="1" max="40" value="${cur.pos || ''}" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></label>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Equips al grup<input id="st-teams" type="number" min="2" max="40" value="${cur.teams || 16}" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></label>
+            </div>
+            <div class="flex items-center justify-between gap-2 mt-5">
+                <button onclick="saveStanding(true)" class="text-xs font-bold text-slate-400 hover:text-white">Esborra</button>
+                <span class="flex gap-2"><button onclick="closeStandingEditor()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200">Cancel·la</button>
+                <button onclick="saveStanding(false)" class="px-4 py-2 rounded-xl text-xs font-bold bg-granate-600 text-white">Desa</button></span>
+            </div></div>`;
+        m.classList.remove('hidden'); m.onclick = e => { if (e.target === m) closeStandingEditor(); };
+        setTimeout(() => { const i = document.getElementById('st-pos'); if (i) i.focus(); }, 30);
+    }
+    function closeStandingEditor() { const m = document.getElementById('standing-modal'); if (m) m.classList.add('hidden'); }
+    function saveStanding(clear) {
+        if (clear) state.leagueStanding = null;
+        else {
+            const pos = parseInt(document.getElementById('st-pos').value, 10), teams = parseInt(document.getElementById('st-teams').value, 10) || 16;
+            if (!pos || pos < 1) { toast('Escriu la posició (1, 2, 3…)'); return; }
+            state.leagueStanding = { pos: Math.min(pos, teams), teams, at: Date.now() };
+        }
+        saveSoon(); closeStandingEditor(); renderStatsKPIs();
+    }
+
     function renderStatsKPIs() {
         const st = statsData();
         // Filtra el calendari pel periode actiu perque els KPI reflecteixin
@@ -6943,13 +7085,23 @@
         const haRow = (lbl, v, e, d) => `<div class="ks-ha"><span class="ks-hl">${lbl}</span>${chips(v, e, d)}${seg([[v, '#10b981'], [e, '#f59e0b'], [d, '#f43f5e']], (v + e + d) ? 0 : 1)}</div>`;
         const cell = (lbl, inner) => `<div class="ks-cell"><span class="ks-lbl">${lbl}</span>${inner}</div>`;
         const ptsSub = pts === null ? (statsPeriod === 'pretemporada' ? 'Només a lliga' : 'Cap partit de lliga') : `${lligaPlayed.length} PJ · lliga`;
+        const ls = state.leagueStanding, posTxt = ls && ls.pos ? ordinalCa(ls.pos) : null;
+        const lastForm = played.filter(c => matchPeriod(c) === 'lliga').slice(-5);
+        const fcol = { V: '#10b981', E: '#f59e0b', D: '#f43f5e' };
+        _statsHeroMeta = (lastForm.length ? `<span class="nk-form"><em>Ratxa</em>${lastForm.map(c => `<i style="--c:${fcol[c.res] || '#555'}" title="${esc(c.res || '')}"></i>`).join('')}</span>` : '')
+            + (aprof !== null ? `<span class="nk-pill">${aprof}% aprofitament</span>` : '');
+        renderStatsHeroTop();
+        const wm = document.getElementById('stats-hero-wm'); if (wm) wm.textContent = ls && ls.pos ? String(ls.pos) : (pts !== null ? String(pts) : '');
+        const posCell = cell('Classificació', `<div class="ks-row"><span class="ks-val">${posTxt ? `<span style="color:#fbbf24">${posTxt}</span><small>/ ${ls.teams}</small>` : '<span style="color:#5a5a5a">—</span>'}</span><button type="button" class="coach-only nk-edit" onclick="openStandingEditor()" title="Edita la classificació" aria-label="Edita la classificació"><i data-lucide="pencil" class="w-3 h-3"></i></button></div><span class="ks-sub">${posTxt ? 'Actualitzat ' + new Date(ls.at || Date.now()).toLocaleDateString('ca-ES', { day: '2-digit', month: 'short' }) : 'Afegeix la posició a la lliga'}</span>`);
         document.getElementById('stats-kpis').innerHTML = [
+            posCell,
             cell('Punts', `<div class="ks-row"><div><span class="ks-val">${pts === null ? '<span style="color:#5a5a5a">—</span>' : `<span style="color:#34d399">${pts}</span>`}</span><div class="ks-sub" style="margin-top:.3rem">${ptsSub}</div></div>${aprof !== null ? ring(aprof) : ''}</div>`),
             cell('Partits jugats', `<div class="ks-row"><span class="ks-val">${pj}<small>/ ${total}</small></span><span class="ks-sub">${total ? Math.round(pj / total * 100) : 0}% jugat</span></div>${seg([[w, '#10b981'], [e, '#f59e0b'], [l, '#f43f5e']], Math.max(0, total - pj))}`),
             cell('Balanç', `<div class="ks-tri"><span style="--c:#10b981"><b>${w}</b><i>V</i></span><span style="--c:#f59e0b"><b>${e}</b><i>E</i></span><span style="--c:#f43f5e"><b>${l}</b><i>D</i></span></div>`),
             cell('Gols', `<div class="ks-gl"><b class="gf">${gf}</b><b class="sep">/</b><b class="gc">${gc}</b><span class="ks-diff ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero'}">${diff > 0 ? '+' : ''}${diff}</span></div>${seg([[gf, '#34d399'], [gc, '#fb7185']], (gf + gc) ? 0 : 1)}`),
             cell('Local / Visitant', haRow('Casa', hw, he, hl) + haRow('Fora', aw, ae, al))
         ].join('');
+        try { lucide.createIcons(); } catch (e) {}
     }
 
     let statsPeriod = 'lliga';
@@ -20541,7 +20693,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-f';
+const APP_VERSION = '2026.11.18-h';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
