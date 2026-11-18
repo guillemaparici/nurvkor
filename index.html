@@ -529,6 +529,16 @@
         .nk-hero-badges #current-date-badge { background: rgba(0,0,0,.32) !important; box-shadow: none !important; display: inline-block; }
         .nk-hero-badges #current-date-badge::first-letter { text-transform: uppercase; }
         .nk-title.sec .l { font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1; }
+        .nk-hero-top { align-items: stretch; }
+        .nk-crest { align-self: center; }
+        .nk-hero-txt { align-self: stretch; justify-content: space-between; gap: .6rem; }
+        .nk-txt-top { display: flex; flex-direction: column; gap: .3rem; }
+        @media (min-width: 1101px) { #stats-hero .kpi-strip { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } }
+        @media (min-width: 768px) { #squad-hero .kpi-strip { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+        .nk-hero .kpi-strip .ks-cell { padding-left: 1.1rem; padding-right: 1.1rem; }
+        .nk-hero .kpi-strip .ks-val { font-size: 1.5rem; }
+        @media (min-width: 1101px) { #stats-hero .ks-ha { grid-template-columns: 2.4rem auto; } #stats-hero .ks-ha .ks-bar { display: none; } }
+        .nk-hero .kpi-strip .ks-gl b { font-size: 1.5rem; }
         .nk-club { font-size: 1.05rem; font-weight: 600; color: #c9c9c9; letter-spacing: -.005em; }
         .nk-hero-top { position: relative; display: flex; align-items: center; gap: 1.6rem; padding: 1.7rem 2rem 1.5rem; min-height: 11rem; }
         .nk-crest { flex: none; width: 8.6rem; height: 8.6rem; display: grid; place-items: center; filter: drop-shadow(0 16px 30px rgba(0,0,0,.6)); }
@@ -549,7 +559,6 @@
         .nk-hero .kpi-strip::before { display: none; }
         #squad-hero .kpi-strip { grid-template-columns: repeat(4, 1fr); }
         #squad-hero .ks-val { white-space: normal; }
-        #squad-hero .kpi-strip { grid-template-columns: .8fr 1fr 1.7fr .8fr; }
         @media (min-width: 768px) { body.nk-herotab main { padding-top: 12px !important; } }
         body.nk-herotab #app-content > .tab-content { margin-top: 0 !important; }
         body.nk-herotab #tab-estadistica > div, body.nk-herotab #tab-estadistica #stats-wrapper { margin-top: 0 !important; }
@@ -7004,9 +7013,9 @@
     function heroTopHTML(section, eyebrow, metaHTML) {
         const id = heroIdentity();
         return `<div class="nk-crest">${id.crest ? `<img alt="" src="${esc(id.crest)}">` : `<div class="nk-crest-ph">${esc(id.initials || 'NK')}</div>`}</div>
-            <div class="nk-hero-txt"><span class="nk-eyebrow">${esc(eyebrow)}</span>
+            <div class="nk-hero-txt"><div class="nk-txt-top"><span class="nk-eyebrow">${esc(eyebrow)}</span>
+            <span class="nk-club">${esc(id.name || 'El teu equip')}</span></div>
             <h2 class="nk-title sec"><span class="l">${esc(section)}</span></h2>
-            <span class="nk-club">${esc(id.name || 'El teu equip')}</span>
             ${metaHTML ? `<div class="nk-meta">${metaHTML}</div>` : ''}</div>`;
     }
     const PERIOD_HERO = { lliga: 'Lliga', pretemporada: 'Pretemporada', tot: 'Tota la temporada' };
@@ -20760,7 +20769,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-k';
+const APP_VERSION = '2026.11.18-l';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
