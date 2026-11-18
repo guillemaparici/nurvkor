@@ -525,9 +525,7 @@
             background: radial-gradient(closest-side, rgb(var(--granate-500) / .28), transparent 72%); }
         .nk-wm { position: absolute; right: 1.4rem; top: -1.2rem; font-size: clamp(9rem, 22vw, 16rem); font-weight: 900; line-height: 1; letter-spacing: -.04em;
             color: rgba(255,255,255,.05); pointer-events: none; user-select: none; font-variant-numeric: tabular-nums; }
-        .nk-hero-badges { position: relative; z-index: 2; display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-start; padding: 1.15rem 2rem 0; }
-        .nk-hero-badges + .nk-hero-top { padding-top: .85rem; min-height: 9.8rem; }
-        #app-page-header { flex-direction: column-reverse !important; align-items: flex-start !important; justify-content: flex-end !important; gap: .9rem !important; }
+        .nk-hero-badges { position: absolute; top: 1.1rem; right: 1.3rem; z-index: 2; display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
         .nk-hero-badges #current-date-badge { background: rgba(0,0,0,.32) !important; box-shadow: none !important; display: inline-block; }
         #current-date-badge::first-letter { text-transform: uppercase; }
         .nk-title.sec .l { font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1; }
@@ -577,7 +575,7 @@
         .nk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap; }
         @media (max-width: 767px) {
             .nk-hero { border-radius: 1.3rem; }
-            .nk-hero-badges { padding: .9rem 1.1rem 0; }
+            .nk-hero-badges { position: relative; top: auto; right: auto; justify-content: flex-end; padding: .9rem 1.1rem 0; }
             .nk-hero-badges + .nk-hero-top { padding-top: .8rem; min-height: 7.5rem; }
             .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
             .nk-crest { width: 5.6rem; height: 5.6rem; }
@@ -801,8 +799,8 @@
                 transition: transform .5s cubic-bezier(.32, .72, 0, 1); }
         }
         @media (min-width: 768px) {
-            #player-modal { padding: 12px !important; }
-            #player-modal .pm-sheet { width: min(100%, 68rem); height: calc(100vh - 24px); height: calc(100dvh - 24px); max-height: none; border-radius: 28px; opacity: 0;
+            #player-modal { padding: 12px !important; align-items: flex-start !important; }
+            #player-modal .pm-sheet { width: min(100%, 68rem); height: auto; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); border-radius: 28px; opacity: 0;
                 transform: translate3d(0, 22px, 0) scale(.97);
                 transition: transform .4s cubic-bezier(.2, .8, .2, 1), opacity .3s ease; }
         }
@@ -909,7 +907,7 @@
             #tab-inici #player-home > .relative.overflow-hidden { padding: 1.7rem 2rem 1.5rem !important; }
             #tab-inici #ph-watermark ~ .relative.flex { min-height: 8.6rem; padding-left: 12.2rem; padding-bottom: 0; align-items: stretch; }
             #tab-inici #player-home .hero-figure { height: 106%; bottom: 0; left: 1.6rem; }
-            #tab-inici #player-home > .relative.overflow-hidden > .nk-hero-badges { z-index: 3; padding: 0 0 .9rem 10.6rem; }
+            #tab-inici #player-home > .relative.overflow-hidden > .nk-hero-badges { z-index: 3; }
         }
         @media (max-width: 767px) {
             #tab-inici #player-home > .relative.overflow-hidden { padding: 0 !important; }
@@ -921,9 +919,7 @@
         .nk-hero-badges #phase-badge, .nk-hero-badges #current-date-badge { white-space: nowrap; }
         body.nk-inici.nk-herotab #tab-inici > * { margin-top: 0 !important; }
         @media (min-width: 768px) {
-            body.nk-herotab.nk-inici main { padding-top: 2.8rem !important; }
-            #tab-inici #player-home, #tab-inici #player-home > .relative.overflow-hidden { overflow: visible !important; }
-            #tab-inici #player-home .hero-figure { height: calc(100% + 1.9rem) !important; bottom: 0; left: 1.6rem; }
+            #tab-inici #player-home .hero-figure { height: 100% !important; bottom: 0; left: 1.6rem; }
             #tab-inici #ph-watermark { top: 0 !important; bottom: 0; right: 3rem !important; display: flex; align-items: center; overflow: hidden; clip-path: none; font-size: 15rem; line-height: 1; }
         }
         @media (max-width: 639px) {
@@ -967,6 +963,8 @@
         .pm-tab.is-on { background: rgb(var(--granate-600) / .9); color: #fff; box-shadow: 0 6px 16px -8px rgb(var(--granate-600) / .9); }
         .pm-pane { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
         .pm-pane.hidden { display: none !important; }
+        #player-stats { background: transparent !important; box-shadow: none !important; overflow: visible !important; }
+        #player-stats > .p-6 { padding: 0 !important; }
         #pm-obj:empty { display: none; }
         .pm-pane > * { min-width: 0; }
         @media (min-width: 768px) { .pm-pane { gap: 1.9rem; } .pm-tab { font-size: 13px; padding: .7rem .8rem; } }
@@ -1923,7 +1921,7 @@
                         <div id="stats-kpis" class="kpi-strip"></div>
                     </div>
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
-                        <div class="px-5 py-3 border-b border-slate-800 flex flex-row items-center justify-between gap-3">
+                        <div class="px-5 py-3 border-b border-slate-800 flex flex-row flex-wrap items-center justify-between gap-x-3 gap-y-2">
                             <div>
                                 <h4 class="font-bold text-white text-sm" title="Toca un partit per veure'n el detall: tota la vista passa a aquell partit.">Resultats</h4>
                                 <div id="stats-scope-chip" class="hidden mt-2 inline-flex items-center gap-2 text-[11px] font-bold bg-emerald-500/15 text-emerald-300 px-2.5 py-1 rounded-full">
@@ -1931,8 +1929,13 @@
                                     <button onclick="closeStatsMatch()" class="underline hover:text-emerald-200">Torna a la general</button>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 flex-wrap justify-end">
                                 <div id="stats-record" class="flex items-center gap-2 text-[11px] font-bold"></div>
+                                <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold">
+                                    <button onclick="setStatsPeriod('tot')" id="stats-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
+                                    <button onclick="setStatsPeriod('pretemporada')" id="stats-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
+                                    <button onclick="setStatsPeriod('lliga')" id="stats-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
+                                </div>
                             </div>
                         </div>
                         <div class="overflow-x-auto"><div id="stats-calendar" class="flex gap-2.5 px-5 py-3 min-w-min"></div></div>
@@ -1940,16 +1943,11 @@
                     </div>
 
 
-                    <div class="nk-toolbar">
-                        <div class="coach-only inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold">
+                    <div class="nk-toolbar coach-only">
+                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[12px] font-bold">
                             <button onclick="setStatsMode('players')" id="stats-view-players" class="coach-only px-3 py-1.5 rounded-md transition-all bg-granate-500 text-slate-950 shadow">Jugadors</button>
                             <button onclick="setStatsMode('team')" id="stats-view-team" class="px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-slate-100">Equip</button>
                         </div>
-                        <div class="inline-flex bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-[11px] font-bold" style="margin-left:auto">
-                                    <button onclick="setStatsPeriod('tot')" id="stats-period-tot" class="px-2.5 py-1 rounded-md transition-all">Tot</button>
-                                    <button onclick="setStatsPeriod('pretemporada')" id="stats-period-pretemporada" class="px-2.5 py-1 rounded-md transition-all">Pretemporada</button>
-                                    <button onclick="setStatsPeriod('lliga')" id="stats-period-lliga" class="px-2.5 py-1 rounded-md transition-all">Lliga</button>
-                                </div>
                     </div>
                 </div>
                 <div id="player-stats" class="player-only hidden bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
@@ -21111,7 +21109,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-u';
+const APP_VERSION = '2026.11.18-w';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
