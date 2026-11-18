@@ -590,6 +590,69 @@
         .mn-slot.empty { min-height: 4.6rem !important; font-size: 1.2rem; }
         .mn-slot b { font-size: 11px !important; } .mn-slot small { font-size: 9.5px !important; }
         @media (max-width: 480px) { .mn-slot, .mn-slot.empty { min-height: 4.1rem !important; } .mn-slot .mn-ph { width: 2rem !important; height: 2rem !important; } .mn-slot b { font-size: 10px !important; } }
+        /* ===== Calendari: targetes plegables i quadrícula ===== */
+        .cal-top { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; align-items: start; }
+        @media (max-width: 1023px) { .cal-top { grid-template-columns: 1fr; } }
+        .cal-fold { border-radius: 1.1rem; background: rgba(31,31,31,.8); background-image: linear-gradient(135deg, rgb(var(--granate-600) / .10), transparent 60%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px -14px rgba(0,0,0,.55); overflow: hidden; }
+        .cal-sum { list-style: none; cursor: pointer; display: flex; align-items: center; gap: .75rem; padding: .7rem 1rem; min-height: 4.4rem; flex-wrap: wrap; }
+        @media (min-width: 1024px) { .cal-sum { flex-wrap: nowrap; } .cal-sum-main { flex-basis: 8rem; } }
+        .cal-sum::-webkit-details-marker { display: none; }
+        .cal-ico { flex: none; width: 2.2rem; height: 2.2rem; border-radius: .7rem; display: grid; place-items: center; color: #34d399; background: rgba(16,185,129,.10); box-shadow: inset 0 0 0 1px rgba(16,185,129,.28); }
+        .cal-sum-main { flex: 1 1 11rem; min-width: 0; display: flex; flex-direction: column; gap: .12rem; }
+        .cal-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8f8f8f; }
+        .cal-sum-line { font-size: .98rem; font-weight: 800; color: #fff; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cal-sub { font-size: 11.5px; font-weight: 600; color: #34d399; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cal-eyebrow-row { display: flex; align-items: center; gap: .5rem; }
+        .cal-tag { flex: none; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: .1rem .4rem; border-radius: .4rem; color: #34d399; background: rgba(16,185,129,.14); box-shadow: inset 0 0 0 1px rgba(16,185,129,.3); }
+        .cal-chips { display: flex; gap: .4rem; flex: none; }
+        .cal-chip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; color: #9f9f9f; padding: .3rem .55rem; border-radius: .6rem; background: rgba(255,255,255,.05); }
+        .cal-chip b { color: #f1f1f1; font-weight: 800; }
+        .cal-chev { flex: none; color: #8f8f8f; transition: transform .2s; margin-left: auto; }
+        .cal-fold[open] .cal-chev { transform: rotate(180deg); }
+        .cal-body { padding: .2rem 1rem 1rem; border-top: 1px solid rgba(255,255,255,.06); padding-top: .85rem; }
+        .cal-text { margin-top: .3rem; font-size: 13px; font-weight: 600; color: #e5e5e5; line-height: 1.45; }
+        .cal-gen { flex: none; display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .7rem; border-radius: .6rem; font-size: 11px; font-weight: 800; color: #fff; background: rgb(var(--granate-600)); }
+        .cal-gen:hover { background: rgb(var(--granate-500)); }
+        .cal-hor-sum { display: flex; flex-wrap: wrap; gap: .35rem; }
+        .cal-hchip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; font-weight: 700; color: #e5e5e5; padding: .2rem .5rem; border-radius: .5rem; background: rgba(255,255,255,.06); font-variant-numeric: tabular-nums; }
+        .cal-hchip b { color: #34d399; font-weight: 800; }
+        @media (max-width: 480px) { .cal-chips { width: 100%; padding-left: 2.95rem; } .cal-gen span { display: none; } }
+        .cg-card { border-radius: 1.3rem; padding: 1.1rem 1.1rem 1rem; background: rgba(31,31,31,.8); background-image: linear-gradient(135deg, rgb(var(--granate-600) / .08), transparent 55%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px -14px rgba(0,0,0,.55); }
+        .cg-top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin: .1rem .2rem .8rem; }
+        .cg-title { font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: -.01em; text-transform: capitalize; }
+        .cg-count { font-size: 11.5px; font-weight: 600; color: #8f8f8f; }
+        .cg-head, .cg-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .4rem; }
+        .cg-head { margin-bottom: .4rem; }
+        .cg-head div { text-align: center; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #7a7a7a; padding-bottom: .25rem; }
+        .cg-head div:nth-child(n+6) { color: #565656; }
+        .cg-row { margin-bottom: .4rem; }
+        .cg-day { --ac: transparent; position: relative; min-height: 5.6rem; border-radius: .85rem; padding: .45rem .55rem .5rem; display: flex; flex-direction: column; gap: .22rem; overflow: hidden;
+            background: rgba(255,255,255,.022); box-shadow: inset 0 0 0 1px rgba(255,255,255,.045); transition: background .15s, box-shadow .15s, transform .15s; }
+        .cg-day.off { background: transparent; box-shadow: none; }
+        .cg-day.wk:not(.has) { background: rgba(255,255,255,.012); }
+        .cg-day.has { background: color-mix(in srgb, var(--ac) 8%, rgba(255,255,255,.025)); box-shadow: inset 3px 0 0 var(--ac), inset 0 0 0 1px color-mix(in srgb, var(--ac) 22%, transparent); }
+        .cg-day.today { box-shadow: inset 0 0 0 1.5px #10b981, 0 0 0 3px rgba(16,185,129,.12); }
+        .cg-day.today.has { box-shadow: inset 3px 0 0 var(--ac), inset 0 0 0 1.5px #10b981, 0 0 0 3px rgba(16,185,129,.12); }
+        .cg-day.op { cursor: pointer; }
+        .cg-day.op:hover { background: color-mix(in srgb, var(--ac) 15%, rgba(255,255,255,.04)); transform: translateY(-1px); }
+        .cg-r1 { display: flex; align-items: center; justify-content: space-between; gap: .3rem; }
+        .cg-n { width: 1.55rem; height: 1.55rem; display: grid; place-items: center; border-radius: 50%; font-size: 12px; font-weight: 800; color: #707070; font-variant-numeric: tabular-nums; }
+        .cg-day.has .cg-n { color: #e5e5e5; }
+        .cg-day.today .cg-n { background: #10b981; color: #052e22; }
+        .cg-uc { font-size: 10px; font-weight: 800; color: #34d399; background: rgba(16,185,129,.12); padding: .1rem .35rem; border-radius: .4rem; font-variant-numeric: tabular-nums; }
+        .cg-uc small { font-size: 8px; font-weight: 700; margin-left: .1rem; opacity: .8; }
+        .cg-t { font-size: 11.5px; font-weight: 700; color: #f1f1f1; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .cg-s { font-size: 9.5px; font-weight: 600; color: var(--ac); filter: brightness(1.25); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: auto; }
+        .cg-dot { display: none; width: .4rem; height: .4rem; border-radius: 50%; background: var(--ac); margin: 0 auto; }
+        .cg-plus { margin: auto auto 0; font-size: 1rem; font-weight: 700; color: #3a3a3a; line-height: 1; opacity: 0; transition: opacity .15s; }
+        .cg-day.op:hover .cg-plus { opacity: 1; }
+        @media (max-width: 639px) {
+            .cg-card { padding: .8rem .55rem .7rem; }
+            .cg-head, .cg-row { gap: .22rem; }
+            .cg-day { min-height: 3.5rem; padding: .3rem .15rem; align-items: center; gap: .2rem; border-radius: .65rem; }
+            .cg-r1 { justify-content: center; } .cg-uc, .cg-t, .cg-s { display: none; } .cg-dot { display: block; }
+            .cg-n { width: 1.45rem; height: 1.45rem; }
+        }
         /* ===== Estadística: concentració i millor quinteto ===== */
         .stc-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
         .stc-big { font-size: 1.9rem; font-weight: 800; color: #fff; line-height: 1; }
@@ -2137,52 +2200,45 @@
 
             <!-- 3 · CALENDARI -->
             <section id="tab-calendari" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-1 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 p-6 rounded-2xl">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-white text-base" id="next-session-heading">Propera sessio</h4>
-                            <span id="next-session-tag" class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">&mdash;</span>
+                <div class="cal-top">
+                    <details id="cal-next" class="cal-fold">
+                        <summary class="cal-sum">
+                            <span class="cal-ico"><i data-lucide="calendar-check" class="w-4 h-4"></i></span>
+                            <div class="cal-sum-main">
+                                <span class="cal-eyebrow-row"><span class="cal-eyebrow" id="next-session-heading">Propera sessió</span><span id="next-session-tag" class="cal-tag">&mdash;</span></span>
+                                <b class="cal-sum-line" id="next-session-title">&mdash;</b>
+                                <span class="cal-sub" id="next-session-date">&mdash;</span>
+                            </div>
+                            <div class="cal-chips">
+                                <span class="cal-chip" title="Durada"><i data-lucide="clock" class="w-3.5 h-3.5"></i><b id="next-session-volume">&mdash;</b></span>
+                                <span class="cal-chip" title="Intensitat planificada"><i data-lucide="gauge" class="w-3.5 h-3.5"></i><b id="next-session-intensity">&mdash;</b></span>
+                            </div>
+                            <i data-lucide="chevron-down" class="cal-chev w-4 h-4"></i>
+                        </summary>
+                        <div class="cal-body">
+                            <p class="cal-eyebrow">Contingut condicional</p>
+                            <p class="cal-text" id="next-session-content">&mdash;</p>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-100" id="next-session-title">&mdash;</h3>
-                        <p class="text-xs text-emerald-400 font-medium mt-1" id="next-session-date">&mdash;</p>
-                        <div class="mt-6 space-y-3.5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-slate-800/60 flex items-center justify-center text-slate-300"><i data-lucide="clock" class="w-4 h-4"></i></div>
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-medium uppercase">Durada</p>
-                                    <p class="text-xs text-slate-200 font-bold" id="next-session-volume">&mdash;</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-slate-800/60 flex items-center justify-center text-slate-300"><i data-lucide="gauge" class="w-4 h-4"></i></div>
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-medium uppercase">Intensitat planificada</p>
-                                    <p class="text-xs text-slate-200 font-bold" id="next-session-intensity">&mdash;</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-slate-800/60 flex items-center justify-center text-slate-300"><i data-lucide="flame" class="w-4 h-4"></i></div>
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-medium uppercase">Contingut condicional</p>
-                                    <p class="text-xs text-slate-200 font-bold" id="next-session-content">&mdash;</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </details>
 
-                    <div class="lg:col-span-2 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-5">
-                        <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400"><i data-lucide="calendar-clock" class="w-4 h-4"></i></div>
-                                <p class="text-sm font-bold text-white">Horaris d&rsquo;entrenament habitual</p>
+                    <details id="cal-hor" class="cal-fold">
+                        <summary class="cal-sum">
+                            <span class="cal-ico"><i data-lucide="calendar-clock" class="w-4 h-4"></i></span>
+                            <div class="cal-sum-main">
+                                <span class="cal-eyebrow">Horaris d&rsquo;entrenament habitual</span>
+                                <div class="cal-hor-sum" id="horaris-resum"><span class="cal-sub">&mdash;</span></div>
                             </div>
-                            <button onclick="openGenSessionsModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-granate-600 hover:bg-granate-500 text-white text-[11px] font-bold rounded-lg transition-all"><i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>Genera sessions</button>
+                            <button type="button" onclick="event.preventDefault();event.stopPropagation();openGenSessionsModal()" class="cal-gen"><i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i><span>Genera sessions</span></button>
+                            <i data-lucide="chevron-down" class="cal-chev w-4 h-4"></i>
+                        </summary>
+                        <div class="cal-body">
+                            <div id="horaris-entrenament-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                <p class="text-xs text-slate-500 col-span-full">Encara no has configurat cap horari habitual. Afegeix-los des de la configuració (engranatge, al peu del menú).</p>
+                            </div>
                         </div>
-                        <div id="horaris-entrenament-list" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <p class="text-xs text-slate-500 col-span-full">Encara no has configurat cap horari habitual. Afegeix-los des de la configuració (engranatge, al peu del menú).</p>
-                        </div>
-                    </div>
+                    </details>
                 </div>
+                <script>(function(){ try { [['cal-next','cfse-fold-next'],['cal-hor','cfse-fold-hor']].forEach(function(a){ var d=document.getElementById(a[0]); if(!d) return; if(localStorage.getItem(a[1])==='1') d.open=true; d.addEventListener('toggle',function(){ try{localStorage.setItem(a[1], d.open?'1':'0');}catch(e){} }); }); } catch(e){} })();</script>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -2197,7 +2253,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1 w-full sm:w-auto">
-                        <button onclick="toggleCalendarEdit()" id="cal-edit-btn" class="coach-only mr-2 inline-flex items-center gap-1.5 px-3 py-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 text-xs font-bold rounded-xl transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i><span id="cal-edit-label">Edita objectius</span></button>
+                        <button onclick="toggleCalendarEdit()" id="cal-edit-btn" class="coach-only mr-2 inline-flex items-center gap-1.5 px-3 py-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 text-xs font-bold rounded-xl transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i><span id="cal-edit-label" class="hidden sm:inline">Edita objectius</span></button>
                         <button onclick="calStep(-1)" aria-label="Mes anterior" class="w-9 h-9 shrink-0 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-slate-300 transition-all active:scale-95"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
                         <select id="calendar-month-select" onchange="onMonthSelectChange()" class="flex-1 sm:flex-none bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-200 focus:outline-none focus:border-emerald-500"></select>
                         <button onclick="calStep(1)" aria-label="Mes següent" class="w-9 h-9 shrink-0 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-slate-300 transition-all active:scale-95"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
@@ -12019,43 +12075,44 @@
     // de color si té sessió. Manté la graella de 7 columnes també en mòbil.
     function monthGridHTML(month, mIdx) {
         const labels = month.dayLabels.length === 7 ? month.dayLabels : ['DLL.', 'DM.', 'DMC.', 'DJ.', 'DV.', 'DSS.', 'DG.'];
-        let html = `<div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-2.5 sm:p-5">
-            <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-                <h4 class="font-bold text-white text-base">${esc(month.title)}</h4>
+        let nSes = 0, nMatch = 0;
+        month.weeks.forEach(w => w.dates.forEach(d => { if (!d) return; const x = sessionForDay(d); if (x) { nSes++; if (isMatch(x.esdeveniment)) nMatch++; } }));
+        let html = `<div class="cg-card">
+            <div class="cg-top">
+                <h4 class="cg-title">${esc(month.title)}</h4>
+                <span class="cg-count">${nSes} sessions${nMatch ? ` · ${nMatch} partit${nMatch > 1 ? 's' : ''}` : ''}</span>
             </div>
-            <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-1">${labels.map(l => `<div class="text-[8px] sm:text-[10px] font-bold uppercase text-slate-500 text-center">${esc(l)}</div>`).join('')}</div>`;
-
+            <div class="cg-head">${labels.map(l => `<div>${esc(l)}</div>`).join('')}</div>`;
         month.weeks.forEach(week => {
-            html += `<div class="grid grid-cols-7 gap-1 sm:gap-2 mb-1 sm:mb-2">`;
-            for (let c = 0; c < 7; c++) html += dayCellCompact(week.dates[c], week.content[c]);
+            html += `<div class="cg-row">`;
+            for (let c = 0; c < 7; c++) html += dayCellCompact(week.dates[c], week.content[c], c);
             html += `</div>`;
         });
         return html + `</div>`;
     }
 
-    // Cel·la compacta per a la vista quadrícula.
-    function dayCellCompact(date, lines) {
-        if (!date) return `<div class="aspect-square rounded-lg"></div>`;
+    // Cel·la de la vista quadrícula: número, càrrega i nom de la sessió amb franja de color segons el tipus.
+    function dayCellCompact(date, lines, col) {
+        if (!date) return `<div class="cg-day off"></div>`;
         const dayKey = iso(date);
         const session = sessionForDay(date);
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const isToday = date.getTime() === today.getTime();
         const hasContent = !!(lines && lines.length);
         const hasDetail = !!session || hasContent;
-
-        let dotColor = '';
-        if (session) dotColor = isMatch(session.esdeveniment) ? 'bg-indigo-500' : (session.intensitat !== null && session.intensitat < 5 ? 'bg-cyan-500' : 'bg-emerald-500');
-        else if (hasContent) dotColor = 'bg-slate-500';
-
+        const match = session && isMatch(session.esdeveniment);
+        const low = session && !match && session.intensitat !== null && session.intensitat < 5;
+        let ac = '', kind = '';
+        if (session) { ac = match ? '#6366f1' : (low ? '#06b6d4' : '#10b981'); kind = match ? 'Partit' : (low ? 'Càrrega baixa' : 'Entrenament'); if (session.focus === 'ofensiu') kind += ' · Ofensiu'; else if (session.focus === 'defensiu') kind += ' · Defensiu'; }
+        else if (hasContent) ac = '#6b7280';
+        const name = session ? session.esdeveniment : (hasContent ? lines[0] : '');
+        const uc = session ? Math.round(sessionLoad(session)) : 0;
         const canAdd = appRole !== 'player';
         const openable = hasDetail || canAdd;
-        const clickable = openable ? 'cursor-pointer hover:border-slate-600 hover:bg-slate-800/60' : '';
-        let cbg = isToday ? 'bg-emerald-500/5' : 'bg-slate-900/40', cbd = isToday ? 'border-emerald-500/60' : 'border-slate-800/60';
-        if (session && session.focus === 'ofensiu') { cbg = 'bg-sky-400/5'; if (!isToday) cbd = 'border-sky-500/30'; }
-        else if (session && session.focus === 'defensiu') { cbg = 'bg-amber-400/5'; if (!isToday) cbd = 'border-amber-500/30'; }
-        return `<div ${openable ? `data-iso="${dayKey}"` : ''} class="aspect-square rounded-lg border ${cbd} ${cbg} flex flex-col items-center justify-center gap-1 transition-all ${clickable}">
-            <span class="text-xs sm:text-sm font-bold ${isToday ? 'text-emerald-400' : (hasDetail ? 'text-slate-200' : 'text-slate-600')}">${date.getDate()}</span>
-            ${dotColor ? `<span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>` : (canAdd && !hasDetail ? `<span class="text-slate-700 text-[11px] leading-none font-bold">+</span>` : '')}
+        const cls = ['cg-day', ac ? 'has' : '', isToday ? 'today' : '', col > 4 ? 'wk' : '', openable ? 'op' : ''].filter(Boolean).join(' ');
+        return `<div ${openable ? `data-iso="${dayKey}"` : ''} class="${cls}" ${ac ? `style="--ac:${ac}"` : ''}>
+            <div class="cg-r1"><span class="cg-n">${date.getDate()}</span>${uc ? `<span class="cg-uc">${uc}<small>UC</small></span>` : ''}</div>
+            ${name ? `<span class="cg-t" title="${esc(name)}">${esc(name)}</span>${kind ? `<span class="cg-s">${esc(kind)}</span>` : ''}<i class="cg-dot"></i>` : (canAdd ? `<span class="cg-plus">+</span>` : '')}
         </div>`;
     }
 
@@ -19149,11 +19206,14 @@ ${userText}`;
             if (!wrap) return;
             if (!list || !list.length) {
                 wrap.innerHTML = '<p class="text-xs text-slate-500 col-span-full">Encara no has configurat cap horari habitual. Afegeix-los des de la configuració (engranatge, al peu del menú).</p>';
+                const sm0 = document.getElementById('horaris-resum'); if (sm0) sm0.innerHTML = '<span class="cal-sub">Cap horari configurat</span>';
                 return;
             }
+            const sm = document.getElementById('horaris-resum');
+            if (sm) sm.innerHTML = list.map(h => `<span class="cal-hchip"><b>${esc(({ dilluns: 'Dl', dimarts: 'Dm', dimecres: 'Dc', dijous: 'Dj', divendres: 'Dv', dissabte: 'Ds', diumenge: 'Dg' })[String(h.dia || '').toLowerCase()] || String(h.dia || '').slice(0, 2))}</b>${esc(h.inici || h.arribada || '')}</span>`).join('');
             wrap.innerHTML = list.map(h => `
-                <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl p-4">
-                    <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl p-3.5">
+                    <div class="flex items-start justify-between gap-2 mb-2.5">
                         <p class="text-sm font-bold text-white">${esc(h.dia || '')}</p>
                         ${safeUrl(h.lloc_url) ? `<a href="${esc(safeUrl(h.lloc_url))}" target="_blank" rel="noopener" class="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 shrink-0">${esc(h.lloc_nom || '')}<i data-lucide="external-link" class="w-3 h-3"></i></a>`
                                     : (h.lloc_nom ? `<span class="text-[11px] font-semibold text-slate-400">${esc(h.lloc_nom)}</span>` : '')}
@@ -20769,7 +20829,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-l';
+const APP_VERSION = '2026.11.18-m';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
