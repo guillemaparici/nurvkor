@@ -563,6 +563,32 @@
         @keyframes asSpin { to { transform: rotate(360deg); } }
         @keyframes asBreathe { 50% { transform: scale(.965); opacity: .86; } }
         @media (prefers-reduced-motion: reduce) { #auth-splash .as-ring, #auth-splash .as-logo { animation: none; } #auth-splash .as-ring { opacity: .6; } }
+        /* ===== Intro d'arrencada ===== 
+           Comença EXACTAMENT com la pantalla del sistema (disc fosc + logo petit, centrats) i d'allà creix cap a l'app:
+           així el pas de l'una a l'altra és continu. Mides: disc = 41 % de l'amplada, logo = 87 % del disc. */
+        #nk-intro { --d: min(41vw, 190px); position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; background: #08090b; pointer-events: none; }
+        #nk-intro.show { display: flex; }
+        #nk-intro .ni-glow { position: absolute; width: min(150vw, 800px); aspect-ratio: 1; border-radius: 50%; opacity: 0; transform: scale(.4);
+            background: radial-gradient(closest-side, rgba(153, 36, 56, .36), transparent 70%); animation: niGlow 1.1s cubic-bezier(.2, .7, .2, 1) .3s forwards; }
+        #nk-intro .ni-disc { position: absolute; width: var(--d); aspect-ratio: 1; border-radius: 50%;
+            background: radial-gradient(circle at 50% 42%, #2a1218 0%, #170a0e 70%, #130a0c 100%); animation: niDisc .75s cubic-bezier(.5, 0, .2, 1) .3s forwards; }
+        #nk-intro .ni-logo { position: relative; width: calc(var(--d) * .87); aspect-ratio: 448 / 252; transform-origin: 50% 50%;
+            animation: niLogo .85s cubic-bezier(.3, 0, .15, 1) .3s forwards; transition: transform .45s cubic-bezier(.4, 0, .2, 1), opacity .4s ease; }
+        #nk-intro .ni-mark, #nk-intro .ni-shine { position: absolute; inset: 0; width: 100%; height: 100%; }
+        #nk-intro .ni-shine { filter: brightness(2.6) saturate(.6); clip-path: inset(0 110% 0 -30%); animation: niShine .7s ease-in-out .75s forwards; }
+        #nk-intro.out { animation: niOut .42s ease forwards; }
+        @keyframes niDisc { to { transform: scale(7); opacity: 0; } }
+        @keyframes niLogo { to { transform: scale(1.55); } }
+        @keyframes niGlow { to { opacity: 1; transform: scale(1); } }
+        @keyframes niShine { 0% { clip-path: inset(0 110% 0 -30%); } 100% { clip-path: inset(0 -30% 0 110%); } }
+        @keyframes niOut { to { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) {
+            #nk-intro .ni-disc, #nk-intro .ni-logo, #nk-intro .ni-glow, #nk-intro .ni-shine { animation: none; } #nk-intro .ni-glow { opacity: 1; transform: none; } #nk-intro .ni-shine { display: none; }
+        }
+        /* El relleu de l'intro mentre acaba d'arrencar: mateix logo, mateix lloc, sense disc */
+        #auth-splash .as-disc { background: none !important; box-shadow: none !important; width: min(55.3vw, 256px); aspect-ratio: 448 / 252; border-radius: 0; }
+        #auth-splash .as-logo { width: 100%; height: 100%; animation: none; filter: drop-shadow(0 0 26px rgba(207, 85, 102, .35)); }
+        #auth-splash .as-ring { display: none; }
         /* Entrada a l'app: fosa suau (només quan es reprèn la sessió) */
         body.nk-boot > *:not(#auth-gate) { animation: nkBootIn .45s ease both; }
         @keyframes nkBootIn { from { opacity: 0; } to { opacity: 1; } }
@@ -604,6 +630,15 @@
         }
         @media (prefers-reduced-motion: reduce) {
             #player-modal .pm-sheet, #player-modal .pm-backdrop { transition-duration: .01s !important; }
+        }
+        /* Fitxa: sense blur de fons al mòbil (frena l'animació) i contingut que apareix suaument quan ja està pintat */
+        #player-modal .pm-body > * { transition: opacity .32s ease; }
+        #player-modal.pm-loading .pm-body > * { opacity: 0; }
+        #pm-figure img { opacity: 0; transition: opacity .3s ease; }
+        #pm-figure img.is-in { opacity: 1; }
+        @media (max-width: 767px) {
+            #player-modal .pm-backdrop { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: rgba(2, 6, 12, .9) !important; }
+            #player-modal .pm-sheet { contain: layout paint; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
         }
         .pm-actions-bar { position: sticky; top: 0; height: 0; z-index: 30; display: flex; justify-content: flex-end; }
         .pm-actions { display: flex; gap: .5rem; margin: .8rem .8rem 0 0; }
@@ -744,6 +779,18 @@
 </style>
 </head>
 <body class="h-full text-slate-100 flex flex-col md:flex-row md:overflow-hidden mode-coach">
+    <div id="nk-intro" aria-hidden="true"><div class="ni-glow"></div><div class="ni-disc"></div><div class="ni-logo"><div class="nk-icon ni-mark"></div><div class="nk-icon ni-shine"></div></div></div>
+    <script>
+        (function () {
+            var el = document.getElementById('nk-intro'); if (!el) return;
+            try { var nv = performance.getEntriesByType('navigation')[0]; if (nv && (nv.type === 'reload' || nv.type === 'back_forward')) { el.remove(); return; } } catch (e) {}
+            el.classList.add('show');
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            setTimeout(function () { el.classList.add('out'); }, reduce ? 500 : 1500);
+            setTimeout(function () { el.remove(); }, reduce ? 950 : 1950);
+        })();
+    </script>
+
 
     <!-- ===== PANTALLA D'ACCÉS (Supabase Auth) — tapa el tauler fins iniciar sessió ===== -->
     <div id="auth-gate" class="fixed inset-0 z-[999] bg-[#08090b] flex overflow-y-auto">
@@ -10465,9 +10512,9 @@
         const box = document.getElementById('pm-figure'); if (!box) return;
         const real = playerPhoto(p), src = real || playerSil();
         box.classList.toggle('no-img', !src);
-        box.innerHTML = src ? `<img${real ? '' : ' class="is-sil"'} alt="${esc(p.name)}" src="${src}">` : esc(initialsOf(p.name));
+        box.innerHTML = src ? `<img${real ? ' class="" ' : ' class="is-sil"'} alt="${esc(p.name)}" decoding="async" src="${src}" onload="this.classList.add('is-in')">` : esc(initialsOf(p.name));
     }
-    let pmCloseTimer = null;
+    let pmCloseTimer = null, pmRenderToken = 0;
     function openPlayerProfile(id) {
         curStats = null;
         const p = playerById(id);
@@ -10491,18 +10538,6 @@
         profilePeriod = (statsPeriod === 'pretemporada' || statsPeriod === 'lliga') ? statsPeriod : 'tot';
         updateProfilePeriodPills();
         renderProfileHero(p, 'pm');
-        renderProfileStats(p);
-        renderProfileParticipation(p);
-        renderProfileVideo(p);
-        renderProfileGoals(p);
-        renderProfileConvocatories(p);
-        renderProfileNotes(p);
-        renderProfileEvolution(p);
-        renderProfileFines(p);
-        renderProfileSociometry(p);
-        renderProfileMicroSelect();
-        renderProfileAttendanceSeason(p);
-        renderProfileAttendance();
 
         // Obertura animada: primer es pinta tancada (a baix) i després es deixa que la transició pugi la fitxa.
         const modal = document.getElementById('player-modal'), sheet = modal.querySelector('.pm-sheet');
@@ -10512,9 +10547,35 @@
         modal.classList.remove('hidden');
         sheet.scrollTop = 0;
         void modal.offsetWidth;
+        modal.classList.add('pm-loading');
         requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('is-open')));
         document.body.style.overflow = 'hidden';
-        lucide.createIcons();
+        // El contingut pesat es pinta DESPRÉS que la fitxa hagi pujat, i per trossos: així l'animació no s'encalla.
+        const token = ++pmRenderToken;
+        const steps = [
+            () => renderProfileStats(p),
+            () => renderProfileParticipation(p),
+            () => renderProfileVideo(p),
+            () => renderProfileGoals(p),
+            () => renderProfileConvocatories(p),
+            () => renderProfileNotes(p),
+            () => renderProfileEvolution(p),
+            () => renderProfileFines(p),
+            () => renderProfileSociometry(p),
+            () => renderProfileMicroSelect(),
+            () => renderProfileAttendanceSeason(p),
+            () => renderProfileAttendance(),
+            () => lucide.createIcons(),
+        ];
+        const alive = () => token === pmRenderToken && pmPlayerId === String(id);
+        const run = i => {
+            if (!alive()) return;
+            if (i >= steps.length) { requestAnimationFrame(() => modal.classList.remove('pm-loading')); return; }
+            try { steps[i](); } catch (e) { console.warn('fitxa', e); }
+            requestAnimationFrame(() => setTimeout(() => run(i + 1), 0));
+        };
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setTimeout(() => run(0), reduce ? 0 : (window.matchMedia('(max-width: 767px)').matches ? 430 : 360));
     }
 
     function closePlayerProfile() {
@@ -10524,7 +10585,7 @@
         sheet.style.transition = ''; sheet.style.transform = ''; modal.querySelector('.pm-backdrop').style.opacity = '';
         modal.classList.remove('is-open');
         document.body.style.overflow = '';
-        pmPlayerId = null;
+        pmPlayerId = null; pmRenderToken++;
         clearTimeout(pmCloseTimer);
         const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         pmCloseTimer = setTimeout(() => modal.classList.add('hidden'), reduce ? 20 : 340);
@@ -20402,7 +20463,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-a';
+const APP_VERSION = '2026.11.18-d';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;

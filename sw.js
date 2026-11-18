@@ -1,5 +1,5 @@
 // NurvKor service worker — puja VERSION a cada publicació de sw.js (l'avís de "versió nova" de l'app no en depèn)
-const VERSION = 'nurvkor-v9';
+const VERSION = 'nurvkor-v11';
 const CORE = ['./', './index.html'];   // imprescindibles per obrir sense connexió
 const EXTRA = ['./manifest.webmanifest', './icon-192.png', './icon-512.png', './favicon-32.png', './favicon-64.png', './icon-maskable-512.png', './icon-monochrome-512.png', './apple-touch-icon.png'];
 // Icones i fotos dels jugadors: es desen per poder obrir l'app sense connexió. Si en falta algun fitxer, no passa res (no trenca la instal·lació).
