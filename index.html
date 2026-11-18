@@ -525,6 +525,11 @@
             background: radial-gradient(closest-side, rgb(var(--granate-500) / .28), transparent 72%); }
         .nk-wm { position: absolute; right: 1.4rem; top: -1.2rem; font-size: clamp(9rem, 22vw, 16rem); font-weight: 900; line-height: 1; letter-spacing: -.04em;
             color: rgba(255,255,255,.05); pointer-events: none; user-select: none; font-variant-numeric: tabular-nums; }
+        .nk-hero-badges { position: absolute; top: 1.1rem; right: 1.3rem; z-index: 2; display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
+        .nk-hero-badges #current-date-badge { background: rgba(0,0,0,.32) !important; box-shadow: none !important; display: inline-block; }
+        .nk-hero-badges #current-date-badge::first-letter { text-transform: uppercase; }
+        .nk-title.sec .l { font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1; }
+        .nk-club { font-size: 1.05rem; font-weight: 600; color: #c9c9c9; letter-spacing: -.005em; }
         .nk-hero-top { position: relative; display: flex; align-items: center; gap: 1.6rem; padding: 1.7rem 2rem 1.5rem; min-height: 11rem; }
         .nk-crest { flex: none; width: 8.6rem; height: 8.6rem; display: grid; place-items: center; filter: drop-shadow(0 16px 30px rgba(0,0,0,.6)); }
         .nk-crest img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -550,6 +555,8 @@
         .nk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1rem; flex-wrap: wrap; }
         @media (max-width: 767px) {
             .nk-hero { border-radius: 1.3rem; }
+            .nk-hero-badges { position: relative; top: auto; right: auto; justify-content: flex-start; padding: .9rem 1.1rem 0; }
+            .nk-hero-badges + .nk-hero-top { padding-top: .8rem; min-height: 7.5rem; }
             .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
             .nk-crest { width: 5.6rem; height: 5.6rem; }
             .nk-wm { right: .6rem; top: -.2rem; font-size: 9rem; }
@@ -1522,12 +1529,12 @@
         <!-- APP -->
         <div id="app-content" class="hidden space-y-8">
 
-            <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-7 border-b border-slate-800/60">
+            <header id="app-page-header" class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-7 border-b border-slate-800/60">
                 <div>
                     <h2 class="text-[26px] font-extrabold text-white tracking-tight" id="section-title">Plantilla</h2>
                     <p class="text-[13.5px] text-slate-400 mt-1.5 leading-relaxed" id="section-subtitle">Fitxa dels jugadors tal com surt de la pestanya Plantilla.</p>
                 </div>
-                <div class="flex items-center gap-2.5">
+                <div id="hdr-badges" class="flex items-center gap-2.5">
                     <span id="phase-badge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="phase-badge-text">—</span>
@@ -1540,6 +1547,7 @@
             <section id="tab-plantilla" class="tab-content space-y-6">
                 <div id="squad-hero" class="nk-hero">
                     <div class="nk-wm" id="squad-hero-wm"></div>
+                    <div class="nk-hero-badges" id="squad-hero-badges"></div>
                     <div class="nk-hero-top" id="squad-hero-top"></div>
                     <div id="squad-hero-stats" class="kpi-strip"></div>
                 </div>
@@ -1823,6 +1831,7 @@
                 <div id="stats-wrapper" class="hidden space-y-6">
                     <div id="stats-hero" class="nk-hero">
                         <div class="nk-wm" id="stats-hero-wm"></div>
+                        <div class="nk-hero-badges" id="stats-hero-badges"></div>
                         <div class="nk-hero-top" id="stats-hero-top"></div>
                         <div id="stats-kpis" class="kpi-strip"></div>
                     </div>
@@ -6981,11 +6990,12 @@
         const parts = name.split(/\s+/), first = parts.length > 1 ? parts[0] : '', last = parts.length > 1 ? parts.slice(1).join(' ') : name;
         return { name, first, last, crest, season, initials: parts.map(w => w[0]).join('').slice(0, 3).toUpperCase() };
     }
-    function heroTopHTML(eyebrow, metaHTML) {
+    function heroTopHTML(section, eyebrow, metaHTML) {
         const id = heroIdentity();
         return `<div class="nk-crest">${id.crest ? `<img alt="" src="${esc(id.crest)}">` : `<div class="nk-crest-ph">${esc(id.initials || 'NK')}</div>`}</div>
             <div class="nk-hero-txt"><span class="nk-eyebrow">${esc(eyebrow)}</span>
-            <h2 class="nk-title">${id.first ? `<span class="f">${esc(id.first)}</span>` : ''}<span class="l">${esc(id.last || 'El teu equip')}</span></h2>
+            <h2 class="nk-title sec"><span class="l">${esc(section)}</span></h2>
+            <span class="nk-club">${esc(id.name || 'El teu equip')}</span>
             ${metaHTML ? `<div class="nk-meta">${metaHTML}</div>` : ''}</div>`;
     }
     const PERIOD_HERO = { lliga: 'Lliga', pretemporada: 'Pretemporada', tot: 'Tota la temporada' };
@@ -6993,13 +7003,13 @@
     function renderStatsHeroTop() {
         const el = document.getElementById('stats-hero-top'); if (!el) return;
         const id = heroIdentity(), a = statsMatchKey != null ? archById(statsMatchKey) : null;
-        el.innerHTML = heroTopHTML(`${id.season || 'Temporada'}${a ? ' · Partit: ' + archLabel(a) : ''}`, '');
+        el.innerHTML = heroTopHTML('Estadística', `${id.season || 'Temporada'}${a ? ' · Partit: ' + archLabel(a) : ''}`, '');
     }
     const COMP_INFO = { categoria: '3a Divisió Nacional', esport: 'Futbol sala', grup: '2', fcfUrl: 'https://www.fcf.cat/ca/competicio/2026-2027/tercera-divisio-nacional-futbol-sala/grup-2/classificacio' };
     function renderSquadHero() {
         const top = document.getElementById('squad-hero-top'), st = document.getElementById('squad-hero-stats'); if (!top || !st) return;
         const id = heroIdentity(), act = squadPlayers().filter(p => !p.extern);
-        top.innerHTML = heroTopHTML(id.season || 'Temporada', '');
+        top.innerHTML = heroTopHTML('Plantilla', id.season || 'Temporada', '');
         const wm = document.getElementById('squad-hero-wm'); if (wm) wm.textContent = '';
         const ages = act.map(p => ageOf(p.anyNaixement)).filter(a => a !== null && a !== undefined);
         const avg = ages.length ? (ages.reduce((a, b) => a + b, 0) / ages.length) : null;
@@ -13631,6 +13641,13 @@
             rivals:      ['Rivals', 'Fitxa de cada rival, comparatives i anàlisi dels nostres partits. Només per a l\'entrenador.'],
             convocatories: ['Convocatòries', 'Registre de convocats i no convocats per jornada, amb el motiu i l\'històric per preparar les properes.']
         };
+        (function () {
+            const hdr = document.getElementById('app-page-header'), b = document.getElementById('hdr-badges');
+            const host = tabId === 'plantilla' ? document.getElementById('squad-hero-badges') : tabId === 'estadistica' ? document.getElementById('stats-hero-badges') : null;
+            if (!hdr || !b) return;
+            if (host) { if (b.parentNode !== host) host.appendChild(b); hdr.classList.add('hidden'); }
+            else { if (b.parentNode !== hdr) hdr.appendChild(b); hdr.classList.remove('hidden'); }
+        })();
         if (titles[tabId]) {
             document.getElementById('section-title').innerText = titles[tabId][0];
             document.getElementById('section-subtitle').innerText = titles[tabId][1];
@@ -20729,7 +20746,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-i';
+const APP_VERSION = '2026.11.18-j';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
