@@ -591,30 +591,30 @@
         .mn-slot b { font-size: 11px !important; } .mn-slot small { font-size: 9.5px !important; }
         @media (max-width: 480px) { .mn-slot, .mn-slot.empty { min-height: 4.1rem !important; } .mn-slot .mn-ph { width: 2rem !important; height: 2rem !important; } .mn-slot b { font-size: 10px !important; } }
         /* ===== Calendari: targetes plegables i quadrícula ===== */
-        .cal-top { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; align-items: start; }
+        .cal-top { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
         @media (max-width: 1023px) { .cal-top { grid-template-columns: 1fr; } }
         .cal-fold { border-radius: 1.1rem; background: rgba(31,31,31,.8); background-image: linear-gradient(135deg, rgb(var(--granate-600) / .10), transparent 60%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px -14px rgba(0,0,0,.55); overflow: hidden; }
-        .cal-sum { list-style: none; cursor: pointer; display: flex; align-items: center; gap: .75rem; padding: .7rem 1rem; min-height: 4.4rem; flex-wrap: wrap; }
-        @media (min-width: 1024px) { .cal-sum { flex-wrap: nowrap; } .cal-sum-main { flex-basis: 8rem; } }
+        .cal-sum { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 1rem; padding: 1.05rem 1.3rem; min-height: 6rem; flex-wrap: wrap; }
+        @media (min-width: 1024px) { .cal-sum { flex-wrap: nowrap; height: 6rem; } .cal-sum-main { flex-basis: 8rem; } }
         .cal-sum::-webkit-details-marker { display: none; }
-        .cal-ico { flex: none; width: 2.2rem; height: 2.2rem; border-radius: .7rem; display: grid; place-items: center; color: #34d399; background: rgba(16,185,129,.10); box-shadow: inset 0 0 0 1px rgba(16,185,129,.28); }
-        .cal-sum-main { flex: 1 1 11rem; min-width: 0; display: flex; flex-direction: column; gap: .12rem; }
-        .cal-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8f8f8f; }
+        .cal-ico { flex: none; width: 2.6rem; height: 2.6rem; border-radius: .85rem; display: grid; place-items: center; color: #34d399; background: rgba(16,185,129,.10); box-shadow: inset 0 0 0 1px rgba(16,185,129,.28); }
+        .cal-sum-main { flex: 1 1 11rem; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: .3rem; }
+        .cal-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8f8f8f; white-space: nowrap; }
         .cal-sum-line { font-size: .98rem; font-weight: 800; color: #fff; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cal-sub { font-size: 11.5px; font-weight: 600; color: #34d399; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cal-eyebrow-row { display: flex; align-items: center; gap: .5rem; }
+        .cal-eyebrow-row { display: flex; align-items: center; gap: .6rem; }
         .cal-tag { flex: none; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: .1rem .4rem; border-radius: .4rem; color: #34d399; background: rgba(16,185,129,.14); box-shadow: inset 0 0 0 1px rgba(16,185,129,.3); }
-        .cal-chips { display: flex; gap: .4rem; flex: none; }
-        .cal-chip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; color: #9f9f9f; padding: .3rem .55rem; border-radius: .6rem; background: rgba(255,255,255,.05); }
+        .cal-chips { display: flex; gap: .5rem; flex: none; }
+        .cal-chip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; color: #9f9f9f; padding: .4rem .7rem; border-radius: .7rem; background: rgba(255,255,255,.05); }
         .cal-chip b { color: #f1f1f1; font-weight: 800; }
         .cal-chev { flex: none; color: #8f8f8f; transition: transform .2s; margin-left: auto; }
         .cal-fold[open] .cal-chev { transform: rotate(180deg); }
-        .cal-body { padding: .2rem 1rem 1rem; border-top: 1px solid rgba(255,255,255,.06); padding-top: .85rem; }
+        .cal-body { padding: 1.1rem 1.3rem 1.3rem; border-top: 1px solid rgba(255,255,255,.06); }
         .cal-text { margin-top: .3rem; font-size: 13px; font-weight: 600; color: #e5e5e5; line-height: 1.45; }
-        .cal-gen { flex: none; display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .7rem; border-radius: .6rem; font-size: 11px; font-weight: 800; color: #fff; background: rgb(var(--granate-600)); }
+        .cal-gen { flex: none; display: inline-flex; align-items: center; gap: .4rem; padding: .55rem .9rem; border-radius: .6rem; font-size: 11px; font-weight: 800; color: #fff; background: rgb(var(--granate-600)); }
         .cal-gen:hover { background: rgb(var(--granate-500)); }
-        .cal-hor-sum { display: flex; flex-wrap: wrap; gap: .35rem; }
-        .cal-hchip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; font-weight: 700; color: #e5e5e5; padding: .2rem .5rem; border-radius: .5rem; background: rgba(255,255,255,.06); font-variant-numeric: tabular-nums; }
+        .cal-hor-sum { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .cal-hchip { display: inline-flex; align-items: center; gap: .35rem; font-size: 11.5px; font-weight: 700; color: #e5e5e5; padding: .3rem .65rem; border-radius: .6rem; background: rgba(255,255,255,.06); font-variant-numeric: tabular-nums; }
         .cal-hchip b { color: #34d399; font-weight: 800; }
         @media (max-width: 480px) { .cal-chips { width: 100%; padding-left: 2.95rem; } .cal-gen span { display: none; } }
         .cg-card { border-radius: 1.3rem; padding: 1.1rem 1.1rem 1rem; background: rgba(31,31,31,.8); background-image: linear-gradient(135deg, rgb(var(--granate-600) / .08), transparent 55%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px -14px rgba(0,0,0,.55); }
@@ -5649,7 +5649,7 @@
         
         // MILLORA 4: Calcula volum, intensitat i UC automàticament des dels exercicis
         const computedData = sessionLoadFull(s);
-        document.getElementById('next-session-volume').innerText = computedData.volum > 0 ? `${computedData.volum} minuts` : '—';
+        document.getElementById('next-session-volume').innerText = computedData.volum > 0 ? `${computedData.volum} min` : '—';
         document.getElementById('next-session-intensity').innerText = computedData.intensitat > 0 ? `${computedData.intensitat.toFixed(1)} / 10` : '—';
         document.getElementById('next-session-content').innerText = s.contingut || '—';
     }
@@ -20829,7 +20829,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.18-m';
+const APP_VERSION = '2026.11.18-n';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
