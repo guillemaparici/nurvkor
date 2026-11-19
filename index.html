@@ -139,6 +139,8 @@
             .spg-grid > .squad-card > :nth-last-child(2) { margin-bottom: .75rem; }
         }
         @media (min-width:1280px){ #squad-cards-grid .spg-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+        #squad-card-head { padding-bottom: 1rem; }
+        #squad-cards-grid { padding-top: .75rem !important; }
         #squad-summary > summary { list-style: none; }
         #squad-summary > summary::-webkit-details-marker { display: none; }
         #squad-summary[open] > summary .squad-chev { transform: rotate(180deg); }
@@ -544,7 +546,7 @@
         .nk-hero-top { overflow: hidden; }
         /* Escut com a filigrana: gran, monocrom i tallat per la vora esquerra (mateix to que el número de la dreta) */
         .nk-crest { position: absolute; left: -6.5rem; top: 50%; width: 21rem; height: 21rem; transform: translateY(-46%); display: block; pointer-events: none; z-index: 0; }
-        .nk-crest img { width: 100%; height: 100%; object-fit: contain; opacity: .075; }
+        .nk-crest img { width: 100%; height: 100%; object-fit: contain; opacity: .17; }
         .nk-crest .nk-crest-ph { display: none !important; }
         .nk-crest .nk-crest-ph { width: 100%; height: 100%; border-radius: 1.6rem; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: rgba(255,255,255,.7);
             background: linear-gradient(160deg, #2a2a2a, #171717); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
@@ -580,6 +582,12 @@
             .nk-hero { border-radius: 1.3rem; }
             .nk-hero-badges { position: relative; top: auto; right: auto; justify-content: flex-start; padding: .9rem 1.1rem 0; }
             .nk-hero-badges #hdr-badges { flex-direction: column !important; align-items: flex-start !important; gap: .4rem !important; }
+            /* Plantilla i Estadística: etiquetes a la dreta, a la mateixa alçada que "Temporada" i el club */
+            #squad-hero > .nk-hero-badges, #stats-hero > .nk-hero-badges { position: absolute; top: 1.15rem; right: 1.1rem; left: auto; padding: 0; justify-content: flex-end; }
+            #squad-hero > .nk-hero-badges #hdr-badges, #stats-hero > .nk-hero-badges #hdr-badges { align-items: flex-end !important; gap: .3rem !important; }
+            #squad-hero > .nk-hero-badges + .nk-hero-top, #stats-hero > .nk-hero-badges + .nk-hero-top { padding-top: 1.2rem; min-height: 8.5rem; }
+            #squad-hero > .nk-hero-badges #phase-badge, #squad-hero > .nk-hero-badges #current-date-badge,
+            #stats-hero > .nk-hero-badges #phase-badge, #stats-hero > .nk-hero-badges #current-date-badge { font-size: 10px; padding: .22rem .55rem; }
             .nk-hero-badges + .nk-hero-top { padding-top: .8rem; min-height: 7.5rem; }
             .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
             .nk-crest { left: -5rem; width: 14.5rem; height: 14.5rem; }
@@ -1789,7 +1797,7 @@
 
                 <div class="grid grid-cols-1 gap-6">
                     <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden flex flex-col">
-                        <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div id="squad-card-head" class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div>
                                 <h4 class="font-bold text-white text-base">Fitxa de la plantilla</h4>
                                 <p class="text-xs text-slate-400 mt-1">Fes clic en un jugador per veure'n el perfil, les estadístiques i l'assistència.</p>
@@ -21251,7 +21259,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.19-d';
+const APP_VERSION = '2026.11.19-e';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
