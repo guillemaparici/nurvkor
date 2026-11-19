@@ -328,23 +328,29 @@
         @media (max-width: 767px) {
             .fab-nav { display: flex; justify-content: center; position: fixed; left: 10px; right: 10px; bottom: 16px; z-index: 35; pointer-events: none; transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
             body.sb-open .fab-nav { opacity: 0; transform: translateY(20px); visibility: hidden; transition: opacity .2s, transform .25s, visibility 0s .25s; }
-            .fab-nav-track { pointer-events: auto; display: flex; align-items: center; gap: .15rem; max-width: 100%; padding: .22rem .3rem; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; border-radius: 999px;
-                background: rgba(22,22,22,.42); border: 1px solid rgba(255,255,255,.07); box-shadow: 0 8px 20px -10px rgba(0,0,0,.5);
-                -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-                transition: background .3s, border-color .3s, box-shadow .3s, padding .3s, gap .3s; }
+            .fab-nav-track { position: relative; pointer-events: auto; display: flex; align-items: center; gap: .2rem; max-width: 100%; padding: .28rem .34rem; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; border-radius: 999px;
+                background: rgba(22,22,22,.5); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 8px 20px -10px rgba(0,0,0,.55);
+                -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+                -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+                overscroll-behavior-x: contain; transform-origin: 50% 100%;
+                transition: background .3s, border-color .3s, box-shadow .3s, transform .3s cubic-bezier(.2,.8,.2,1); }
             .fab-nav-track::-webkit-scrollbar { display: none; }
             .fab-nav-track.is-locked { opacity: .4; pointer-events: none; }
-            .fab-nav-btn { flex: none; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: rgba(214,214,214,.8); background: transparent; border: 0;
-                transition: width .3s cubic-bezier(.2,.8,.2,1), height .3s cubic-bezier(.2,.8,.2,1), background .25s, color .25s, box-shadow .25s, transform .2s; }
-            .fab-nav-btn svg { width: 16px; height: 16px; stroke-width: 1.7; transition: width .3s, height .3s; }
+            /* Indicador: un sol cercle granate que llisca fins a l'apartat actiu */
+            .fab-nav-ind { position: absolute; left: 0; top: 50%; margin-top: -19px; width: 38px; height: 38px; border-radius: 50%; z-index: 0; pointer-events: none; will-change: transform;
+                background: linear-gradient(135deg, rgb(var(--granate-500)), rgb(var(--granate-700)));
+                box-shadow: 0 6px 16px -5px rgb(var(--granate-500) / .8), inset 0 1px 0 rgba(255,255,255,.22); }
+            .fab-nav-btn { position: relative; z-index: 1; flex: none; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: rgba(214,214,214,.75); background: transparent; border: 0;
+                transition: color .25s, transform .2s cubic-bezier(.3,1.4,.5,1); -webkit-tap-highlight-color: transparent; }
+            .fab-nav-btn svg { width: 18px; height: 18px; stroke-width: 1.8; transition: transform .25s cubic-bezier(.3,1.4,.5,1); }
             .fab-nav-btn span { display: none; }
-            .fab-nav-btn:active { transform: scale(.88); }
-            .fab-nav-btn.is-active { color: #fff; background: rgb(var(--granate-600) / .75); }
-            /* Activa (després de tocar-la): una mica més gran i opaca */
-            .fab-nav.is-engaged .fab-nav-track { background: rgba(22,22,22,.96); border-color: rgba(255,255,255,.12); padding: .32rem .4rem; gap: .25rem; box-shadow: 0 16px 34px -10px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.08); }
-            .fab-nav.is-engaged .fab-nav-btn { width: 44px; height: 44px; color: #d8d8d8; }
-            .fab-nav.is-engaged .fab-nav-btn svg { width: 20px; height: 20px; }
-            .fab-nav.is-engaged .fab-nav-btn.is-active { color: #fff; background: linear-gradient(135deg, rgb(var(--granate-400)), rgb(var(--granate-600))); box-shadow: 0 6px 16px -4px rgb(var(--granate-500) / .85), inset 0 1px 0 rgba(255,255,255,.25); }
+            .fab-nav-btn:active { transform: scale(.86); }
+            .fab-nav-btn.is-active { color: #fff; }
+            .fab-nav-btn.is-active svg { transform: scale(1.08); }
+            /* Tocada: una mica més gran i opaca */
+            .fab-nav.is-engaged .fab-nav-track { background: rgba(22,22,22,.96); border-color: rgba(255,255,255,.12); transform: scale(1.07); box-shadow: 0 16px 34px -10px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.08); }
+            .fab-nav.is-engaged .fab-nav-btn { color: #d8d8d8; }
+            .fab-nav.is-engaged .fab-nav-btn.is-active { color: #fff; }
         }
 
         /* Botó flotant de l'assistent: amagat (no s'utilitza) */
@@ -936,12 +942,29 @@
             #tab-inici #ph-watermark ~ .relative.flex { min-height: 8rem; padding: .6rem 1.1rem 1.1rem 9.2rem; align-items: stretch; }
             #tab-inici #player-home .hero-figure { left: .6rem; height: 9.4rem; }
         }
+        /* Inici (jugador): només la data (el microcicle no cal), a la dreta de la fila del dorsal */
+        #tab-inici #phase-badge { display: none !important; }
+        #tab-inici .ph-txt { flex: 1 1 0; }
+        #tab-inici .ph-dorsal-row { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-width: 0; }
+        #tab-inici .ph-dorsal-row > .nk-hero-badges { position: static !important; padding: 0 !important; flex: 1 1 0; min-width: 0; justify-content: flex-end; }
+        #tab-inici .ph-dorsal-row #hdr-badges { flex-direction: row !important; align-items: center !important; min-width: 0; max-width: 100%; }
+        #tab-inici .ph-dorsal-row #current-date-badge { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* Foto de l'Inici: la mida s'adapta a l'amplada disponible (variable --ph-h) i el text s'hi ajusta */
+        @media (max-width: 767px) {
+            #tab-inici #player-home { --ph-h: clamp(9.4rem, 34vw, 14rem); }
+            #tab-inici #player-home .hero-figure { left: .6rem; height: var(--ph-h); }
+            #tab-inici #ph-watermark ~ .relative.flex { min-height: var(--ph-h); padding: .8rem 1.1rem 1.1rem calc(var(--ph-h) * .8 + 1.3rem); }
+        }
         /* ===== Mòbil: ajustos de capçaleres, plantilla i estadística ===== */
         .nk-hero-badges #phase-badge, .nk-hero-badges #current-date-badge { white-space: nowrap; }
         body.nk-inici.nk-herotab #tab-inici > * { margin-top: 0 !important; }
         @media (min-width: 768px) {
             #tab-inici #player-home .hero-figure { height: 100% !important; bottom: 0; left: 1.6rem; }
             #tab-inici #ph-watermark { top: 0 !important; bottom: 0; right: 3rem !important; display: flex; align-items: center; overflow: hidden; clip-path: none; font-size: 15rem; line-height: 1; }
+        }
+        @media (min-width: 768px) {
+            #tab-inici #player-home { --ph-h: clamp(9.5rem, 15vw, 14rem); }
+            #tab-inici #ph-watermark ~ .relative.flex { min-height: var(--ph-h); padding-left: calc((var(--ph-h) + 3.2rem) * .8 + 3rem); }
         }
         @media (max-width: 639px) {
             .nk-hero-badges { flex-wrap: nowrap !important; gap: .4rem !important; }
@@ -979,7 +1002,11 @@
 
         /* ===== Lliscar entre apartats (mòbil) ===== */
         html { overscroll-behavior-x: none; }
-        body.nk-swiping #app-content, body.nk-swiping #app-page-header { will-change: transform, opacity; }
+        body.nk-swiping #app-content { will-change: transform; }
+        body.nk-peeking #app-content { position: relative; }
+        body.nk-peeking main { overflow-x: hidden; }
+        #app-content > .nk-peek-pane, #app-content > .nk-peek-hdr { position: absolute !important; margin: 0 !important; box-sizing: border-box; }
+        #app-content > .nk-peek-pane { pointer-events: none; }
         body.nk-swiping { -webkit-user-select: none; user-select: none; }
         /* ===== Fitxa del jugador: pestanyes Pista / Fora de pista / Seguiment ===== */
         .pm-tabs { display: flex; gap: .35rem; padding: .3rem; border-radius: .95rem; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
@@ -1882,12 +1909,11 @@
                 <div id="player-home" class="player-only bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <div class="relative overflow-hidden bg-gradient-to-br from-granate-950/80 via-slate-900 to-slate-900 border-b border-slate-800 p-6">
                         <span id="ph-watermark" class="pointer-events-none select-none absolute -right-3 -top-8 text-[120px] font-black text-white/[0.04] leading-none"></span>
-                        <div class="nk-hero-badges" id="inici-hero-badges"></div>
                         <div class="relative flex items-center gap-4">
                             <div id="ph-avatar" class="w-16 h-16 rounded-2xl bg-granate-500/15 border border-granate-500/30 flex items-center justify-center font-black text-xl text-granate-300 shrink-0"></div>
                             <div class="min-w-0 ph-txt">
                                 <div class="ph-txt-top">
-                                    <p id="ph-dorsal" class="text-[10px] font-bold uppercase tracking-wider text-granate-400"></p>
+                                    <div class="ph-dorsal-row"><p id="ph-dorsal" class="text-[10px] font-bold uppercase tracking-wider text-granate-400 whitespace-nowrap"></p><div class="nk-hero-badges" id="inici-hero-badges"></div></div>
                                     <div id="ph-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                                 </div>
                                 <h2 id="ph-name" class="nk-title sec"></h2>
@@ -13999,42 +14025,7 @@
             switchTab(id);
         } catch (e) {}
     }
-    function switchTab(tabId) {
-        if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'inici';
-        if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'inici';
-        if (appRole !== 'player' && tabId === 'inici') tabId = 'plantilla';
-        closeSidebar();
-        try { if (!previewMode && window.CFSE_EQUIP_ID && document.getElementById('tab-' + tabId)) localStorage.setItem(nkTabKey(), tabId); } catch (e) {}
-        try { nkPlaceHeader(tabId); } catch (e) {}
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-        const target = document.getElementById(`tab-${tabId}`);
-        if (target) target.classList.remove('hidden');
-        if (tabId === 'video') { renderVideo(); if (appRole === 'player') renderPlayerVideoGallery(); }
-        if (tabId === 'rutines') renderRutines();
-        if (tabId === 'competicio') renderCompetition();
-        if (tabId === 'multes') { renderFines(); pullLatestQuietly(); }
-        if (tabId === 'sociograma') renderSociograma();
-        if (tabId === 'convocatories') renderConvocatories();
-        if (tabId === 'rivals') renderRivals();
-        if (tabId === 'calendari') { resetCalWeekToToday(); renderCalendar(); }
-        if (tabId === 'inici') renderPlayerHome();
-        if (tabId === 'estadistica') { if (appRole === 'player') { renderPlayerHome(); renderStats(); setStatsMode('team'); } else renderStats(); }
-        if (tabId === 'plantilla') { squadAnimPending = true; renderSquad(); requestAnimationFrame(nkSegMove); }
-        if (tabId === 'carregues') { renderPlayerLoadTable(); renderPlayerLoads(); }
-        if (tabId === 'model') renderModel();
-
-        enhanceHelp();
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('bg-granate-600', 'text-white', 'shadow-lg', 'shadow-granate-900/40');
-            b.classList.add('text-slate-400', 'hover:text-slate-100', 'hover:bg-slate-800/60');
-        });
-        const btn = document.getElementById(`btn-${tabId}`);
-        if (btn) {
-            btn.classList.add('bg-granate-600', 'text-white', 'shadow-lg', 'shadow-granate-900/40');
-            btn.classList.remove('text-slate-400', 'hover:text-slate-100', 'hover:bg-slate-800/60');
-        }
-
-        const titles = {
+    const NK_TITLES = {
             inici:       ['Inici', 'El teu resum: propera cita, objectius, assistència, multes i vídeo.'],
             plantilla:   ['Plantilla', "Fitxa dels jugadors tal com surt de la pestanya Plantilla."],
             estadistica: ['Estadística', 'Mètriques llegides de la pestanya Estadística.'],
@@ -14049,7 +14040,50 @@
             sociograma:  ['Sociograma', 'Estat de les relacions interpersonals de l\'equip a partir de formularis i eleccions entre companys.'],
             rivals:      ['Rivals', 'Fitxa de cada rival, comparatives i anàlisi dels nostres partits. Només per a l\'entrenador.'],
             convocatories: ['Convocatòries', 'Registre de convocats i no convocats per jornada, amb el motiu i l\'històric per preparar les properes.']
-        };
+    };
+    // Pinta el contingut d'un apartat (el mateix que feia switchTab). Es crida també en preparar l'apartat veí durant el lliscament.
+    function nkRenderTab(tabId) {
+        if (tabId === 'video') { renderVideo(); if (appRole === 'player') renderPlayerVideoGallery(); }
+        if (tabId === 'rutines') renderRutines();
+        if (tabId === 'competicio') renderCompetition();
+        if (tabId === 'multes') renderFines();
+        if (tabId === 'sociograma') renderSociograma();
+        if (tabId === 'convocatories') renderConvocatories();
+        if (tabId === 'rivals') renderRivals();
+        if (tabId === 'calendari') { resetCalWeekToToday(); renderCalendar(); }
+        if (tabId === 'inici') renderPlayerHome();
+        if (tabId === 'estadistica') { if (appRole === 'player') { renderPlayerHome(); renderStats(); setStatsMode('team'); } else renderStats(); }
+        if (tabId === 'plantilla') { squadAnimPending = true; renderSquad(); requestAnimationFrame(nkSegMove); }
+        if (tabId === 'carregues') { renderPlayerLoadTable(); renderPlayerLoads(); }
+        if (tabId === 'model') renderModel();
+        enhanceHelp();
+        try { lucide.createIcons(); } catch (e) {}
+    }
+    function switchTab(tabId) {
+        if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'inici';
+        if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'inici';
+        if (appRole !== 'player' && tabId === 'inici') tabId = 'plantilla';
+        closeSidebar();
+        try { if (!previewMode && window.CFSE_EQUIP_ID && document.getElementById('tab-' + tabId)) localStorage.setItem(nkTabKey(), tabId); } catch (e) {}
+        try { nkPlaceHeader(tabId); } catch (e) {}
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        const target = document.getElementById(`tab-${tabId}`);
+        if (target) target.classList.remove('hidden');
+        const nkSkip = window.__nkPeeked === tabId; window.__nkPeeked = null;   // si l'apartat ja s'ha pintat durant el lliscament, no es repinta
+        if (tabId === 'multes') pullLatestQuietly();
+        if (!nkSkip) nkRenderTab(tabId);
+        enhanceHelp();
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('bg-granate-600', 'text-white', 'shadow-lg', 'shadow-granate-900/40');
+            b.classList.add('text-slate-400', 'hover:text-slate-100', 'hover:bg-slate-800/60');
+        });
+        const btn = document.getElementById(`btn-${tabId}`);
+        if (btn) {
+            btn.classList.add('bg-granate-600', 'text-white', 'shadow-lg', 'shadow-granate-900/40');
+            btn.classList.remove('text-slate-400', 'hover:text-slate-100', 'hover:bg-slate-800/60');
+        }
+
+        const titles = NK_TITLES;
         if (titles[tabId]) {
             document.getElementById('section-title').innerText = titles[tabId][0];
             document.getElementById('section-subtitle').innerText = titles[tabId][1];
@@ -16149,43 +16183,87 @@ ${userText}`;
         sched();
     })();
 
-    /* Navegació flotant (només mòbil): botons rodons sempre a mà; s'amaguen quan es desplega la barra lateral. */
+    /* Navegació flotant (només mòbil): botons rodons sempre a mà; s'amaguen quan es desplega la barra lateral.
+       Un únic indicador granate llisca fins a l'apartat actiu (i segueix el dit mentre es llisca entre apartats). */
     (function initFabNav() {
         const nav = document.getElementById('main-nav'), track = document.getElementById('fab-nav-track');
         if (!nav || !track) return;
-        let q = 0;
+        let q = 0, ind = null, activeId = null;
+        const els = () => [...track.querySelectorAll('.fab-nav-btn')];
+        const elOf = id => els().find(e => e.dataset.tab === id) || null;
+        const centerOf = el => { const max = Math.max(0, track.scrollWidth - track.clientWidth); return Math.max(0, Math.min(max, el.offsetLeft + el.offsetWidth / 2 - track.clientWidth / 2)); };
+        const putInd = (el, tr) => {
+            if (!ind || !el) return;
+            ind.style.transition = tr || 'none';
+            ind.style.width = el.offsetWidth + 'px'; ind.style.height = el.offsetHeight + 'px';
+            ind.style.transform = `translate3d(${el.offsetLeft}px,0,0)`;
+        };
+        const center = (el, smooth) => { if (!el) return; try { track.scrollTo({ left: centerOf(el), behavior: smooth ? 'smooth' : 'auto' }); } catch (e) { track.scrollLeft = centerOf(el); } };
+        const mark = id => els().forEach(e => e.classList.toggle('is-active', e.dataset.tab === id));
         const build = () => {
             q = 0;
             const btns = [...nav.querySelectorAll(':scope > .tab-btn')].filter(b => getComputedStyle(b).display !== 'none');
             const locked = nav.classList.contains('pointer-events-none');
             track.classList.toggle('is-locked', locked);
-            const sig = btns.map(b => b.id + (b.classList.contains('bg-granate-600') ? '*' : '')).join('|');
-            if (track.dataset.sig === sig) return;
-            track.dataset.sig = sig; track.innerHTML = '';
-            let active = null;
-            btns.forEach(b => {
-                const el = document.createElement('button'); el.type = 'button';
-                const on = b.classList.contains('bg-granate-600');
-                el.className = 'fab-nav-btn' + (on ? ' is-active' : '');
-                const label = b.textContent.trim();
-                el.title = label; el.setAttribute('aria-label', label);
-                const src = b.querySelector('[data-lucide]'), ic = document.createElement('i'); ic.setAttribute('data-lucide', (src && src.getAttribute('data-lucide')) || 'circle'); el.appendChild(ic);
-                const sp = document.createElement('span'); sp.textContent = label; el.appendChild(sp);
-                el.addEventListener('click', () => b.click());
-                track.appendChild(el); if (on) active = el;
-            });
-            try { if (window.lucide) lucide.createIcons(); } catch (e) {}
-            if (active) requestAnimationFrame(() => { try { track.scrollTo({ left: active.offsetLeft - track.clientWidth / 2 + 22, behavior: 'smooth' }); } catch (e) { track.scrollLeft = active.offsetLeft - track.clientWidth / 2 + 22; } });
+            const idsSig = btns.map(b => b.id).join('|');
+            const first = track.dataset.ids !== idsSig;
+            if (first) {
+                track.dataset.ids = idsSig; track.innerHTML = '';
+                ind = document.createElement('span'); ind.className = 'fab-nav-ind'; ind.setAttribute('aria-hidden', 'true'); track.appendChild(ind);
+                btns.forEach(b => {
+                    const el = document.createElement('button'); el.type = 'button';
+                    const label = b.textContent.trim();
+                    el.dataset.tab = b.id.replace(/^btn-/, '');
+                    el.className = 'fab-nav-btn';
+                    el.title = label; el.setAttribute('aria-label', label);
+                    const src = b.querySelector('[data-lucide]'), ic = document.createElement('i'); ic.setAttribute('data-lucide', (src && src.getAttribute('data-lucide')) || 'circle'); el.appendChild(ic);
+                    el.addEventListener('click', () => {
+                        try { if (navigator.vibrate) navigator.vibrate(4); } catch (e) {}
+                        if (el.dataset.tab !== activeId && window.nkSlideTo && window.nkSlideTo(el.dataset.tab)) return;
+                        b.click();
+                    });
+                    track.appendChild(el);
+                });
+                try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+            }
+            const act = btns.find(b => b.classList.contains('bg-granate-600'));
+            const id = act ? act.id.replace(/^btn-/, '') : null;
+            const changed = id !== activeId; activeId = id;
+            const el = id ? elOf(id) : null;
+            mark(id);
+            if (el) { putInd(el, (first || !changed) ? 'none' : 'transform .42s cubic-bezier(.2,.9,.25,1.12), width .3s, height .3s'); requestAnimationFrame(() => center(el, !first)); }
+            else if (ind) ind.style.opacity = '0';
+            if (ind && el) ind.style.opacity = '1';
         };
         const sched = () => { if (!q) q = requestAnimationFrame(build); };
         new MutationObserver(sched).observe(nav, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(sched);
         window.addEventListener('resize', sched);
         setTimeout(sched, 300); setTimeout(sched, 1500); sched();
-        // Estat actiu: en tocar la barra creix i s'opaca; en desplaçar el contingut (o passats uns segons) torna a ser petita i translúcida.
+
+        // API per al lliscament entre apartats: l'indicador i la barra segueixen el dit i s'aturen a l'apartat final.
+        window.nkDock = {
+            follow(fromId, toId, p) {
+                const a = elOf(fromId), b = elOf(toId); if (!a || !b || !ind) return;
+                const L = (x, y) => x + (y - x) * p;
+                ind.style.transition = 'none'; ind.style.opacity = '1';
+                ind.style.width = L(a.offsetWidth, b.offsetWidth) + 'px'; ind.style.height = L(a.offsetHeight, b.offsetHeight) + 'px';
+                ind.style.transform = `translate3d(${L(a.offsetLeft, b.offsetLeft)}px,0,0)`;
+                track.scrollLeft = L(centerOf(a), centerOf(b));
+                a.classList.toggle('is-active', p < 0.5); b.classList.toggle('is-active', p >= 0.5);
+            },
+            settle(id, ms, ease) {
+                const el = elOf(id); if (!el || !ind) return;
+                putInd(el, `transform ${ms}ms ${ease || 'cubic-bezier(.2,.9,.25,1.12)'}, width ${ms}ms, height ${ms}ms`);
+                mark(id); center(el, true);
+            },
+            snap() { const el = elOf(activeId); if (el) { putInd(el, 'none'); mark(activeId); center(el, false); } }
+        };
+        // Estat actiu: en tocar la barra s'opaca i creix una mica; en desplaçar el contingut (o passats uns segons) torna a ser discreta.
         const dock = document.getElementById('fab-nav'); let tmr = 0, touching = false;
         const rest = () => { clearTimeout(tmr); dock.classList.remove('is-engaged'); };
         const engage = () => { dock.classList.add('is-engaged'); clearTimeout(tmr); tmr = setTimeout(() => { if (!touching) rest(); }, 3500); };
+        window.nkDockEngage = engage;
         track.addEventListener('pointerdown', () => { touching = true; engage(); });
         ['pointerup', 'pointercancel'].forEach(ev => window.addEventListener(ev, () => { if (touching) { touching = false; engage(); } }));
         track.addEventListener('scroll', () => { if (dock.classList.contains('is-engaged')) engage(); }, { passive: true });
@@ -16201,7 +16279,7 @@ ${userText}`;
        la lletra es redueix proporcionalment fins a FIT_MIN (72 %) i només aleshores es retalla amb "…". */
     (function nkFit() {
         const FIT_MIN = 0.72;
-        const SEL = '[data-fit], .nk-fit, .kpi-strip .ks-lbl, .kpi-strip .ks-sub, .kpi-strip .ks-val, .nk-eyebrow, .nk-club, .nk-title .l, .cal-eyebrow, .cal-sub, .cal-sum-line, .spg-stat';
+        const SEL = '[data-fit], .nk-fit, #tab-inici #current-date-badge, .kpi-strip .ks-lbl, .kpi-strip .ks-sub, .kpi-strip .ks-val, .nk-eyebrow, .nk-club, .nk-title .l, .cal-eyebrow, .cal-sub, .cal-sum-line, .spg-stat';
         function fit(el) {
             if (!el.isConnected || el.offsetParent === null) return;
             el.style.fontSize = ''; el.style.overflow = ''; el.style.textOverflow = '';
@@ -16235,40 +16313,116 @@ ${userText}`;
         const mq = window.matchMedia('(max-width: 767px)');
         const content = document.getElementById('app-content'); if (!content) return;
         const hdr = document.getElementById('app-page-header');
+        const mainEl = () => document.querySelector('main');
         const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const order = () => navVisible().map(navId);
         const current = () => { const b = document.querySelector('#main-nav > .tab-btn.bg-granate-600'); return b ? navId(b) : null; };
-        const NO_OUT = {};   // en partit en directe no es llisca (evita tocs accidentals)
+        const GAP = 32;                                           // separació entre pantalles (= marge lateral de l'app)
+        const HERO = { inici: 'inici-hero-badges', plantilla: 'squad-hero-badges', estadistica: 'stats-hero-badges' };
+        const canRun = () => {
+            if (!mq.matches) return false;
+            if (content.classList.contains('hidden')) return false;
+            const nav = document.getElementById('main-nav'); if (nav && nav.classList.contains('pointer-events-none')) return false;
+            if (document.body.classList.contains('sb-open') || document.body.style.overflow === 'hidden') return false;
+            if (document.querySelector('#player-modal:not(.hidden), #assistant-panel:not(.hidden)')) return false;
+            if (document.querySelector('.fixed.inset-0:not(.hidden)')) { const m = [...document.querySelectorAll('.fixed.inset-0:not(.hidden)')].find(e => e.id !== 'app-loading' && getComputedStyle(e).display !== 'none' && e.offsetHeight > 0); if (m) return false; }
+            return !!current();
+        };
         const blocked = target => {
-            if (!mq.matches) return true;
-            if (content.classList.contains('hidden')) return true;
-            const nav = document.getElementById('main-nav'); if (nav && nav.classList.contains('pointer-events-none')) return true;
-            if (document.body.classList.contains('sb-open') || document.body.style.overflow === 'hidden') return true;
-            if (document.querySelector('#player-modal:not(.hidden), #assistant-panel:not(.hidden)')) return true;
-            if (document.querySelector('.fixed.inset-0:not(.hidden)')) { const m = [...document.querySelectorAll('.fixed.inset-0:not(.hidden)')].find(e => e.id !== 'app-loading' && getComputedStyle(e).display !== 'none' && e.offsetHeight > 0); if (m) return true; }
-            const cur = current(); if (!cur || NO_OUT[cur]) return true;
+            if (!canRun()) return true;
             if (!target || !target.closest) return true;
             if (target.closest('input, textarea, select, canvas, video, iframe, [contenteditable], [data-no-swipe], #fab-nav, button[draggable], [draggable="true"]')) return true;
             for (let el = target; el && el !== content; el = el.parentElement) {
                 const cs = getComputedStyle(el);
                 if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 2) return true;
             }
-            return !content.contains(target) && !(hdr && hdr.contains(target));
+            return !content.contains(target);
         };
-        const targets = () => [content, hdr].filter(Boolean);
-        const setX = (x, o, tr) => targets().forEach(el => { el.style.transition = tr || 'none'; el.style.transform = x ? `translate3d(${x}px,0,0)` : ''; el.style.opacity = o == null ? '' : String(o); });
-        const clear = () => { targets().forEach(el => { el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; }); document.body.classList.remove('nk-swiping'); };
-        let busy = false, g = null;
+        const setX = (x, tr) => { content.style.transition = tr || 'none'; content.style.transform = x ? `translate3d(${x}px,0,0)` : ''; };
+        const stripIds = n => { n.removeAttribute && n.removeAttribute('id'); n.querySelectorAll && n.querySelectorAll('[id]').forEach(e => e.removeAttribute('id')); return n; };
+        let busy = false, g = null, peek = null;
 
-        const neighbour = dir => { const o = order(), i = o.indexOf(current()); const j = i + dir; return (i < 0 || j < 0 || j >= o.length) ? null : o[j]; };
+        /* ---- Apartat veí: es pinta de debò, a un costat, perquè es vegi entrar mentre l'actual marxa ---- */
+        const peekBuild = (id, dir) => {
+            const pane = document.getElementById('tab-' + id), m = mainEl(); if (!pane || !m) return null;
+            const cr = content.getBoundingClientRect(), mr = m.getBoundingClientRect();
+            const T = Math.max(0, mr.top - cr.top), w = content.clientWidth, left = dir * (w + GAP);
+            document.body.classList.add('nk-peeking');
+            pane.classList.remove('hidden'); pane.classList.add('nk-peek-pane');
+            pane.style.width = w + 'px'; pane.style.left = left + 'px'; pane.style.top = T + 'px';
+            const pk = { id, dir, pane, hdrClone: null, badgeClone: null, host: null };
+            try { nkRenderTab(id); window.__nkPeeked = id; } catch (e) { console.warn('peek', e); }
+            const live = document.getElementById('hdr-badges');
+            if (HERO[id]) {
+                const host = document.getElementById(HERO[id]);
+                /* el clon conserva els ids perquè agafi els mateixos estils; es treu abans de canviar d'apartat */
+                if (host && live && !host.firstElementChild) { pk.badgeClone = live.cloneNode(true);  host.appendChild(pk.badgeClone); pk.host = host; }
+                pane.style.top = T + 'px';
+            } else if (hdr) {
+                const hadBadges = !!hdr.querySelector('#hdr-badges');
+                const h = hdr.cloneNode(true); stripIds(h);
+                h.classList.remove('hidden'); h.classList.add('nk-peek-hdr');
+                const t = NK_TITLES[id]; const h2 = h.querySelector('h2'), pp = h.querySelector('p');
+                if (t && h2) h2.textContent = t[0]; if (t && pp) pp.textContent = t[1];
+                if (!hadBadges && live) h.appendChild(stripIds(live.cloneNode(true)));
+                h.style.width = w + 'px'; h.style.left = left + 'px'; h.style.top = T + 'px';
+                content.insertBefore(h, pane); pk.hdrClone = h;
+                pane.style.top = (T + h.offsetHeight + 32) + 'px';
+            }
+            return pk;
+        };
+        const peekClear = hide => {
+            if (!peek) return;
+            const { pane, hdrClone, badgeClone } = peek;
+            if (hdrClone && hdrClone.parentNode) hdrClone.parentNode.removeChild(hdrClone);
+            if (badgeClone && badgeClone.parentNode) badgeClone.parentNode.removeChild(badgeClone);
+            pane.classList.remove('nk-peek-pane'); pane.style.width = pane.style.left = pane.style.top = '';
+            if (hide) { pane.classList.add('hidden'); window.__nkPeeked = null; }
+            document.body.classList.remove('nk-peeking');
+            peek = null;
+        };
+        const reset = () => { content.style.transition = ''; content.style.transform = ''; document.body.classList.remove('nk-swiping'); };
+
+        const neighbour = dir => { const o = order(), i = o.indexOf(current()), j = i + dir; return (i < 0 || j < 0 || j >= o.length) ? null : o[j]; };
+
+        // Acaba el moviment: canvia d'apartat sense cap salt visible (el veí ja és a la posició final)
+        const swap = (id) => {
+            peekClear(false);
+            try { switchTab(id); } catch (err) { console.warn('swipe', err); }
+            const m = mainEl(); if (m) m.scrollTop = 0;
+            reset();
+            try { if (window.nkDock) nkDock.snap(); } catch (e) {}
+            try { window.nkDockEngage && nkDockEngage(); } catch (e) {}
+            if (window.nkFitAll) nkFitAll();
+        };
+        const slide = (id, dir, fromX, ms, ease) => {
+            const R = reduce(), D = content.clientWidth + GAP;
+            busy = true;
+            setX(-dir * D, R ? 'none' : `transform ${ms}ms ${ease}`);
+            try { window.nkDock && nkDock.settle(id, R ? 1 : ms, ease); } catch (e) {}
+            setTimeout(() => { swap(id); busy = false; }, R ? 0 : ms + 20);
+        };
+
+        // Navegació des de la barra inferior (o per codi): mateix moviment que el lliscament
+        window.nkSlideTo = function (id) {
+            if (busy || g || reduce() || !canRun()) return false;
+            const o = order(), i = o.indexOf(current()), j = o.indexOf(id);
+            if (i < 0 || j < 0 || i === j) return false;
+            const dir = j > i ? 1 : -1;
+            peek = peekBuild(id, dir); if (!peek) return false;
+            document.body.classList.add('nk-swiping');
+            void content.offsetWidth;
+            slide(id, dir, 0, 340, 'cubic-bezier(.25,.85,.3,1)');
+            return true;
+        };
+
         content.addEventListener('touchstart', onStart, { passive: true });
-        if (hdr) hdr.addEventListener('touchstart', onStart, { passive: true });
         function onStart(e) {
             if (busy || e.touches.length !== 1) { g = null; return; }
             const t = e.touches[0], W = window.innerWidth;
             if (t.clientX < 18 || t.clientX > W - 18) { g = null; return; }   // vores: gest del sistema (enrere)
             if (blocked(e.target)) { g = null; return; }
-            g = { x: t.clientX, y: t.clientY, t0: e.timeStamp, lastX: t.clientX, lastT: e.timeStamp, v: 0, intent: null, dx: 0, dir: 0, nb: null, W, go: false };
+            g = { x: t.clientX, y: t.clientY, lastX: t.clientX, lastT: e.timeStamp, v: 0, intent: null, dx: 0, dir: 0, nb: null, W, go: false };
         }
         window.addEventListener('touchmove', e => {
             if (!g) return;
@@ -16282,42 +16436,40 @@ ${userText}`;
             const dt = Math.max(1, e.timeStamp - g.lastT); g.v = 0.8 * ((t.clientX - g.lastX) / dt) + 0.2 * g.v; g.lastX = t.clientX; g.lastT = e.timeStamp;
             g.dx = dx;
             const dir = dx < 0 ? 1 : -1;               // dit cap a l'esquerra = apartat següent
-            if (dir !== g.dir) { g.dir = dir; g.nb = neighbour(dir); }
-            const W = g.W, ad = Math.abs(dx);
-            // El contingut segueix el dit 1:1; sense apartat veí, resistència elàstica progressiva (com iOS)
-            const x = g.nb ? dx : Math.sign(dx) * (1 - 1 / (ad * 0.55 / W + 1)) * W * 0.45;
-            const go = !!g.nb && ad > W * 0.3;
+            if (dir !== g.dir) {
+                g.dir = dir; g.nb = neighbour(dir);
+                peekClear(true);
+                if (g.nb) peek = peekBuild(g.nb, dir);
+                if (!peek) g.nb = null;
+            }
+            const D = content.clientWidth + GAP, ad = Math.abs(dx);
+            // Amb apartat veí: 1:1 amb el dit. Sense veí (extrem): resistència elàstica progressiva.
+            const x = g.nb ? dx : Math.sign(dx) * (1 - 1 / (ad * 0.55 / g.W + 1)) * g.W * 0.45;
+            const go = !!g.nb && ad > g.W * 0.3;
             if (go !== g.go) { g.go = go; if (go && navigator.vibrate) { try { navigator.vibrate(6); } catch (e2) {} } }
-            setX(x, 1 - Math.min(0.4, Math.abs(x) / W * 0.55));
+            setX(x);
+            if (g.nb) { try { nkDock.follow(current(), g.nb, Math.min(1, ad / D)); } catch (e3) {} }
         }, { passive: false });
         const finish = e => {
             if (!g || g.intent !== 'h') { g = null; return; }
             const W = g.W, dx = g.dx, dir = g.dir, nb = g.nb, v = g.v;
             g = null;
+            const D = content.clientWidth + GAP;
             const proj = dx + v * 140;                  // on arribaria el dit amb la inèrcia
             const commit = !!nb && Math.abs(dx) > 14 && Math.sign(proj) === Math.sign(dx) && Math.abs(proj) > W * 0.34;
             busy = true;
             const R = reduce();
             if (!commit) {
-                setX(0, 1, R ? 'none' : 'transform .42s cubic-bezier(.22,1,.36,1), opacity .3s ease');
-                setTimeout(() => { clear(); busy = false; }, R ? 0 : 440);
+                const cur = current();
+                setX(0, R ? 'none' : 'transform .42s cubic-bezier(.22,1,.36,1)');
+                try { window.nkDock && cur && nkDock.settle(cur, R ? 1 : 420, 'cubic-bezier(.22,1,.36,1)'); } catch (e2) {}
+                setTimeout(() => { peekClear(true); reset(); busy = false; try { nkDock && nkDock.snap(); } catch (e3) {} }, R ? 0 : 440);
                 return;
             }
-            // 1) el contingut acaba de sortir pel costat on anava, mantenint la velocitat del dit
-            const cur = nb ? Math.abs(dx) : 0, remaining = Math.max(40, W - cur);
-            const outMs = R ? 1 : Math.round(Math.max(110, Math.min(230, remaining / Math.max(0.9, Math.abs(v)))));
-            setX(-dir * W, 0.55, `transform ${outMs}ms cubic-bezier(.3,.55,.55,1), opacity ${outMs}ms linear`);
-            setTimeout(() => {
-                // 2) canvi d'apartat fora de pantalla; el nou entra del mateix costat pel qual ha marxat l'anterior (sensació de "pàgines")
-                try { switchTab(nb); } catch (err) { console.warn('swipe', err); }
-                const main = document.querySelector('main'); if (main) main.scrollTo(0, 0);
-                setX(dir * W, 0.55, 'none');
-                void content.offsetWidth;
-                requestAnimationFrame(() => requestAnimationFrame(() => {
-                    setX(0, 1, R ? 'none' : 'transform .38s cubic-bezier(.2,.9,.25,1), opacity .25s ease-out');
-                    setTimeout(() => { clear(); busy = false; }, R ? 0 : 400);
-                }));
-            }, outMs);
+            // El moviment continua amb la velocitat del dit fins que la pantalla veïna queda al seu lloc
+            const remaining = Math.max(40, D - Math.abs(dx));
+            const ms = Math.round(Math.max(150, Math.min(320, remaining / Math.max(0.8, Math.abs(v)))));
+            slide(nb, dir, dx, ms, 'cubic-bezier(.22,.8,.3,1)');
         };
         window.addEventListener('touchend', finish, { passive: true });
         window.addEventListener('touchcancel', finish, { passive: true });
@@ -21331,7 +21483,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.19-i';
+const APP_VERSION = '2026.11.19-k';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
