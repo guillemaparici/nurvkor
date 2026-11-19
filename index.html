@@ -334,6 +334,7 @@
                 -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
                 overscroll-behavior-x: contain; transform-origin: 50% 100%;
                 transition: background .3s, border-color .3s, box-shadow .3s, transform .3s cubic-bezier(.2,.8,.2,1); }
+            body.nk-swiping .fab-nav-track { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(22,22,22,.86); transition: none; }
             .fab-nav-track::-webkit-scrollbar { display: none; }
             .fab-nav-track.is-locked { opacity: .4; pointer-events: none; }
             /* Indicador: un sol cercle granate que llisca fins a l'apartat actiu */
@@ -955,6 +956,22 @@
             #tab-inici #player-home .hero-figure { left: .6rem; height: var(--ph-h); }
             #tab-inici #ph-watermark ~ .relative.flex { min-height: var(--ph-h); padding: .8rem 1.1rem 1.1rem calc(var(--ph-h) * .8 + 1.3rem); }
         }
+        /* Inici (jugador) a l'escriptori: dorsal i dades a sobre del nom (a baix), la data a dalt a la dreta */
+        @media (min-width: 768px) {
+            #tab-inici #ph-watermark ~ .relative.flex { position: relative; }
+            #tab-inici .ph-txt { justify-content: flex-end; gap: .5rem; }
+            #tab-inici .ph-dorsal-row > .nk-hero-badges { position: absolute !important; top: 0; right: 0; flex: none; z-index: 3; }
+            #tab-inici .ph-dorsal-row { justify-content: flex-start; }
+        }
+        /* ===== Espais coherents a tota l'app: un sol valor entre finestres, capçaleres i apartats ===== */
+        :root { --nk-gap: 1rem; }
+        @media (min-width: 768px) { :root { --nk-gap: 1.5rem; } }
+        .space-y-5 > *, .space-y-6 > *, .space-y-8 > * { margin-top: 0 !important; }
+        /* L'espai només es posa entre blocs que es veuen (no compten els amagats ni els buits), perquè el primer bloc visible no quedi més separat */
+        body:not(.mode-player) :is(.space-y-5, .space-y-6, .space-y-8) > :not(.hidden):not([hidden]):not(:empty):not(.player-only) ~ :not(.hidden):not([hidden]):not(:empty):not(.player-only),
+        body.mode-player :is(.space-y-5, .space-y-6, .space-y-8) > :not(.hidden):not([hidden]):not(:empty):not(.coach-only) ~ :not(.hidden):not([hidden]):not(:empty):not(.coach-only) { margin-top: var(--nk-gap) !important; }
+        .grid.grid-cols-1.gap-6 { gap: var(--nk-gap); }
+        @media (max-width: 767px) { .p-6 { padding: 1.25rem !important; } }
         /* ===== Mòbil: ajustos de capçaleres, plantilla i estadística ===== */
         .nk-hero-badges #phase-badge, .nk-hero-badges #current-date-badge { white-space: nowrap; }
         body.nk-inici.nk-herotab #tab-inici > * { margin-top: 0 !important; }
@@ -16242,23 +16259,39 @@ ${userText}`;
         setTimeout(sched, 300); setTimeout(sched, 1500); sched();
 
         // API per al lliscament entre apartats: l'indicador i la barra segueixen el dit i s'aturen a l'apartat final.
-        window.nkDock = {
-            follow(fromId, toId, p) {
-                const a = elOf(fromId), b = elOf(toId); if (!a || !b || !ind) return;
-                const L = (x, y) => x + (y - x) * p;
-                ind.style.transition = 'none'; ind.style.opacity = '1';
-                ind.style.width = L(a.offsetWidth, b.offsetWidth) + 'px'; ind.style.height = L(a.offsetHeight, b.offsetHeight) + 'px';
-                ind.style.transform = `translate3d(${L(a.offsetLeft, b.offsetLeft)}px,0,0)`;
-                track.scrollLeft = L(centerOf(a), centerOf(b));
-                a.classList.toggle('is-active', p < 0.5); b.classList.toggle('is-active', p >= 0.5);
-            },
-            settle(id, ms, ease) {
-                const el = elOf(id); if (!el || !ind) return;
-                putInd(el, `transform ${ms}ms ${ease || 'cubic-bezier(.2,.9,.25,1.12)'}, width ${ms}ms, height ${ms}ms`);
-                mark(id); center(el, true);
-            },
-            snap() { const el = elOf(activeId); if (el) { putInd(el, 'none'); mark(activeId); center(el, false); } }
-        };
+        window.nkDock = (function () {
+            let cache = null, raf = 0, wantScroll = 0, lastHalf = null;
+            const geo = (fromId, toId) => {
+                const key = fromId + '>' + toId;
+                if (cache && cache.key === key) return cache;
+                const a = elOf(fromId), b = elOf(toId); if (!a || !b) return null;
+                cache = { key, a, b, ax: a.offsetLeft, bx: b.offsetLeft, aw: a.offsetWidth, bw: b.offsetWidth, ah: a.offsetHeight, bh: b.offsetHeight, ca: centerOf(a), cb: centerOf(b) };
+                lastHalf = null;
+                return cache;
+            };
+            const flush = () => { raf = 0; track.scrollLeft = wantScroll; };
+            return {
+                // Cap lectura de disseny aquí dins: només escriptures, perquè vagi al mateix fotograma que el dit
+                follow(fromId, toId, p) {
+                    const c = geo(fromId, toId); if (!c || !ind) return;
+                    const x = c.ax + (c.bx - c.ax) * p;
+                    if (lastHalf === null) { ind.style.transition = 'none'; ind.style.opacity = '1'; ind.style.height = (c.ah + (c.bh - c.ah) * p) + 'px'; }
+                    ind.style.width = (c.aw + (c.bw - c.aw) * p) + 'px';
+                    ind.style.transform = `translate3d(${x}px,0,0)`;
+                    wantScroll = c.ca + (c.cb - c.ca) * p;
+                    if (!raf) raf = requestAnimationFrame(flush);
+                    const half = p >= 0.5;
+                    if (half !== lastHalf) { lastHalf = half; c.a.classList.toggle('is-active', !half); c.b.classList.toggle('is-active', half); }
+                },
+                settle(id, ms, ease) {
+                    cache = null; lastHalf = null;
+                    const el = elOf(id); if (!el || !ind) return;
+                    putInd(el, `transform ${ms}ms ${ease || 'cubic-bezier(.2,.9,.25,1.12)'}, width ${ms}ms, height ${ms}ms`);
+                    mark(id); center(el, true);
+                },
+                snap() { cache = null; lastHalf = null; const el = elOf(activeId); if (el) { putInd(el, 'none'); mark(activeId); center(el, false); } }
+            };
+        })();
         // Estat actiu: en tocar la barra s'opaca i creix una mica; en desplaçar el contingut (o passats uns segons) torna a ser discreta.
         const dock = document.getElementById('fab-nav'); let tmr = 0, touching = false;
         const rest = () => { clearTimeout(tmr); dock.classList.remove('is-engaged'); };
@@ -16399,8 +16432,8 @@ ${userText}`;
             const R = reduce(), D = content.clientWidth + GAP;
             busy = true;
             setX(-dir * D, R ? 'none' : `transform ${ms}ms ${ease}`);
-            try { window.nkDock && nkDock.settle(id, R ? 1 : ms, ease); } catch (e) {}
-            setTimeout(() => { swap(id); busy = false; }, R ? 0 : ms + 20);
+            if (fromX !== 0) { try { window.nkDock && nkDock.settle(id, R ? 1 : ms, ease); } catch (e) {} }
+            setTimeout(() => { swap(id); busy = false; }, R ? 0 : ms + 10);
         };
 
         // Navegació des de la barra inferior (o per codi): mateix moviment que el lliscament
@@ -16408,11 +16441,15 @@ ${userText}`;
             if (busy || g || reduce() || !canRun()) return false;
             const o = order(), i = o.indexOf(current()), j = o.indexOf(id);
             if (i < 0 || j < 0 || i === j) return false;
-            const dir = j > i ? 1 : -1;
-            peek = peekBuild(id, dir); if (!peek) return false;
+            const dir = j > i ? 1 : -1, MS = 230, EASE = 'cubic-bezier(.3,.8,.25,1)';
+            busy = true;
+            // La barra respon a l'instant del toc, abans de preparar la pantalla veïna
+            try { window.nkDock && nkDock.settle(id, MS, EASE); } catch (e) {}
+            peek = peekBuild(id, dir);
+            if (!peek) { busy = false; return false; }
             document.body.classList.add('nk-swiping');
             void content.offsetWidth;
-            slide(id, dir, 0, 340, 'cubic-bezier(.25,.85,.3,1)');
+            slide(id, dir, 0, MS, EASE);
             return true;
         };
 
@@ -16439,8 +16476,8 @@ ${userText}`;
             if (dir !== g.dir) {
                 g.dir = dir; g.nb = neighbour(dir);
                 peekClear(true);
-                if (g.nb) peek = peekBuild(g.nb, dir);
-                if (!peek) g.nb = null;
+                // El veí es pinta just després del primer fotograma: el dit i la barra no esperen la renderització
+                if (g.nb) { const tk = g.tk = (g.tk || 0) + 1, gg = g, nbId = g.nb; requestAnimationFrame(() => setTimeout(() => { if (g !== gg || gg.tk !== tk || peek) return; peek = peekBuild(nbId, dir); }, 0)); }
             }
             const D = content.clientWidth + GAP, ad = Math.abs(dx);
             // Amb apartat veí: 1:1 amb el dit. Sense veí (extrem): resistència elàstica progressiva.
@@ -16456,7 +16493,7 @@ ${userText}`;
             g = null;
             const D = content.clientWidth + GAP;
             const proj = dx + v * 140;                  // on arribaria el dit amb la inèrcia
-            const commit = !!nb && Math.abs(dx) > 14 && Math.sign(proj) === Math.sign(dx) && Math.abs(proj) > W * 0.34;
+            const commit = !!nb && !!peek && Math.abs(dx) > 14 && Math.sign(proj) === Math.sign(dx) && Math.abs(proj) > W * 0.34;
             busy = true;
             const R = reduce();
             if (!commit) {
@@ -21483,7 +21520,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.19-k';
+const APP_VERSION = '2026.11.19-m';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
