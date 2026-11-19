@@ -981,13 +981,6 @@
         html { overscroll-behavior-x: none; }
         body.nk-swiping #app-content, body.nk-swiping #app-page-header { will-change: transform, opacity; }
         body.nk-swiping { -webkit-user-select: none; user-select: none; }
-        #nk-swipe-hint { position: fixed; top: 46%; z-index: 45; display: flex; align-items: center; gap: .5rem; padding: .6rem .9rem; border-radius: 999px; pointer-events: none;
-            background: rgba(24,24,24,.92); color: #d4d4d4; font-size: 12px; font-weight: 800; box-shadow: 0 10px 30px -10px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.08);
-            opacity: 0; transform: translate3d(0,0,0) scale(.9); transition: background .15s, color .15s, box-shadow .15s; }
-        #nk-swipe-hint.is-right { right: .7rem; } #nk-swipe-hint.is-left { left: .7rem; }
-        #nk-swipe-hint.is-go { background: rgb(var(--granate-600)); color: #fff; box-shadow: 0 10px 30px -8px rgb(var(--granate-600) / .7); }
-        #nk-swipe-hint svg, #nk-swipe-hint i { width: 1rem; height: 1rem; }
-        @media (min-width: 768px) { #nk-swipe-hint { display: none !important; } }
         /* ===== Fitxa del jugador: pestanyes Pista / Fora de pista / Seguiment ===== */
         .pm-tabs { display: flex; gap: .35rem; padding: .3rem; border-radius: .95rem; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
         .pm-tab { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .6rem .5rem; border-radius: .7rem;
@@ -1987,6 +1980,7 @@
                             <button onclick="setStatsMode('players')" id="stats-view-players" class="coach-only px-3 py-1.5 rounded-md transition-all bg-granate-500 text-slate-950 shadow">Jugadors</button>
                             <button onclick="setStatsMode('team')" id="stats-view-team" class="px-3 py-1.5 rounded-md transition-all text-slate-400 hover:text-slate-100">Equip</button>
                         </div>
+                        <button onclick="exportSeasonPDF()" class="coach-only px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-lg flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="file-down" class="w-3.5 h-3.5 text-emerald-400"></i>Informe<span class="hidden sm:inline">&nbsp;de temporada</span>&nbsp;(PDF)</button>
                     </div>
                 </div>
                 <div id="player-stats" class="player-only hidden bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
@@ -2180,9 +2174,6 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button onclick="exportSeasonPDF()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="file-down" class="w-3.5 h-3.5 text-emerald-400"></i>Informe de temporada (PDF)</button>
-                </div>
 
                     <!-- MILLORA 3: Vista estadístiques d'equip -->
                     <div id="stats-team-view" class="hidden space-y-6">
@@ -13998,11 +13989,22 @@
         const t = document.querySelector('#app-content > .tab-content:not(.hidden)');
         nkPlaceHeader(t ? t.id.replace(/^tab-/, '') : 'plantilla');
     }
+    function nkTabKey() { return 'cfse-last-tab:' + (window.CFSE_EQUIP_ID || ''); }
+    function nkRestoreLastTab(id) {
+        try {
+            if (!window.CFSE_EQUIP_ID || previewMode || !id) return;
+            const btn = document.getElementById('btn-' + id), pane = document.getElementById('tab-' + id);
+            if (!btn || !pane || btn.classList.contains('hidden') || btn.style.display === 'none') return;
+            if (id === 'inici' && appRole !== 'player') return;
+            switchTab(id);
+        } catch (e) {}
+    }
     function switchTab(tabId) {
         if (appRole === 'player' && (tabId === 'plantilla' || tabId === 'minutatge' || tabId === 'convocatories' || tabId === 'rivals')) tabId = 'inici';
         if (appRole === 'player' && (window.CFSE_MODULS_OCULTS_JUGADOR || []).includes(tabId)) tabId = 'inici';
         if (appRole !== 'player' && tabId === 'inici') tabId = 'plantilla';
         closeSidebar();
+        try { if (!previewMode && window.CFSE_EQUIP_ID && document.getElementById('tab-' + tabId)) localStorage.setItem(nkTabKey(), tabId); } catch (e) {}
         try { nkPlaceHeader(tabId); } catch (e) {}
         document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
         const target = document.getElementById(`tab-${tabId}`);
@@ -15473,24 +15475,59 @@ ${userText}`;
             try { doc.addImage(chartDangerWindows.toBase64Image(), 'PNG', 40, y, pageW - 80, 140); y += 154; } catch (e) {}
         }
 
-        // màxims golejadors i disciplina
+        // ===== EQUIP: resultats partit a partit =====
+        const tblStyles = { font: 'helvetica', fontSize: 9, cellPadding: 5, textColor: B.slate, lineColor: B.line, lineWidth: 0.5 };
+        const tblHead = { fillColor: B.granate, textColor: 255, fontStyle: 'bold', fontSize: 9 };
+        const sectionTitle = (txt) => {
+            if (y > 740) { doc.addPage(); y = 40; }
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...B.granate);
+            doc.text(txt, 40, y + 8); y += 16;
+        };
+        const lastY = () => (doc.lastAutoTable && doc.lastAutoTable.finalY) || y;
+        sectionTitle('EQUIP · Resultats');
+        doc.autoTable({
+            startY: y, margin: { left: 40, right: 40 },
+            head: [['Data', 'Rival', 'Resultat', 'Marcador', 'Dif.']],
+            body: form.map(r => [r.label, r.rival || '—', r.result, r.gf + ' - ' + r.gc, (r.diff > 0 ? '+' : '') + r.diff]),
+            theme: 'plain', styles: tblStyles, headStyles: tblHead,
+            columnStyles: { 2: { halign: 'center', fontStyle: 'bold' }, 3: { halign: 'center' }, 4: { halign: 'center' } }
+        });
+        y = lastY() + 22;
+        const nP = form.length || 1;
+        sectionTitle('EQUIP · Mitjanes per partit');
+        doc.autoTable({
+            startY: y, margin: { left: 40, right: 40 },
+            head: [['Gols a favor', 'Gols en contra', 'Diferència', 'Punts (3-1-0)', '% victòries']],
+            body: [[(gf / nP).toFixed(2), (gc / nP).toFixed(2), ((gf - gc) / nP).toFixed(2), (w * 3 + e), Math.round(100 * w / nP) + '%']],
+            theme: 'plain', styles: Object.assign({}, tblStyles, { halign: 'center' }), headStyles: tblHead
+        });
+        y = lastY() + 22;
+
+        // ===== JUGADORS: estadístiques acumulades de la temporada =====
         const totals = {};
         archives.forEach(a => { const m = a && a.match; if (!m) return; withMatch(m, () => squadPlayers().forEach(p => {
-            const dd = md(p.id); const t = totals[p.id] || (totals[p.id] = { gols: 0, assist: 0, grogues: 0, vermelles: 0 });
-            t.gols += dd.gols || 0; t.assist += dd.assist || 0; t.grogues += dd.grogues || 0; t.vermelles += dd.vermelles || 0;
+            const dd = md(p.id), mins = minutesOf(p.id);
+            const t = totals[p.id] || (totals[p.id] = { pj: 0, min: 0, gols: 0, assist: 0, gfp: 0, gcp: 0, grogues: 0, vermelles: 0 });
+            if (mins > 0 || (dd.gols || 0) || (dd.assist || 0)) t.pj += 1;
+            t.min += mins; t.gols += dd.gols || 0; t.assist += dd.assist || 0; t.gfp += dd.gfp || 0; t.gcp += dd.gcp || 0;
+            t.grogues += dd.grogues || 0; t.vermelles += dd.vermelles || 0;
         })); });
-        const scorers = Object.entries(totals).filter(([, t]) => t.gols > 0).sort((a, b) => b[1].gols - a[1].gols).slice(0, 10);
-        if (scorers.length) {
-            if (y > 660) { doc.addPage(); y = 40; }
+        const rows = Object.entries(totals).filter(([, t]) => t.pj > 0 || t.min > 0)
+            .sort((a, b) => (b[1].min - a[1].min) || (b[1].gols - a[1].gols));
+        if (rows.length) {
+            doc.addPage(); y = 40;
+            sectionTitle('JUGADORS · Estadístiques de la temporada');
+            const pm = t => { const v = t.gfp - t.gcp; return (v > 0 ? '+' : '') + v; };
+            const per40 = t => t.min ? ((t.gols * 40) / t.min).toFixed(1) : '—';
             doc.autoTable({
                 startY: y, margin: { left: 40, right: 40 },
-                head: [['Jugador', 'Gols', 'Assist.', 'Grogues', 'Vermelles']],
-                body: scorers.map(([pid, t]) => [shortName(playerById(pid)), t.gols, t.assist, t.grogues || '', t.vermelles || '']),
-                theme: 'plain',
-                styles: { font: 'helvetica', fontSize: 9, cellPadding: 5, textColor: B.slate, lineColor: B.line, lineWidth: 0.5 },
-                headStyles: { fillColor: B.granate, textColor: 255, fontStyle: 'bold', fontSize: 9 },
-                columnStyles: { 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' } }
+                head: [['Jugador', 'PJ', 'Min', 'Gols', 'Assist.', 'Gols/40\'', 'GF pista', 'GC pista', '+/-', 'Grog.', 'Verm.']],
+                body: rows.map(([pid, t]) => [shortName(playerById(pid)), t.pj, t.min, t.gols, t.assist, per40(t), t.gfp, t.gcp, pm(t), t.grogues || '', t.vermelles || '']),
+                theme: 'plain', styles: Object.assign({}, tblStyles, { fontSize: 8.5, cellPadding: 4.5 }), headStyles: Object.assign({}, tblHead, { fontSize: 8.5 }),
+                columnStyles: { 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' }, 5: { halign: 'center' }, 6: { halign: 'center' }, 7: { halign: 'center' }, 8: { halign: 'center', fontStyle: 'bold' }, 9: { halign: 'center' }, 10: { halign: 'center' } }
             });
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...B.slate);
+            doc.text('PJ: partits jugats · Min: minuts · GF/GC pista: gols a favor / en contra amb el jugador a la pista · +/-: GF pista - GC pista', 40, lastY() + 14);
         }
 
         pdfBrandFooter(doc);
@@ -16199,12 +16236,6 @@ ${userText}`;
         const content = document.getElementById('app-content'); if (!content) return;
         const hdr = document.getElementById('app-page-header');
         const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let hint = null;
-        const ensureHint = () => {
-            if (hint) return hint;
-            hint = document.createElement('div'); hint.id = 'nk-swipe-hint'; hint.setAttribute('aria-hidden', 'true');
-            hint.innerHTML = '<i data-lucide="circle"></i><span></span>'; document.body.appendChild(hint); return hint;
-        };
         const order = () => navVisible().map(navId);
         const current = () => { const b = document.querySelector('#main-nav > .tab-btn.bg-granate-600'); return b ? navId(b) : null; };
         const NO_OUT = {};   // en partit en directe no es llisca (evita tocs accidentals)
@@ -16226,25 +16257,10 @@ ${userText}`;
         };
         const targets = () => [content, hdr].filter(Boolean);
         const setX = (x, o, tr) => targets().forEach(el => { el.style.transition = tr || 'none'; el.style.transform = x ? `translate3d(${x}px,0,0)` : ''; el.style.opacity = o == null ? '' : String(o); });
-        const clear = () => { targets().forEach(el => { el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; }); document.body.classList.remove('nk-swiping'); if (hint) hint.style.opacity = 0; };
+        const clear = () => { targets().forEach(el => { el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; }); document.body.classList.remove('nk-swiping'); };
         let busy = false, g = null;
 
         const neighbour = dir => { const o = order(), i = o.indexOf(current()); const j = i + dir; return (i < 0 || j < 0 || j >= o.length) ? null : o[j]; };
-        const showHint = (dir, id, prog, go) => {
-            const h = ensureHint();
-            if (!id) { h.style.opacity = 0; return; }
-            const b = document.getElementById('btn-' + id), icon = b && b.querySelector('[data-lucide]');
-            const key = id + dir;
-            if (h.dataset.k !== key) {
-                h.dataset.k = key; h.className = dir > 0 ? 'is-right' : 'is-left'; h.id = 'nk-swipe-hint';
-                h.innerHTML = (dir < 0 ? `<i data-lucide="${icon ? icon.getAttribute('data-lucide') : 'circle'}"></i><span>${esc(b ? b.textContent.trim() : '')}</span><i data-lucide="chevron-right"></i>` : `<i data-lucide="chevron-left"></i><span>${esc(b ? b.textContent.trim() : '')}</span><i data-lucide="${icon ? icon.getAttribute('data-lucide') : 'circle'}"></i>`);
-                try { lucide.createIcons(); } catch (e) {}
-            }
-            h.classList.toggle('is-go', !!go);
-            h.style.opacity = Math.min(1, prog * 1.6);
-            h.style.transform = `translate3d(0,0,0) scale(${(go ? 1.06 : .92 + .1 * Math.min(1, prog)).toFixed(3)})`;
-        };
-
         content.addEventListener('touchstart', onStart, { passive: true });
         if (hdr) hdr.addEventListener('touchstart', onStart, { passive: true });
         function onStart(e) {
@@ -16267,44 +16283,41 @@ ${userText}`;
             g.dx = dx;
             const dir = dx < 0 ? 1 : -1;               // dit cap a l'esquerra = apartat següent
             if (dir !== g.dir) { g.dir = dir; g.nb = neighbour(dir); }
-            const W = g.W;
-            let x = dx, prog = Math.min(1, Math.abs(dx) / (W * 0.3));
-            if (!g.nb) { x = dx * 0.28; prog = 0; }    // sense apartat: resistència elàstica
-            else x = dx * 0.92;
-            const go = !!g.nb && Math.abs(dx) > W * 0.3;
-            if (go !== g.go) { g.go = go; if (go && navigator.vibrate) { try { navigator.vibrate(8); } catch (e2) {} } }
-            setX(x, 1 - Math.min(0.55, Math.abs(x) / W * 0.9));
-            showHint(dir, g.nb, prog, go);
+            const W = g.W, ad = Math.abs(dx);
+            // El contingut segueix el dit 1:1; sense apartat veí, resistència elàstica progressiva (com iOS)
+            const x = g.nb ? dx : Math.sign(dx) * (1 - 1 / (ad * 0.55 / W + 1)) * W * 0.45;
+            const go = !!g.nb && ad > W * 0.3;
+            if (go !== g.go) { g.go = go; if (go && navigator.vibrate) { try { navigator.vibrate(6); } catch (e2) {} } }
+            setX(x, 1 - Math.min(0.4, Math.abs(x) / W * 0.55));
         }, { passive: false });
         const finish = e => {
             if (!g || g.intent !== 'h') { g = null; return; }
             const W = g.W, dx = g.dx, dir = g.dir, nb = g.nb, v = g.v;
             g = null;
-            const fast = Math.abs(v) > 0.5 && Math.sign(v) === Math.sign(dx);
-            const commit = !!nb && (Math.abs(dx) > W * 0.3 || (fast && Math.abs(dx) > 28));
+            const proj = dx + v * 140;                  // on arribaria el dit amb la inèrcia
+            const commit = !!nb && Math.abs(dx) > 14 && Math.sign(proj) === Math.sign(dx) && Math.abs(proj) > W * 0.34;
             busy = true;
             const R = reduce();
             if (!commit) {
-                setX(0, 1, R ? 'none' : 'transform .38s cubic-bezier(.2,.9,.25,1), opacity .3s ease');
-                if (hint) hint.style.opacity = 0;
-                setTimeout(() => { clear(); busy = false; }, R ? 0 : 400);
+                setX(0, 1, R ? 'none' : 'transform .42s cubic-bezier(.22,1,.36,1), opacity .3s ease');
+                setTimeout(() => { clear(); busy = false; }, R ? 0 : 440);
                 return;
             }
-            // 1) surt cap al costat on el dit el porta (continua el moviment, més ràpid si el cop és ràpid)
-            const outMs = R ? 1 : Math.max(120, Math.min(230, 230 - Math.abs(v) * 120));
-            setX(-dir * W * 0.55, 0, `transform ${outMs}ms cubic-bezier(.4,0,.8,.4), opacity ${outMs}ms ease-out`);
-            if (hint) { hint.style.transition = 'opacity .15s'; hint.style.opacity = 0; }
+            // 1) el contingut acaba de sortir pel costat on anava, mantenint la velocitat del dit
+            const cur = nb ? Math.abs(dx) : 0, remaining = Math.max(40, W - cur);
+            const outMs = R ? 1 : Math.round(Math.max(110, Math.min(230, remaining / Math.max(0.9, Math.abs(v)))));
+            setX(-dir * W, 0.55, `transform ${outMs}ms cubic-bezier(.3,.55,.55,1), opacity ${outMs}ms linear`);
             setTimeout(() => {
-                // 2) canvi d'apartat amb el contingut fora de pantalla, i entrada des de l'altre costat
+                // 2) canvi d'apartat fora de pantalla; el nou entra del mateix costat pel qual ha marxat l'anterior (sensació de "pàgines")
                 try { switchTab(nb); } catch (err) { console.warn('swipe', err); }
                 const main = document.querySelector('main'); if (main) main.scrollTo(0, 0);
-                setX(dir * W * 0.32, 0, 'none');
+                setX(dir * W, 0.55, 'none');
                 void content.offsetWidth;
-                requestAnimationFrame(() => {
-                    setX(0, 1, R ? 'none' : 'transform .46s cubic-bezier(.16,1,.3,1), opacity .32s ease-out');
-                    setTimeout(() => { clear(); busy = false; if (hint) { hint.style.transition = ''; hint.dataset.k = ''; } }, R ? 0 : 480);
-                });
-            }, outMs + 10);
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    setX(0, 1, R ? 'none' : 'transform .38s cubic-bezier(.2,.9,.25,1), opacity .25s ease-out');
+                    setTimeout(() => { clear(); busy = false; }, R ? 0 : 400);
+                }));
+            }, outMs);
         };
         window.addEventListener('touchend', finish, { passive: true });
         window.addEventListener('touchcancel', finish, { passive: true });
@@ -18876,19 +18889,26 @@ ${userText}`;
             } catch (e) {}
             return null;
         }
+        // Recorda on era l'usuari en tancar/recarregar: el panell d'administració o un equip (i l'última pantalla d'aquest).
+        function nkWasInAdminPanel() { try { return localStorage.getItem('cfse-in-admin') === '1'; } catch (e) { return false; } }
+        function nkLastAdminRol(last) {
+            try { const r = JSON.parse(localStorage.getItem('cfse-last-admin-rol') || 'null'); return (r && r.equip_id && r.equip_id === last && r.equips) ? r : null; } catch (e) { return null; }
+        }
         async function agFastResume() {
             if (awaitingPasswordSetup || !hasStoredAuthToken()) return false;
             const c = loadCtxCache();
-            if (!c || !Array.isArray(c.rols) || !c.rols.length || c.isAdmin) return false;     // l'administrador aterra al panell: cal xarxa
+            if (!c || !Array.isArray(c.rols)) return false;
+            if (c.isAdmin && nkWasInAdminPanel()) return false;                                // l'administrador que era al panell hi torna: cal xarxa
             const uid = storedAuthUserId();
             if (!uid || uid !== c.uid) return false;                                           // la sessió guardada ha de ser del mateix compte
             let last = null; try { last = localStorage.getItem('cfse-last-equip'); } catch (e) {}
-            const r = c.rols.length === 1 ? c.rols[0] : c.rols.find(x => x.equip_id === last);
-            if (!r || !r.equips) return false;                                                 // diversos equips i cap d'anterior: es deixa triar
+            let r = c.rols.length === 1 ? c.rols[0] : c.rols.find(x => x.equip_id === last);
+            if (c.isAdmin && !r) r = nkLastAdminRol(last);                                     // equip al qual va entrar des del panell
+            if (!r || !r.equips) return false;                                                 // cap equip anterior: panell o selector d'equip
             window.CFSE_USER_ID = c.uid; window.CFSE_USER_EMAIL = c.email || '';
-            window.CFSE_IS_ADMIN = false; window.CFSE_OFFLINE = false;
+            window.CFSE_IS_ADMIN = !!c.isAdmin; window.CFSE_OFFLINE = false;
             cachedRols = c.rols;
-            document.getElementById('admin-panel-btn').classList.add('hidden');
+            document.getElementById('admin-panel-btn').classList.toggle('hidden', !c.isAdmin);
             document.getElementById('switch-team-btn').classList.toggle('hidden', cachedRols.length < 2);
             document.body.classList.add('nk-boot'); setTimeout(() => document.body.classList.remove('nk-boot'), 800);
             const entering = enterTeamContext(r);
@@ -18968,6 +18988,9 @@ ${userText}`;
                 document.getElementById('switch-team-btn').classList.toggle('hidden', cachedRols.length < 1);
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('team-picker').classList.add('hidden');
+                let lastEq = null; try { lastEq = localStorage.getItem('cfse-last-equip'); } catch (e) {}
+                const back = nkWasInAdminPanel() ? null : (cachedRols.find(x => x.equip_id === lastEq) || nkLastAdminRol(lastEq));
+                if (back) { adminPanelIsLanding = false; await enterTeamContext(back); return; }
                 adminPanelIsLanding = true;
                 await openAdminPanel();
                 return;
@@ -18999,7 +19022,8 @@ ${userText}`;
             window.CFSE_CLUB_ID = r.equips.club_id;
             window.CFSE_EQUIP_ID = r.equip_id;
             window.CFSE_ROL = r.rol;
-            try { localStorage.setItem('cfse-last-equip', r.equip_id); } catch (e) {}
+            try { localStorage.setItem('cfse-last-equip', r.equip_id); localStorage.removeItem('cfse-in-admin'); } catch (e) {}
+            let nkSavedTab = null; try { nkSavedTab = localStorage.getItem('cfse-last-tab:' + r.equip_id); } catch (e) {}   // abans que res el sobreescrigui
 
             document.getElementById('auth-gate').classList.add('hidden');
             document.getElementById('team-picker').classList.add('hidden');
@@ -19084,6 +19108,7 @@ ${userText}`;
             if (typeof pushSoon === 'function') pushSoon();
             // Si s'ha entrat sense connexió, s'intenta reconnectar (i posar al dia) tot seguit.
             if (window.CFSE_OFFLINE && typeof syncRecover === 'function') syncRecover({ auto: true });
+            nkRestoreLastTab(nkSavedTab);     // en recarregar, es torna a la pantalla on eres (amb les dades ja actualitzades)
         }
 
         async function showTeamPicker(rols) {
@@ -19262,10 +19287,12 @@ ${userText}`;
                 equip_id: equipId, rol: 'coordinador', jugador_blob_id: null,
                 equips: { nom: equipNom, club_id: clubId, clubs: { nom: clubNom, escut_url: escutUrl } }
             };
+            try { localStorage.setItem('cfse-last-admin-rol', JSON.stringify(fakeRol)); } catch (e) {}
             await enterTeamContext(fakeRol);
         };
 
         window.openAdminPanel = async function () {
+            try { localStorage.setItem('cfse-in-admin', '1'); } catch (e) {}
             document.getElementById('admin-panel').classList.remove('hidden');
             lucide.createIcons();
             await refreshAdminTeamsList();
@@ -21304,7 +21331,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.19-f';
+const APP_VERSION = '2026.11.19-i';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
