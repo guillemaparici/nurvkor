@@ -139,6 +139,15 @@
             .spg-grid > .squad-card > :nth-last-child(2) { margin-bottom: .75rem; }
         }
         @media (min-width:1280px){ #squad-cards-grid .spg-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+        /* Mòbil: l'últim contingut no queda tapat per la barra flotant (alçada de la càpsula + marge + zona segura) */
+        @media (max-width: 767px) {
+            :root { --dock-clear: calc(5.6rem + env(safe-area-inset-bottom, 0px)); }
+            main.overflow-y-auto { padding-bottom: var(--dock-clear) !important; scroll-padding-bottom: var(--dock-clear); }
+            .nk-hero .kpi-strip .ks-cell { padding-left: .85rem; padding-right: .85rem; }
+        }
+        #comp-rules-fold > summary::-webkit-details-marker { display: none; }
+        #comp-rules-fold[open] .comp-rules-chev { transform: rotate(180deg); }
+        .comp-rules-chev { transition: transform .2s; }
         #squad-card-head { padding-bottom: 1rem; }
         #squad-cards-grid { padding-top: .75rem !important; }
         #squad-summary > summary { list-style: none; }
@@ -2326,13 +2335,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
-                    <div class="flex items-center justify-between gap-3 p-5 border-b border-slate-800">
-                        <div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-granate-500/10 border border-granate-500/30 flex items-center justify-center text-granate-400"><i data-lucide="scroll-text" class="w-4 h-4"></i></div><p class="text-sm font-bold text-white">Normativa de la competició</p></div>
-                        <button onclick="editCompRules()" class="coach-only px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Edita</button>
-                    </div>
-                    <div class="p-5"><p id="comp-rules" class="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed"></p></div>
-                </div>
+                <details id="comp-rules-fold" class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden group">
+                    <summary class="flex items-center justify-between gap-3 p-5 cursor-pointer list-none" style="list-style:none">
+                        <div class="flex items-center gap-3 min-w-0"><div class="w-9 h-9 shrink-0 rounded-xl bg-granate-500/10 border border-granate-500/30 flex items-center justify-center text-granate-400"><i data-lucide="scroll-text" class="w-4 h-4"></i></div><p class="text-sm font-bold text-white whitespace-nowrap">Normativa de la competició</p></div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" onclick="event.preventDefault();event.stopPropagation();editCompRules()" class="coach-only px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Edita</button>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 comp-rules-chev"></i>
+                        </div>
+                    </summary>
+                    <div class="p-5 border-t border-slate-800"><p id="comp-rules" class="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed"></p></div>
+                </details>
                 <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <div class="flex items-center justify-between gap-3 p-5 border-b border-slate-800">
                         <div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400"><i data-lucide="trophy" class="w-4 h-4"></i></div><p class="text-sm font-bold text-white">Classificació</p></div>
@@ -3012,7 +3024,7 @@
                     </div>
 
                     <div class="xl:col-span-2 bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
-                        <h4 class="font-bold text-white text-base">Exportar el partit</h4>
+                        <h4 class="font-bold text-white text-base">Arxivar i exportar el partit</h4>
                         <p class="text-xs text-slate-400 mt-1 mb-5">Els jugadors surten en el mateix ordre que a l'Excel, així pots enganxar cada columna directament al bloc corresponent de la pestanya Estadística.</p>
 
                         <div class="mn-export-row">
@@ -3023,9 +3035,6 @@
                                 <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> Copiar la taula sencera
                             </button>
                         </div>
-
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-6 mb-2">Copiar una sola columna</p>
-                        <div id="copy-column-buttons" class="flex flex-wrap gap-2"></div>
 
                         <div class="mt-6 pt-5 border-t border-slate-800">
                             <button onclick="openMatchArchiveModal()" class="mn-primary-archive w-full py-3.5 rounded-xl bg-granate-600 hover:bg-granate-700 shadow-lg shadow-granate-900/30 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"><i data-lucide="archive" class="w-4 h-4"></i>Tanca i arxiva el partit</button>
@@ -10871,7 +10880,8 @@
     }
 
     function renderCopyButtons() {
-        document.getElementById('copy-column-buttons').innerHTML = EXPORT_COLS.map((c, i) =>
+        const _cc = document.getElementById('copy-column-buttons'); if (!_cc) return;
+        _cc.innerHTML = EXPORT_COLS.map((c, i) =>
             `<button onclick="copyMatchColumn(${i})" class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-400 text-slate-300 text-[11px] font-semibold transition-all active:scale-95">${esc(c.label)}</button>`
         ).join('');
     }
@@ -16149,6 +16159,41 @@ ${userText}`;
     /* ===== Lliscar a esquerra/dreta entre apartats (només mòbil) =====
        L'ordre és el de la barra flotant (= el del menú, tal com l'hagis ordenat). El contingut segueix el dit;
        en passar un llindar (o amb un cop de dit ràpid) surt cap a un costat i el nou apartat entra des de l'altre. */
+    /* ===== Text d'una sola línia: ajusta la mida de la lletra (dins d'un mínim) en lloc de passar a dues línies =====
+       Qualsevol element amb data-fit o la classe nk-fit, i els de la llista, es mantenen en una línia: si no hi caben,
+       la lletra es redueix proporcionalment fins a FIT_MIN (72 %) i només aleshores es retalla amb "…". */
+    (function nkFit() {
+        const FIT_MIN = 0.72;
+        const SEL = '[data-fit], .nk-fit, .kpi-strip .ks-lbl, .kpi-strip .ks-sub, .kpi-strip .ks-val, .nk-eyebrow, .nk-club, .nk-title .l, .cal-eyebrow, .cal-sub, .cal-sum-line, .spg-stat';
+        function fit(el) {
+            if (!el.isConnected || el.offsetParent === null) return;
+            el.style.fontSize = ''; el.style.overflow = ''; el.style.textOverflow = '';
+            el.style.whiteSpace = 'nowrap';
+            const base = parseFloat(getComputedStyle(el).fontSize) || 0; if (!base) return;
+            let size = base;
+            for (let i = 0; i < 4; i++) {
+                const cw = el.clientWidth, sw = el.scrollWidth;
+                if (!cw || sw <= cw + 0.5) break;
+                size = Math.max(base * FIT_MIN, size * (cw / sw) * 0.985);
+                el.style.fontSize = size.toFixed(2) + 'px';
+                if (size <= base * FIT_MIN + 0.01) break;
+            }
+            if (el.scrollWidth > el.clientWidth + 0.5) { el.style.overflow = 'hidden'; el.style.textOverflow = 'ellipsis'; }
+        }
+        let raf = 0;
+        const run = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { try { document.querySelectorAll(SEL).forEach(fit); } catch (e) {} }); };
+        window.nkFitAll = run;
+        window.addEventListener('resize', run);
+        window.addEventListener('orientationchange', run);
+        window.addEventListener('load', run);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+        const root = document.getElementById('app-content');
+        if (root && window.MutationObserver) {
+            let t = 0;
+            new MutationObserver(() => { clearTimeout(t); t = setTimeout(run, 90); }).observe(root, { childList: true, subtree: true, characterData: true });
+        }
+        run();
+    })();
     (function initTabSwipe() {
         const mq = window.matchMedia('(max-width: 767px)');
         const content = document.getElementById('app-content'); if (!content) return;
@@ -16162,7 +16207,7 @@ ${userText}`;
         };
         const order = () => navVisible().map(navId);
         const current = () => { const b = document.querySelector('#main-nav > .tab-btn.bg-granate-600'); return b ? navId(b) : null; };
-        const NO_OUT = { minutatge: 1 };   // en partit en directe no es llisca (evita tocs accidentals)
+        const NO_OUT = {};   // en partit en directe no es llisca (evita tocs accidentals)
         const blocked = target => {
             if (!mq.matches) return true;
             if (content.classList.contains('hidden')) return true;
@@ -21259,7 +21304,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.19-e';
+const APP_VERSION = '2026.11.19-f';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
