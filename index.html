@@ -42,6 +42,24 @@
     <!-- Llibreries de tercers: versió fixa + SRI (si el CDN serveix un byte diferent, el navegador bloqueja l'script). -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@1.47.0/dist/umd/lucide.min.js" integrity="sha384-v15JX+vZHMR3T6LQR9N6e6wIKrKOdNTbdj8j+e5irqq3L9gCauJz2vGlUzomWyUp" crossorigin="anonymous"></script>
+    <script>
+    /* Icones lleugeres: lucide.createIcons() reprocessava TOTES les icones de la pàgina (centenars) a cada crida, cosa que
+       reemplaça el DOM, dispara observadors i bloqueja el mòbil. Ara només es tracten les icones noves o canviades. */
+    (function () {
+        var L = window.lucide; if (!L || !L.createIcons || L.__nkLite) return;
+        var orig = L.createIcons; L.__nkLite = 1;
+        L.createIcons = function (o) {
+            try {
+                if (o && (o.root || o.nameAttr || o.inTemplates)) return orig.call(L, o);
+                var list = Array.prototype.slice.call(document.querySelectorAll('[data-lucide]:not(svg)'));
+                var svgs = document.querySelectorAll('svg[data-lucide]');
+                for (var k = 0; k < svgs.length; k++) { var n = svgs[k].getAttribute('data-lucide'); if (!svgs[k].classList.contains('lucide-' + n)) list.push(svgs[k]); }
+                if (!list.length) return;
+                return orig.call(L, Object.assign({}, o, { root: { querySelectorAll: function () { return list; } } }));
+            } catch (e) { return orig.call(L, o); }
+        };
+    })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js" integrity="sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.9/dist/jspdf.plugin.autotable.min.js" integrity="sha384-A77YsHWitrPuAj8E0AuB033EXzymUxIajnWKPzrrzqFoYYSCEpFennDUjMG2R1L3" crossorigin="anonymous"></script>
@@ -3143,6 +3161,7 @@
                                 <p id="clips-folder-status" class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">—</p>
                             </div>
                             <button onclick="clipLinkFolder()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-lg transition-all shrink-0">Enllaça la carpeta de clips</button>
+                            <button onclick="clipSyncIndex(true)" title="Importa els clips que NurvKorClips ha desat a la carpeta" class="px-3 py-2 bg-granate-600 hover:bg-granate-700 text-white text-xs font-bold rounded-lg transition-all shrink-0">Importa clips nous</button>
                         </div>
                         <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Si el poses, els moments obriran aquest vídeo. A YouTube s'obre al segon indicat; amb Veo (o altres) s'obre el vídeo i l'app t'avisa del minut al qual has d'anar. També pots enganxar un enllaç propi a cada moment.</p>
                     </div>
@@ -3157,6 +3176,25 @@
                     </div>
                 </div>
 
+                <div id="clip-inbox-card" class="coach-only bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
+                    <div class="p-5 md:p-6 border-b border-slate-800 flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h4 class="font-bold text-white text-base">Clips nous</h4>
+                            <p id="clip-inbox-status" class="text-xs text-slate-400 mt-1 leading-relaxed">—</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="inboxRefresh(true)" title="Actualitza" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                            <span id="clip-inbox-badge" class="text-xs font-bold text-granate-400 bg-granate-500/10 px-2.5 py-1 rounded">0</span>
+                        </div>
+                    </div>
+                    <div id="clip-inbox-setup" class="px-5 md:px-6 py-4 border-b border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                    <div id="clip-inbox-dest-row" class="hidden px-5 md:px-6 py-3 border-b border-slate-800/60">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Carpeta del partit (dins la carpeta de clips)</label>
+                        <input type="text" id="clip-inbox-dest" list="clip-inbox-dest-list" oninput="inboxSaveDest()" placeholder="p. ex. Rival/Solsona FS" class="mt-1.5 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
+                        <datalist id="clip-inbox-dest-list"></datalist>
+                    </div>
+                    <div id="clip-inbox-list" class="divide-y divide-slate-800/60"></div>
+                </div>
                 <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl overflow-hidden">
                     <div class="p-6 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
                         <div>
@@ -13539,6 +13577,8 @@
     function renderVideo() {
         const v = ensureVideo();
         clipRefreshStatus();
+        try { inboxRefresh(); } catch (e) {}
+        try { clipSyncIndex(false); } catch (e) {}
         const urlInput = document.getElementById('video-url');
         if (urlInput && document.activeElement !== urlInput) urlInput.value = v.url || '';
         const catSel = document.getElementById('mk-cat');
@@ -13728,21 +13768,22 @@
             rq.onerror = () => rej(rq.error);
         });
     }
-    async function clipStoreGet() {
-        try { const db = await clipIdb(); return await new Promise(res => { const r = db.transaction('kv').objectStore('kv').get('dir'); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); }); }
+    async function clipStoreGet(key) {
+        try { const db = await clipIdb(); return await new Promise(res => { const r = db.transaction('kv').objectStore('kv').get(key || 'dir'); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); }); }
         catch (e) { return null; }
     }
-    async function clipStorePut(h) {
+    async function clipStorePut(h, key) {
         const db = await clipIdb();
-        return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(h, 'dir'); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
+        return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(h, key || 'dir'); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
     }
     // Retorna la carpeta si hi ha permís; amb interactive=true el demana
     // (només funciona dins d'un gest de l'usuari, com un clic).
-    async function clipGetDir(interactive) {
-        const h = await clipStoreGet(); if (!h) return null;
+    async function clipGetDir(interactive, mode, key) {
+        const h = await clipStoreGet(key); if (!h) return null;
+        const md = mode || 'read';
         try {
-            let perm = await h.queryPermission({ mode: 'read' });
-            if (perm !== 'granted' && interactive) perm = await h.requestPermission({ mode: 'read' });
+            let perm = await h.queryPermission({ mode: md });
+            if (perm !== 'granted' && interactive) perm = await h.requestPermission({ mode: md });
             return perm === 'granted' ? h : null;
         } catch (e) { return null; }
     }
@@ -13794,7 +13835,7 @@
     async function clipLinkFolder() {
         if (!clipsSupported()) { toast('Aquest navegador no permet enllaçar carpetes. Fes servir Chrome o Edge.'); return; }
         try {
-            const h = await window.showDirectoryPicker({ id: 'nurvkor-clips', mode: 'read', startIn: 'videos' });
+            const h = await window.showDirectoryPicker({ id: 'nurvkor-clips', mode: 'readwrite', startIn: 'videos' });
             await clipStorePut(h);
             clipHasHandle = true;
             toast(`Carpeta «${h.name}» enllaçada.`);
@@ -13843,6 +13884,167 @@
         } catch (e) {
             show('No s\u2019ha pogut obrir el clip', (e && (e.message || e.name)) || 'Error desconegut.');
         }
+    }
+
+    /* --- safata de clips nous (Captures → carpeta del partit) ---
+       Els clips de Win+Alt+R cauen a «Captures». Aquí es veuen, se'ls posa nom i
+       categoria, i NurvKor els reanomena, els mou a la carpeta del partit i crea
+       el moment ja enllaçat al clip. Cal Chrome/Edge i permís d'escriptura (un clic). */
+    let inboxItems = [], inboxUrls = [], inboxDraft = {}, inboxBusy = false, inboxLastCat = 'altre';
+    const inboxBad = /[\\/:*?"<>|\u0000-\u001f]/g;
+    const inboxClean = t => String(t || '').replace(inboxBad, ' ').replace(/\s+/g, ' ').trim();
+    function inboxDestKey() { return 'nk-clip-dest'; }
+    function inboxSuggestDest() {
+        try {
+            const last = localStorage.getItem(inboxDestKey()); const v = ensureVideo();
+            if (v.pendingMatchKey) { const cm = calMatchByKey(v.pendingMatchKey); if (cm && cm.label) return (v.pendingKind === 'rival' ? 'Scouting ' : '') + inboxClean(cm.label); }
+            return last || '';
+        } catch (e) { return ''; }
+    }
+    function inboxSaveDest() { try { const el = document.getElementById('clip-inbox-dest'); if (el) localStorage.setItem(inboxDestKey(), el.value.trim()); } catch (e) {} }
+    async function inboxLinkInbox() {
+        if (!clipsSupported()) { toast('Fes servir Chrome o Edge a l’ordinador.'); return; }
+        try {
+            const h = await window.showDirectoryPicker({ id: 'nurvkor-inbox', mode: 'readwrite', startIn: 'videos' });
+            await clipStorePut(h, 'inbox'); toast(`Carpeta de captures «${h.name}» enllaçada.`);
+        } catch (e) { if (e && e.name !== 'AbortError') toast('No he pogut enllaçar la carpeta: ' + (e.message || e.name)); }
+        inboxRefresh(true);
+    }
+    async function inboxLinkDest() { await clipLinkFolder(); inboxRefresh(true); }
+    async function inboxGrant() {
+        await clipGetDir(true, 'readwrite', 'inbox'); await clipGetDir(true, 'readwrite', 'dir'); inboxRefresh(true);
+    }
+    async function inboxRefresh(force) {
+        const card = document.getElementById('clip-inbox-card'); if (!card || inboxBusy) return;
+        const ae = document.activeElement; if (!force && ae && ae.closest && ae.closest('#clip-inbox-list') && ae.tagName === 'INPUT') return;   // no interrompre mentre escrius
+        const st = document.getElementById('clip-inbox-status'), list = document.getElementById('clip-inbox-list'),
+            setup = document.getElementById('clip-inbox-setup'), badge = document.getElementById('clip-inbox-badge'), destRow = document.getElementById('clip-inbox-dest-row');
+        const btn = (fn, ic, txt, on) => `<button onclick="${fn}()" class="inline-flex items-center justify-center gap-2 px-3 py-2.5 ${on ? 'bg-granate-600 hover:bg-granate-700 text-white' : 'bg-slate-800 hover:bg-slate-700 text-slate-100'} text-xs font-bold rounded-lg transition-all"><i data-lucide="${ic}" class="w-4 h-4"></i>${txt}</button>`;
+        inboxUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch (e) {} }); inboxUrls = [];
+        if (!clipsSupported()) { st.textContent = 'Aquest navegador no permet carpetes locals. Fes servir Chrome o Edge a l’ordinador.'; setup.innerHTML = ''; list.innerHTML = ''; badge.innerText = '0'; destRow.classList.add('hidden'); return; }
+        const hIn = await clipStoreGet('inbox'), hDest = await clipStoreGet('dir');
+        const pIn = hIn ? await clipGetDir(false, 'readwrite', 'inbox') : null, pDest = hDest ? await clipGetDir(false, 'readwrite', 'dir') : null;
+        let setupHtml = '';
+        if (!hIn) setupHtml += btn('inboxLinkInbox', 'folder-input', '1 · Tria la carpeta de captures', true);
+        if (!hDest) setupHtml += btn('inboxLinkDest', 'folder-tree', '2 · Tria la carpeta on guardes els partits', !!hIn);
+        if (hIn && hDest && (!pIn || !pDest)) setupHtml += btn('inboxGrant', 'key-round', 'Dóna permís d’escriptura (un clic)', true);
+        if (hIn && hDest) setupHtml += `<button onclick="inboxLinkInbox()" class="text-[11px] text-slate-500 hover:text-slate-300 text-left px-1">Canvia la carpeta de captures (${esc(hIn.name)})</button><button onclick="inboxLinkDest()" class="text-[11px] text-slate-500 hover:text-slate-300 text-left px-1">Canvia la carpeta de partits (${esc(hDest.name)})</button>`;
+        setup.innerHTML = setupHtml; setup.classList.toggle('hidden', !setupHtml);
+        const ready = !!(pIn && pDest);
+        destRow.classList.toggle('hidden', !ready);
+        if (!ready) {
+            st.textContent = !hIn || !hDest ? 'Enllaça les dues carpetes una sola vegada i els clips de Win+Alt+R apareixeran aquí.' : 'El navegador demana permís en reobrir l’app. Un clic i ja està.';
+            list.innerHTML = ''; badge.innerText = '0'; inboxItems = []; lucide.createIcons(); return;
+        }
+        const destEl = document.getElementById('clip-inbox-dest');
+        if (destEl && !destEl.value) destEl.value = inboxSuggestDest();
+        const files = [];
+        try { for await (const [name, h] of pIn.entries()) { if (h.kind === 'file' && CLIP_EXT.test(name)) { try { const f = await h.getFile(); if (Date.now() - f.lastModified > 2500 && f.size > 0) files.push({ name, file: f }); } catch (e) {} } } } catch (e) {}
+        files.sort((a, b) => b.file.lastModified - a.file.lastModified);
+        inboxItems = files.slice(0, 15);
+        badge.innerText = String(files.length);
+        st.textContent = files.length ? `${files.length} clip${files.length === 1 ? '' : 's'} per posar nom (de «${pIn.name}»). Escriu el nom, tria la categoria i prem Retorn.` : `Cap clip nou a «${pIn.name}». Grava amb Win+Alt+R i torna aquí.`;
+        const cats = Object.keys(VIDEO_CATS);
+        list.innerHTML = inboxItems.map((it, i) => {
+            const url = URL.createObjectURL(it.file); inboxUrls.push(url);
+            const d = new Date(it.file.lastModified), hhmm = d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+            const dr = inboxDraft[it.name] || {}, cat = dr.cat || inboxLastCat;
+            return `<div class="p-4 flex gap-3" data-ci="${i}">
+                <video id="ci-vid-${i}" src="${url}" class="w-36 sm:w-44 aspect-video rounded-lg bg-black shrink-0 object-cover" controls muted preload="metadata"></video>
+                <div class="min-w-0 flex-1 space-y-2">
+                    <p class="text-[10px] text-slate-500 truncate">${esc(it.name)} · ${hhmm} · ${(it.file.size / 1048576).toFixed(1)} MB</p>
+                    <input type="text" id="ci-name-${i}" value="${esc(dr.name || '')}" oninput="inboxDraftSet(${i})" onkeydown="if(event.key==='Enter'){event.preventDefault();inboxAssign(${i});}" placeholder="Nom del tall (p. ex. Gol Aleix)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-granate-500">
+                    <div class="flex flex-wrap gap-1">${cats.map(k => `<button type="button" data-cat="${k}" onclick="inboxPickCat(${i},'${k}')" class="px-2 py-1 rounded-md text-[10px] font-bold transition-all ${k === cat ? VIDEO_CATS[k].chip + ' ring-1 ring-white/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}">${esc(VIDEO_CATS[k].label)}</button>`).join('')}</div>
+                    <div class="flex gap-2">
+                        <button onclick="inboxAssign(${i})" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-granate-600 hover:bg-granate-700 text-white text-xs font-bold rounded-lg transition-all"><i data-lucide="check" class="w-3.5 h-3.5"></i>Afegeix al partit</button>
+                        <button onclick="inboxDiscard(${i})" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Descarta</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        lucide.createIcons();
+        // carpetes existents per autocompletar (2 nivells)
+        try {
+            const dl = document.getElementById('clip-inbox-dest-list'), names = [], root = await clipGetDir(false, 'readwrite', 'dir');
+            for await (const [n1, h1] of root.entries()) { if (h1.kind !== 'directory') continue; names.push(n1); let c = 0; for await (const [n2, h2] of h1.entries()) { if (h2.kind === 'directory' && c++ < 60) names.push(n1 + '/' + n2); } }
+            dl.innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join('');
+        } catch (e) {}
+    }
+    function inboxDraftSet(i) { const it = inboxItems[i]; if (!it) return; const d = inboxDraft[it.name] = inboxDraft[it.name] || {}; d.name = document.getElementById('ci-name-' + i).value; }
+    function inboxPickCat(i, k) {
+        const it = inboxItems[i]; if (!it) return; inboxLastCat = k; (inboxDraft[it.name] = inboxDraft[it.name] || {}).cat = k;
+        document.querySelectorAll(`[data-ci="${i}"] [data-cat]`).forEach(b => { const on = b.getAttribute('data-cat') === k; const c = VIDEO_CATS[b.getAttribute('data-cat')].chip.split(' '); b.className = 'px-2 py-1 rounded-md text-[10px] font-bold transition-all ' + (on ? VIDEO_CATS[k].chip + ' ring-1 ring-white/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'); });
+        const nm = document.getElementById('ci-name-' + i); if (nm) nm.focus();
+    }
+    function inboxReleaseVideo(i) { const v = document.getElementById('ci-vid-' + i); if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} } }
+    async function inboxAssign(i) {
+        const it = inboxItems[i]; if (!it || inboxBusy) return;
+        const nameEl = document.getElementById('ci-name-' + i);
+        const name = inboxClean(nameEl && nameEl.value); if (!name) { toast('Posa un nom al tall.'); if (nameEl) nameEl.focus(); return; }
+        const cat = (inboxDraft[it.name] && inboxDraft[it.name].cat) || inboxLastCat;
+        const destPath = String((document.getElementById('clip-inbox-dest') || {}).value || '').replace(/\\/g, '/').split('/').map(inboxClean).filter(Boolean).join('/');
+        const inbox = await clipGetDir(true, 'readwrite', 'inbox'), root = await clipGetDir(true, 'readwrite', 'dir');
+        if (!inbox || !root) { toast('Cal donar permís d’escriptura a les carpetes.'); inboxRefresh(true); return; }
+        inboxBusy = true;
+        try {
+            let d = root; const segs = destPath.split('/').filter(Boolean);
+            for (const sg of segs) d = await d.getDirectoryHandle(sg, { create: true });
+            const ext = (it.name.match(/\.[^.]+$/) || ['.mp4'])[0];
+            let fname = name + ext, n = 2;
+            for (;;) { try { await d.getFileHandle(fname); fname = `${name} (${n++})${ext}`; } catch (e) { break; } }
+            inboxReleaseVideo(i);
+            const fh = await d.getFileHandle(fname, { create: true });
+            const w = await fh.createWritable(); await w.write(it.file); await w.close();
+            const back = await fh.getFile();
+            if (back.size !== it.file.size) { try { await d.removeEntry(fname); } catch (e) {} throw new Error('La còpia no coincideix; no he esborrat l’original.'); }
+            await inbox.removeEntry(it.name);
+            const v = ensureVideo();
+            v.markers.push({ id: vuid(), t: 0, title: name, cat, part: 0, players: [], note: '', link: v.url || '', clip: (segs.length ? segs.join('/') + '/' : '') + fname });
+            delete inboxDraft[it.name]; saveSoon(); renderMarkers();
+            toast(`«${name}» afegit${segs.length ? ' a ' + segs.join('/') : ''}.`);
+        } catch (e) { toast('No he pogut moure el clip: ' + (e && (e.message || e.name))); }
+        inboxBusy = false; inboxRefresh(true);
+    }
+    async function inboxDiscard(i) {
+        const it = inboxItems[i]; if (!it || inboxBusy) return;
+        if (!confirm(`Esborrar el clip «${it.name}» de la carpeta de captures?`)) return;
+        const inbox = await clipGetDir(true, 'readwrite', 'inbox'); if (!inbox) { inboxRefresh(true); return; }
+        try { inboxReleaseVideo(i); await new Promise(r => setTimeout(r, 60)); await inbox.removeEntry(it.name); delete inboxDraft[it.name]; } catch (e) { toast('No he pogut esborrar-lo: ' + (e && (e.message || e.name))); }
+        inboxRefresh(true);
+    }
+    window.addEventListener('focus', () => { const t = document.getElementById('tab-video'); if (t && !t.classList.contains('hidden')) { inboxRefresh(); clipSyncIndex(false); } });
+
+    /* --- importació automàtica dels clips desats per NurvKorClips (script de Windows) ---
+       L'script apunta cada clip a «_nurvkor_clips.jsonl» (carpeta de clips). Aquí es llegeix i es
+       creen els moments que encara no existeixen. Cada línia s'importa un sol cop (id). */
+    let clipSyncBusy = false;
+    async function clipSyncIndex(interactive) {
+        if (clipSyncBusy || !clipsSupported()) return 0;
+        clipSyncBusy = true;
+        try {
+            const dir = await clipGetDir(!!interactive);
+            if (!dir) { if (interactive) toast('Cal enllaçar la carpeta de clips i donar-hi permís.'); return 0; }
+            let fh; try { fh = await dir.getFileHandle('_nurvkor_clips.jsonl'); } catch (e) { if (interactive) toast('Encara no hi ha cap clip nou desat per NurvKorClips.'); return 0; }
+            const txt = await (await fh.getFile()).text();
+            const v = ensureVideo(); if (!Array.isArray(v.synced)) v.synced = [];
+            const known = new Set(v.synced), have = new Set();
+            v.markers.concat(...(v.archives || []).map(a => a.markers || [])).forEach(m => { if (m && m.clip) have.add(m.clip); });
+            let added = 0, touched = false;
+            txt.split(/\r?\n/).forEach(line => {
+                line = line.trim(); if (!line) return;
+                let o; try { o = JSON.parse(line); } catch (e) { return; }
+                if (!o || !o.id || !o.file || known.has(o.id)) return;
+                known.add(o.id); v.synced.push(o.id); touched = true;
+                if (have.has(o.file)) return;
+                v.markers.push({ id: vuid(), t: 0, title: String(o.name || 'Clip'), cat: VIDEO_CATS[o.cat] ? o.cat : 'altre', part: 0, players: [], note: '', link: v.url || '', clip: String(o.file) });
+                added++;
+            });
+            if (touched) saveSoon();
+            if (added) { renderMarkers(); toast(`${added} clip${added === 1 ? '' : 's'} nou${added === 1 ? '' : 's'} importat${added === 1 ? '' : 's'}.`); }
+            else if (interactive) toast('No hi ha clips nous per importar.');
+            return added;
+        } catch (e) { if (interactive) toast('No he pogut importar: ' + (e && (e.message || e.name))); return 0; }
+        finally { clipSyncBusy = false; }
     }
 
     /* --- partits arxivats --- */
@@ -16356,23 +16558,30 @@ ${userText}`;
     (function nkFit() {
         const FIT_MIN = 0.72;
         const SEL = '[data-fit], .nk-fit, #tab-inici #current-date-badge, .kpi-strip .ks-lbl, .kpi-strip .ks-sub, .kpi-strip .ks-val, .nk-eyebrow, .nk-club, .nk-title .l, .cal-eyebrow, .cal-sub, .cal-sum-line, .spg-stat';
-        function fit(el) {
-            if (!el.isConnected || el.offsetParent === null) return;
-            el.style.fontSize = ''; el.style.overflow = ''; el.style.textOverflow = '';
-            el.style.whiteSpace = 'nowrap';
-            const base = parseFloat(getComputedStyle(el).fontSize) || 0; if (!base) return;
-            let size = base;
-            for (let i = 0; i < 4; i++) {
-                const cw = el.clientWidth, sw = el.scrollWidth;
-                if (!cw || sw <= cw + 0.5) break;
-                size = Math.max(base * FIT_MIN, size * (cw / sw) * 0.985);
-                el.style.fontSize = size.toFixed(2) + 'px';
-                if (size <= base * FIT_MIN + 0.01) break;
+        // Per lots: primer totes les escriptures, després totes les lectures, i només aleshores els canvis (un sol càlcul de disseny, no un per element)
+        function fitAll() {
+            const els = [...document.querySelectorAll(SEL)];
+            els.forEach(el => { el.style.fontSize = ''; el.style.overflow = ''; el.style.textOverflow = ''; el.style.whiteSpace = 'nowrap'; });
+            let todo = els.map(el => (el.isConnected && el.offsetParent !== null) ? { el, base: parseFloat(getComputedStyle(el).fontSize) || 0, size: 0 } : null).filter(x => x && x.base);
+            for (let pass = 0; pass < 4 && todo.length; pass++) {
+                const meas = todo.map(t => ({ t, cw: t.el.clientWidth, sw: t.el.scrollWidth }));
+                const next = [];
+                meas.forEach(({ t, cw, sw }) => {
+                    if (!cw || sw <= cw + 0.5) return;
+                    const cur = t.size || t.base;
+                    t.size = Math.max(t.base * FIT_MIN, cur * (cw / sw) * 0.985);
+                    t.el.style.fontSize = t.size.toFixed(2) + 'px';
+                    if (t.size > t.base * FIT_MIN + 0.01) next.push(t);
+                });
+                todo = next;
             }
-            if (el.scrollWidth > el.clientWidth + 0.5) { el.style.overflow = 'hidden'; el.style.textOverflow = 'ellipsis'; }
+            const over = els.filter(el => el.offsetParent !== null && el.scrollWidth > el.clientWidth + 0.5);
+            over.forEach(el => { el.style.overflow = 'hidden'; el.style.textOverflow = 'ellipsis'; });
         }
         let raf = 0;
-        const run = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { try { document.querySelectorAll(SEL).forEach(fit); } catch (e) {} }); };
+        const busy = () => document.body.classList.contains('nk-swiping') || document.body.classList.contains('nk-peeking');
+        const run = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (busy()) { setTimeout(run, 200); return; } try { fitAll(); } catch (e) {} }); };
+        window.nkFitNow = () => { try { fitAll(); } catch (e) {} };
         window.nkFitAll = run;
         window.addEventListener('resize', run);
         window.addEventListener('orientationchange', run);
@@ -16447,7 +16656,7 @@ ${userText}`;
                 pane.style.top = (T + h.offsetHeight + 32) + 'px';
             }
             /* textos ajustats i alçada de la capçalera ja definitius abans de veure's: així no hi ha petits salts mentre entra */
-            try { if (window.nkFitAll) nkFitAll(); } catch (e) {}
+            try { if (window.nkFitNow) nkFitNow(); } catch (e) {}
             if (pk.hdrClone) pane.style.top = (T + pk.hdrClone.offsetHeight + 32) + 'px';
             return pk;
         };
@@ -16492,12 +16701,12 @@ ${userText}`;
             if (i < 0 || j < 0 || i === j) return false;
             const dir = j > i ? 1 : -1, MS = 230, EASE = 'cubic-bezier(.3,.8,.25,1)';
             busy = true;
-            // La barra respon a l'instant del toc, abans de preparar la pantalla veïna
-            try { window.nkDock && nkDock.settle(id, MS, EASE); } catch (e) {}
+            // Primer es prepara la pantalla veïna (feina pesada) i després la barra i la pantalla arrenquen alhora, sense entrebancs a mig moviment
             peek = peekBuild(id, dir);
             if (!peek) { busy = false; return false; }
             document.body.classList.add('nk-swiping');
             void content.offsetWidth;
+            try { window.nkDock && nkDock.settle(id, MS, EASE); } catch (e) {}
             slide(id, dir, 0, MS, EASE);
             return true;
         };
@@ -21580,7 +21789,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.20-a';
+const APP_VERSION = '2026.11.20-d';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
