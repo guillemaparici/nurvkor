@@ -600,11 +600,12 @@
             .nk-hero-badges { position: relative; top: auto; right: auto; justify-content: flex-start; padding: .9rem 1.1rem 0; }
             .nk-hero-badges #hdr-badges { flex-direction: column !important; align-items: flex-start !important; gap: .4rem !important; }
             /* Plantilla i Estadística: etiquetes a la dreta, a la mateixa alçada que "Temporada" i el club */
-            #squad-hero > .nk-hero-badges, #stats-hero > .nk-hero-badges { position: absolute; top: 1.15rem; right: 1.1rem; left: auto; padding: 0; justify-content: flex-end; }
-            #squad-hero > .nk-hero-badges #hdr-badges, #stats-hero > .nk-hero-badges #hdr-badges { align-items: flex-end !important; gap: .3rem !important; }
-            #squad-hero > .nk-hero-badges + .nk-hero-top, #stats-hero > .nk-hero-badges + .nk-hero-top { padding-top: 1.2rem; min-height: 8.5rem; }
+            #squad-hero > .nk-hero-badges, #stats-hero > .nk-hero-badges, .nk-hero-sec > .nk-hero-badges { position: absolute; top: 1.15rem; right: 1.1rem; left: auto; padding: 0; justify-content: flex-end; }
+            #squad-hero > .nk-hero-badges #hdr-badges, #stats-hero > .nk-hero-badges #hdr-badges, .nk-hero-sec > .nk-hero-badges #hdr-badges { align-items: flex-end !important; gap: .3rem !important; }
+            #squad-hero > .nk-hero-badges + .nk-hero-top, #stats-hero > .nk-hero-badges + .nk-hero-top, .nk-hero-sec > .nk-hero-badges + .nk-hero-top { padding-top: 1.2rem; min-height: 8.5rem; }
             #squad-hero > .nk-hero-badges #phase-badge, #squad-hero > .nk-hero-badges #current-date-badge,
-            #stats-hero > .nk-hero-badges #phase-badge, #stats-hero > .nk-hero-badges #current-date-badge { font-size: 10px; padding: .22rem .55rem; }
+            #stats-hero > .nk-hero-badges #phase-badge, #stats-hero > .nk-hero-badges #current-date-badge,
+            .nk-hero-sec > .nk-hero-badges #phase-badge, .nk-hero-sec > .nk-hero-badges #current-date-badge { font-size: 10px; padding: .22rem .55rem; }
             .nk-hero-badges + .nk-hero-top { padding-top: .8rem; min-height: 7.5rem; }
             .nk-hero-top { gap: 1rem; padding: 1.2rem 1.1rem 1.1rem; min-height: 8.5rem; }
             .nk-crest { left: -5rem; width: 14.5rem; height: 14.5rem; }
@@ -5800,10 +5801,7 @@
         renderVideo();
         if (appRole === 'player' && playerSession) renderPlayerHome();
 
-        document.getElementById('current-date-badge').innerText =
-            new Date().toLocaleDateString('ca-ES', window.matchMedia && window.matchMedia('(max-width: 639px)').matches
-                ? { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }
-                : { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        nkRefreshBadges();
         lucide.createIcons();
     }
 
@@ -7323,7 +7321,7 @@
             cell('Grup', `<span class="ks-val">${esc(COMP_INFO.grup)}</span>`, 'Temporada 2026-27')
         ].join('');
     }
-    function refreshHeroIdentity() { try { renderStatsHeroTop(); renderSquadHero(); } catch (e) {} }
+    function refreshHeroIdentity() { try { renderStatsHeroTop(); renderSquadHero(); } catch (e) {} try { renderTabHeroes(); if (window.nkFitAll) nkFitAll(); } catch (e) {} }
     (function watchHeroIdentity() {
         const go = () => {
             const n = document.getElementById('app-sidebar-club-nom'), c = document.getElementById('app-sidebar-crest'), sl = document.getElementById('season-label');
@@ -14023,12 +14021,27 @@
 
     /* ------------------------------ navegació ----------------------------- */
     // Plantilla i Estadística: microcicle i data viuen dins la capçalera del club; la barra de títol antiga s'amaga.
+    const nkHeroHostId = tabId => ({ inici: 'inici-hero-badges', plantilla: 'squad-hero-badges', estadistica: 'stats-hero-badges' })[tabId] || (tabId + '-hero-badges');
+    // Data i microcicle sempre al dia: s'actualitzen abans de mostrar-se (mai es veu canviar el dia en entrar a l'apartat)
+    function nkRefreshBadges() {
+        try {
+            const d = document.getElementById('current-date-badge');
+            if (d) {
+                const txt = new Date().toLocaleDateString('ca-ES', window.matchMedia && window.matchMedia('(max-width: 639px)').matches
+                    ? { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }
+                    : { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                if (d.innerText !== txt) d.innerText = txt;
+            }
+            if (typeof renderSeasonLabel === 'function' && state && state.sessions) renderSeasonLabel();
+        } catch (e) {}
+    }
     function nkPlaceHeader(tabId) {
         const hdr = document.getElementById('app-page-header'), b = document.getElementById('hdr-badges');
-        const host = tabId === 'inici' ? document.getElementById('inici-hero-badges') : tabId === 'plantilla' ? document.getElementById('squad-hero-badges') : tabId === 'estadistica' ? document.getElementById('stats-hero-badges') : null;
+        const host = document.getElementById(nkHeroHostId(tabId));
         document.body.classList.toggle('nk-herotab', !!host);
         document.body.classList.toggle('nk-inici', tabId === 'inici');
         if (!hdr || !b) return;
+        nkRefreshBadges();
         if (host) { if (b.parentNode !== host) host.appendChild(b); hdr.classList.add('hidden'); }
         else { if (b.parentNode !== hdr) hdr.appendChild(b); hdr.classList.remove('hidden'); }
     }
@@ -14037,6 +14050,8 @@
         const t = document.querySelector('#app-content > .tab-content:not(.hidden)');
         nkPlaceHeader(t ? t.id.replace(/^tab-/, '') : 'plantilla');
     }
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') nkRefreshBadges(); });
+    setInterval(nkRefreshBadges, 60000);
     function nkTabKey() { return 'cfse-last-tab:' + (window.CFSE_EQUIP_ID || ''); }
     function nkRestoreLastTab(id) {
         try {
@@ -14063,6 +14078,26 @@
             rivals:      ['Rivals', 'Fitxa de cada rival, comparatives i anàlisi dels nostres partits. Només per a l\'entrenador.'],
             convocatories: ['Convocatòries', 'Registre de convocats i no convocats per jornada, amb el motiu i l\'històric per preparar les properes.']
     };
+    /* Capçalera de club a tots els apartats (la de Plantilla/Estadística, sense la franja de dades resum) */
+    const NK_HERO_TITLE = { rutines: 'Rutines', minutatge: 'Minutatge' };
+    const NK_SEC_HEROES = ['competicio', 'calendari', 'carregues', 'model', 'rutines', 'multes', 'minutatge', 'rivals', 'video', 'sociograma', 'convocatories'];
+    function renderTabHeroes() {
+        const season = ((heroIdentity() || {}).season) || 'Temporada';
+        NK_SEC_HEROES.forEach(id => {
+            const pane = document.getElementById('tab-' + id); if (!pane) return;
+            let h = document.getElementById(id + '-hero');
+            if (!h) {
+                h = document.createElement('div'); h.id = id + '-hero'; h.className = 'nk-hero nk-hero-sec';
+                h.innerHTML = `<div class="nk-hero-badges" id="${id}-hero-badges"></div><div class="nk-hero-top" id="${id}-hero-top"></div>`;
+                pane.insertBefore(h, pane.firstChild);
+            }
+            const top = document.getElementById(id + '-hero-top');
+            const t = NK_HERO_TITLE[id] || (NK_TITLES[id] || [id])[0];
+            const html = heroTopHTML(t, season, '');
+            if (top && top.dataset.sig !== html) { top.innerHTML = html; top.dataset.sig = html; }
+        });
+    }
+    try { renderTabHeroes(); } catch (e) { console.warn('heroes', e); }
     // Pinta el contingut d'un apartat (el mateix que feia switchTab). Es crida també en preparar l'apartat veí durant el lliscament.
     function nkRenderTab(tabId) {
         if (tabId === 'video') { renderVideo(); if (appRole === 'player') renderPlayerVideoGallery(); }
@@ -16359,7 +16394,7 @@ ${userText}`;
         const order = () => navVisible().map(navId);
         const current = () => { const b = document.querySelector('#main-nav > .tab-btn.bg-granate-600'); return b ? navId(b) : null; };
         const GAP = 32;                                           // separació entre pantalles (= marge lateral de l'app)
-        const HERO = { inici: 'inici-hero-badges', plantilla: 'squad-hero-badges', estadistica: 'stats-hero-badges' };
+        const HERO = new Proxy({}, { get: (_, id) => (typeof id === 'string' ? nkHeroHostId(id) : undefined) });
         const canRun = () => {
             if (!mq.matches) return false;
             if (content.classList.contains('hidden')) return false;
@@ -16393,6 +16428,7 @@ ${userText}`;
             pane.style.width = w + 'px'; pane.style.left = left + 'px'; pane.style.top = T + 'px';
             const pk = { id, dir, pane, hdrClone: null, badgeClone: null, host: null };
             try { nkRenderTab(id); window.__nkPeeked = id; } catch (e) { console.warn('peek', e); }
+            try { nkRefreshBadges(); } catch (e) {}
             const live = document.getElementById('hdr-badges');
             if (HERO[id]) {
                 const host = document.getElementById(HERO[id]);
@@ -21544,7 +21580,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.19-n';
+const APP_VERSION = '2026.11.20-a';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
