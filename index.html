@@ -2454,6 +2454,16 @@
                             <div id="onoff-body"></div>
                         </div>
 
+                        <!-- Porter jugador (5 vs 4) i fases atac/defensa -->
+                        <div id="pj-card" class="hidden bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
+                            <div class="flex items-center gap-3 mb-1">
+                                <div class="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-violet-400"><i data-lucide="user-plus" class="w-4 h-4"></i></div>
+                                <h4 class="font-bold text-white text-base">Porter jugador &middot; 5 vs 4</h4>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4">Gols a favor i en contra mentre jugàvem amb porter jugador, i amb quintet d'atac o de defensa, dels partits arxivats amb minutatge exacte.</p>
+                            <div id="pj-body"></div>
+                        </div>
+
                         <!-- Rendiment segons el marcador -->
                         <div class="bg-slate-900/80 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] rounded-2xl p-6">
                             <div class="flex items-center gap-3 mb-1">
@@ -3524,8 +3534,9 @@
             </div>
             <button onclick="closePresentation()" class="shrink-0 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition-all flex items-center gap-2"><i data-lucide="x" class="w-4 h-4"></i>Surt</button>
         </div>
-        <div class="flex-1 flex items-center justify-center p-6">
-            <div class="w-full max-w-2xl text-center">
+        <div class="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+            <div class="w-full max-w-4xl text-center">
+                <div id="pres-media" class="hidden w-full aspect-video max-h-[62vh] mx-auto mb-6 rounded-xl overflow-hidden bg-black border border-slate-800"></div>
                 <span id="pres-cat" class="inline-block text-xs font-bold px-3 py-1 rounded-full mb-4">—</span>
                 <h2 id="pres-title" class="text-3xl md:text-4xl font-extrabold text-white leading-tight">—</h2>
                 <p id="pres-players" class="text-sm text-slate-300 mt-3 font-medium"></p>
@@ -6108,9 +6119,20 @@
     }
     // Minuts jugats per un jugador en un partit arxivat (nombre de slots on és a pista).
     function minutesInArchive(m, pid) {
-        const mins = m.minutes || {}; const id = String(pid);
-        return Object.values(mins).filter(l => Array.isArray(l) && l.some(x => String(x) === id)).length;
+        const id = String(pid);
+        let t = 0;
+        slotsOf(m).forEach(sl => { if (sl.ids.some(x => String(x) === id)) t += sl.w; });
+        return Math.round(t * 100) / 100;
     }
+    // Trams de partit amb la seva durada en minuts: [{ids, w}]. Si el partit porta
+    // temps exacte (m.exact, importat amb "clock"), cada tram és un interval real
+    // entre canvis; si no, cada minut desat val 1 (comportament de sempre).
+    function slotsOf(m) {
+        if (m && m.exact && Array.isArray(m.exact.stints) && m.exact.stints.length)
+            return m.exact.stints.filter(t => Array.isArray(t.ids) && t.w > 0).map(t => ({ ids: t.ids, w: t.w }));
+        return Object.values((m && m.minutes) || {}).filter(l => Array.isArray(l)).map(l => ({ ids: l, w: 1 }));
+    }
+    const rnd1 = n => Math.round((Number(n) || 0) * 10) / 10;
     // Càrrega de partit acumulada d'un jugador = Σ (minuts reals × intensitat del partit).
     function playerMatchStats(p) {
         let load = 0, mins = 0, games = 0;
@@ -6120,7 +6142,7 @@
             if (pm <= 0) return;
             load += pm * matchIntensity(m); mins += pm; games++;
         });
-        return { load: Math.round(load), mins, games };
+        return { load: Math.round(load), mins: Math.round(mins), games };
     }
 
     // Càrrega individual d'entrenament: suma de la càrrega de cada entrenament on el
@@ -8057,9 +8079,7 @@
             const m = a.match;
             // Minuts a pista de cada jugador que apareix en alguna alineació.
             const seen = new Set();
-            Object.values(m.minutes || {}).forEach(lineup => {
-                if (Array.isArray(lineup)) lineup.forEach(pid => seen.add(String(pid)));
-            });
+            slotsOf(m).forEach(sl => sl.ids.forEach(pid => seen.add(String(pid))));
             seen.forEach(pid => { P(pid).mins += minutesInArchive(m, pid); });
             // Gols: repartiment per jugador i per quintet.
             (m.events || []).forEach(e => {
@@ -8286,7 +8306,7 @@
                             const pos = r.pm >= 0;
                             const pct = Math.round(Math.abs(r.pm) / maxAbs * 100);
                             return `<div class="flex items-center gap-2">
-                                <span class="w-20 sm:w-24 shrink-0 truncate text-xs font-semibold text-slate-200" title="${esc(r.name)} · ${r.mins}′ · ${r.gf} GF / ${r.gc} GC">${esc(r.name)}</span>
+                                <span class="w-20 sm:w-24 shrink-0 truncate text-xs font-semibold text-slate-200" title="${esc(r.name)} · ${Math.round(r.mins)}′ · ${r.gf} GF / ${r.gc} GC">${esc(r.name)}</span>
                                 <div class="flex-1 grid grid-cols-2 h-4 items-center">
                                     <div class="flex justify-end pr-px"><div class="h-2.5 bg-rose-500 rounded-l" style="width:${pos ? 0 : pct}%"></div></div>
                                     <div class="flex justify-start pl-px border-l border-slate-600"><div class="h-2.5 bg-emerald-500 rounded-r" style="width:${pos ? pct : 0}%"></div></div>
@@ -8475,9 +8495,9 @@
         const ensure = pid => (P[pid] || (P[pid] = { onMin: 0, offMin: 0, onGF: 0, onGC: 0, offGF: 0, offGC: 0 }));
         filtered.forEach(a => {
             const m = a.match;
-            const recorded = Object.keys(m.minutes || {}).length;
+            const recorded = slotsOf(m).reduce((a, sl) => a + sl.w, 0);
             const appear = new Set();
-            Object.values(m.minutes || {}).forEach(l => { if (Array.isArray(l)) l.forEach(pid => appear.add(String(pid))); });
+            slotsOf(m).forEach(sl => sl.ids.forEach(pid => appear.add(String(pid))));
             (m.events || []).forEach(e => {
                 if ((e.type === 'gf' || e.type === 'gc') && e.payload && Array.isArray(e.payload.onCourt))
                     e.payload.onCourt.forEach(pid => appear.add(String(pid)));
@@ -8499,6 +8519,40 @@
             });
         });
         return P;
+    }
+
+    // Porter jugador (5 vs 4) i fases atac/defensa: només dels partits importats amb "clock".
+    function renderPJStats() {
+        const card = document.getElementById('pj-card'), box = document.getElementById('pj-body');
+        if (!card || !box) return;
+        if (typeof appRole !== 'undefined' && appRole === 'player') { card.classList.add('hidden'); return; }
+        const acc = { pj: { sec: 0, gf: 0, gc: 0, n: 0 }, atac: { gf: 0, gc: 0 }, def: { gf: 0, gc: 0 }, normal: { gf: 0, gc: 0 } };
+        (ensureMatchArchive() || []).filter(inScopeArch).forEach(a => {
+            const m = a.match; if (!m || !m.exact) return;
+            const pjs = m.exact.pj || [];
+            if (pjs.length) acc.pj.n++;
+            pjs.forEach(x => { acc.pj.sec += Math.max(0, x.to - x.from); });
+            (m.events || []).forEach(e => {
+                if (e.type !== 'gf' && e.type !== 'gc') return;
+                const pl = e.payload || {}, k = e.type;
+                if (pl.pj) acc.pj[k]++;
+                else if (pl.phase === 'atac') acc.atac[k]++;
+                else if (pl.phase === 'def') acc.def[k]++;
+                else acc.normal[k]++;
+            });
+        });
+        const any = acc.pj.n || acc.pj.gf || acc.pj.gc || acc.atac.gf || acc.atac.gc || acc.def.gf || acc.def.gc;
+        card.classList.toggle('hidden', !any);
+        if (!any) return;
+        const sign = v => (v > 0 ? '+' : '') + v;
+        const line = (label, o, extra) => `<div class="flex items-center justify-between gap-3 bg-slate-950/50 rounded-lg px-3 py-2"><span class="text-xs text-slate-300">${label}${extra ? ` <span class="text-slate-500">${extra}</span>` : ''}</span><span class="text-xs font-extrabold tabular-nums"><span class="text-emerald-400">${o.gf}</span> <span class="text-slate-600">–</span> <span class="text-rose-400">${o.gc}</span> <span class="text-slate-500 font-semibold">(${sign(o.gf - o.gc)})</span></span></div>`;
+        const pjMin = Math.round(acc.pj.sec / 60 * 10) / 10;
+        box.innerHTML = `<div class="space-y-1.5">`
+            + line('Amb porter jugador (5 vs 4)', acc.pj, `${pjMin}′ · ${acc.pj.n} partit${acc.pj.n === 1 ? '' : 's'}`)
+            + ((acc.atac.gf || acc.atac.gc) ? line('Quintet d\'atac', acc.atac) : '')
+            + ((acc.def.gf || acc.def.gc) ? line('Quintet de defensa', acc.def) : '')
+            + line('Resta de situacions', acc.normal)
+            + `</div><p class="text-[10px] text-slate-600 mt-2">GF – GC. Amb pocs gols, interpreta-ho amb cautela.</p>`;
     }
 
     function renderOnOff() {
@@ -8536,7 +8590,7 @@
                             </div>
                             <span class="w-11 shrink-0 text-right text-xs font-extrabold ${has ? (pos ? 'text-emerald-400' : 'text-rose-400') : 'text-slate-600'}">${has ? r1(r.onoff) : '—'}</span>
                         </div>
-                        <p class="text-[10px] text-slate-500 sm:pl-24 mt-0.5">ON ${r.netOn != null ? r1(r.netOn) : '—'}/40′ <span class="text-slate-700">(${r.onMin}′)</span> · OFF ${r.netOff != null ? r1(r.netOff) : '—'}/40′ <span class="text-slate-700">(${r.offMin}′)</span></p>
+                        <p class="text-[10px] text-slate-500 sm:pl-24 mt-0.5">ON ${r.netOn != null ? r1(r.netOn) : '—'}/40′ <span class="text-slate-700">(${Math.round(r.onMin)}′)</span> · OFF ${r.netOff != null ? r1(r.netOff) : '—'}/40′ <span class="text-slate-700">(${Math.round(r.offMin)}′)</span></p>
                     </div>`;
                 }).join('')}
             </div>
@@ -8562,9 +8616,9 @@
         const U = members => { const key = members.join('|'); return units[key] || (units[key] = { members, min: 0, gf: 0, gc: 0, goals: 0 }); };
         filtered.forEach(a => {
             const m = a.match;
-            Object.values(m.minutes || {}).forEach(l => {
-                if (!Array.isArray(l) || l.length < size) return;
-                kCombos(l.map(String).sort(), size).forEach(c => { U(c).min++; });
+            slotsOf(m).forEach(sl => {
+                if (sl.ids.length < size) return;
+                kCombos(sl.ids.map(String).sort(), size).forEach(c => { U(c).min += sl.w; });
             });
             (m.events || []).forEach(e => {
                 if (e.type !== 'gf' && e.type !== 'gc') return;
@@ -8617,7 +8671,7 @@
                         <div class="flex justify-end pr-px"><div class="h-2 bg-rose-500 rounded-l" style="width:${pos ? 0 : pct}%"></div></div>
                         <div class="flex justify-start pl-px border-l border-slate-700"><div class="h-2 bg-emerald-500 rounded-r" style="width:${pos ? pct : 0}%"></div></div>
                     </div>
-                    <span class="text-[9px] text-slate-600 shrink-0 w-24 text-right">${u.min}&prime; junts &middot; ${u.gf}-${u.gc}</span>
+                    <span class="text-[9px] text-slate-600 shrink-0 w-24 text-right">${Math.round(u.min)}&prime; junts &middot; ${u.gf}-${u.gc}</span>
                 </div>
             </div>`;
         }).join('') + `<p class="text-[9px] text-slate-600 mt-2">+/&minus; per 40&prime; junts (verd positiu / vermell negatiu) &middot; minuts compartits i GF-GC. ${pool.length > 10 ? 'Es mostren els 5 millors i 5 pitjors. ' : ''}Amb pocs minuts, poca fiabilitat.</p>`;
@@ -8674,6 +8728,7 @@
         renderPlusMinus();
         renderChemistry();
         renderOnOff();
+        renderPJStats();
         renderScoreState();
         renderGoalTypology();
         lucide.createIcons();
@@ -9124,7 +9179,7 @@
         const get = ids => { const k = ids.map(String).sort().join('|'); return map[k] || (map[k] = { ids: k.split('|'), gf: 0, gc: 0, min: 0 }); };
         (ensureMatchArchive() || []).filter(inScopeArch).forEach(a => {
             const m = a.match || {};
-            Object.values(m.minutes || {}).forEach(ids => { if (Array.isArray(ids) && ids.length === 5) get(ids).min++; });
+            slotsOf(m).forEach(sl => { if (sl.ids.length === 5) get(sl.ids).min += sl.w; });
             (m.events || []).forEach(e => {
                 if ((e.type === 'gf' || e.type === 'gc') && e.payload && Array.isArray(e.payload.onCourt) && e.payload.onCourt.length === 5) { const q = get(e.payload.onCourt); if (e.type === 'gf') q.gf++; else q.gc++; }
             });
@@ -9149,7 +9204,7 @@
         let together = '';
         if (team.length === 5) {
             const q = quintetMap()[team.map(x => String(x.p.id)).sort().join('|')];
-            together = q && q.min > 0 ? `Han coincidit ${q.min}' a pista junts (${q.gf} GF · ${q.gc} GC).` : `Encara no han coincidit tots cinc a pista: és una combinació ideal, no un quinteto jugat.`;
+            together = q && q.min > 0 ? `Han coincidit ${Math.round(q.min)}' a pista junts (${q.gf} GF · ${q.gc} GC).` : `Encara no han coincidit tots cinc a pista: és una combinació ideal, no un quinteto jugat.`;
         }
         const row = (x, role) => { const d = x.gf - x.gc, tone = d > 0 ? 'pos' : d < 0 ? 'neg' : 'zero', q = nameParts(x.p.name);
             return `<div class="stc-row" style="--pc:${posColor(x.p)}">${avatarHTML(x.p, x.p.name)}<span class="stc-nm">${q.first ? `<small>${esc(q.first)}</small>` : ''}${esc(q.last)}</span><span class="stq-role">${role}</span><span class="stq-gfgc">${x.gf} GF · ${x.gc} GC</span><span class="stq-d stq-diff ${tone}">${d > 0 ? '+' : ''}${d}</span></div>`; };
@@ -9250,6 +9305,7 @@
 
     function minutesOf(id) {
         const m = ensureMatch();
+        if (m.exact && m.exact.stints && m.exact.stints.length) return Math.round(minutesInArchive(m, id));
         return Object.values(m.minutes).filter(l => l.some(x => String(x) === String(id))).length;
     }
     const titOf = (id, half) => {
@@ -9274,7 +9330,7 @@
     const shortName = p => p ? ((p.alias && String(p.alias).trim()) || p.nom || (p.name || '').split(' ')[0]) : '—';
     // Nom a mostrar al minutatge (pista, banqueta, taula): àlies si n'hi ha, si no el nom complet.
     const aliasOf = p => p ? ((p.alias && String(p.alias).trim()) || p.name || '') : '—';
-    const minLabel = () => { const m = ensureMatch(); return `${m.half}a · min ${clockMin(m.min, m.halfLength)}`; };
+    const minLabel = () => { const m = ensureMatch(); return importClock ? `${m.half}a · ${importClock}` : `${m.half}a · min ${clockMin(m.min, m.halfLength)}`; };
 
     /* ------------------------------ context ------------------------------- */
     function setMatchField(field, value) {
@@ -9642,7 +9698,8 @@
         if (!nameStr) return { id: '', ok: true, raw: '' };
         const q = String(nameStr).trim().toLowerCase();
         if (!q) return { id: '', ok: true, raw: nameStr };
-        let p = state.players.find(pp => (aliasOf(pp) || '').toLowerCase() === q)
+        let p = (/^\d{1,3}$/.test(q) ? state.players.find(pp => pp.actiu !== false && String(pp.dorsal) === String(parseInt(q, 10))) : null)
+            || state.players.find(pp => (aliasOf(pp) || '').toLowerCase() === q)
             || state.players.find(pp => (pp.name || '').toLowerCase() === q)
             || state.players.find(pp => (pp.nom || '').toLowerCase() === q);
         return p ? { id: String(p.id), ok: true, raw: nameStr } : { id: '', ok: false, raw: nameStr };
@@ -9811,6 +9868,16 @@
         return { kind: 'notes', date: data.date || iso(new Date()), notes, warnings, notices: [], blocked: !okNotes };
     }
 
+    // "16:42" (temps que queda al marcador) -> segons transcorreguts dins la part.
+    function clockToElapsed(str, HL) {
+        const mm = /^(\d{1,2}):([0-5]\d)$/.exec(String(str == null ? '' : str).trim());
+        if (!mm) return null;
+        const rem = parseInt(mm[1], 10) * 60 + parseInt(mm[2], 10);
+        if (rem > HL * 60) return null;
+        return HL * 60 - rem;
+    }
+    const fmtClock = rem => `${Math.floor(rem / 60)}:${String(rem % 60).padStart(2, '0')}`;
+
     function buildMatchDraft(data) {
         const warnings = [];
         const HL = Number(data.halfLength) || ensureMatch().halfLength || 20;
@@ -9820,27 +9887,38 @@
         const events = (data.events || []).map((ev, i) => {
             const out = Object.assign({}, ev, { _resolved: {} });
             const tag = `Esdeveniment ${i + 1} (${ev.type || '?'})`;
+            // Temps exacte: "clock" = el que queda al marcador (mm:ss). Si hi és, mana sobre "min".
+            if (ev.clock != null && ev.clock !== '') {
+                const el = clockToElapsed(ev.clock, HL);
+                if (el == null) warnings.push(`${tag}: el rellotge "${ev.clock}" no és vàlid (mm:ss, màxim ${HL}:00).`);
+                else { out._sec = el; out.min = Math.min(HL, Math.floor(el / 60) + 1); out._clockTxt = fmtClock(HL * 60 - el); }
+            }
+            if (ev.type === 'pj_on' || ev.type === 'pj_off' || ev.type === 'phase') {
+                if (out._sec == null) warnings.push(`${tag}: cal el rellotge ("clock") per situar-lo.`);
+                if (ev.type === 'phase' && ev.value !== 'atac' && ev.value !== 'def') warnings.push(`${tag}: el valor ha de ser "atac" o "def".`);
+                return out;
+            }
             if (ev.type === 'sub') {
                 out._resolved.out = (ev.out || []).map(resolvePlayerRef);
                 out._resolved.in = (ev.in || []).map(resolvePlayerRef);
                 out._resolved.out.concat(out._resolved.in).forEach(r => { if (!r.ok) warnings.push(`${tag}: no trobo "${r.raw}".`); });
-                if (ev.min == null) warnings.push(`${tag}: sense minut indicat.`);
+                if (out.min == null) warnings.push(`${tag}: sense minut indicat.`);
             } else if (ev.type === 'lineup') {
                 out._resolved.players = (ev.players || []).map(resolvePlayerRef);
                 out._resolved.players.forEach(r => { if (!r.ok) warnings.push(`${tag}: no trobo "${r.raw}".`); });
             } else if (ev.type === 'goal_for') {
                 if (ev.scorer) { out._resolved.scorer = resolvePlayerRef(ev.scorer); if (!out._resolved.scorer.ok) warnings.push(`${tag}: no trobo el golejador "${ev.scorer}".`); }
                 if (ev.assist) { out._resolved.assist = resolvePlayerRef(ev.assist); if (!out._resolved.assist.ok) warnings.push(`${tag}: no trobo l'assistent "${ev.assist}".`); }
-                if (ev.min == null) warnings.push(`${tag}: sense minut indicat.`);
+                if (out.min == null) warnings.push(`${tag}: sense minut indicat.`);
             } else if (ev.type === 'goal_against' || ev.type === 'timeout') {
-                if (ev.min == null) warnings.push(`${tag}: sense minut indicat.`);
+                if (out.min == null) warnings.push(`${tag}: sense minut indicat.`);
             } else if (ev.type === 'foul') {
                 if (ev.category && !FOUL_CATS[ev.category]) warnings.push(`${tag}: tipus de falta desconegut ("${ev.category}").`);
-                if (ev.min == null) warnings.push(`${tag}: sense minut indicat.`);
+                if (out.min == null) warnings.push(`${tag}: sense minut indicat.`);
             } else if (ev.type === 'card') {
                 if (ev.player) { out._resolved.player = resolvePlayerRef(ev.player); if (!out._resolved.player.ok) warnings.push(`${tag}: no trobo el jugador "${ev.player}".`); }
                 if (ev.color !== 'groga' && ev.color !== 'vermella') warnings.push(`${tag}: color de targeta no vàlid ("${ev.color}").`);
-                if (ev.min == null) warnings.push(`${tag}: sense minut indicat.`);
+                if (out.min == null) warnings.push(`${tag}: sense minut indicat.`);
             } else {
                 warnings.push(`${tag}: tipus desconegut, s'ignorarà.`);
             }
@@ -10030,7 +10108,7 @@
                 const byCat = c => cuts.filter(x => x._ok && x.cat === c).length;
                 stats = [['talls vídeo', cuts.filter(x => x._ok).length, 'text-violet-400'], ['gols', byCat('gol-favor') + byCat('gol-contra'), 'text-emerald-400'], ['sense minut vàlid', cuts.filter(x => !x._ok).length, cuts.some(x => !x._ok) ? 'text-rose-400' : 'text-slate-500']];
             } else {
-                stats = [['canvis', count('sub'), 'text-emerald-400'], ['gols', count('goal_for') + count('goal_against'), 'text-emerald-400'], ['faltes', count('foul'), 'text-orange-400'], ['targetes', count('card'), 'text-rose-400'], ['temps morts', count('timeout'), 'text-amber-400'], ['talls vídeo', cuts.filter(x => x._ok).length, 'text-violet-400']];
+                stats = [['canvis', count('sub'), 'text-emerald-400'], ['gols', count('goal_for') + count('goal_against'), 'text-emerald-400'], ['faltes', count('foul'), 'text-orange-400'], ['targetes', count('card'), 'text-rose-400'], ...(count('pj_on') ? [['porter jugador', count('pj_on'), 'text-violet-400']] : []), ['temps morts', count('timeout'), 'text-amber-400'], ['talls vídeo', cuts.filter(x => x._ok).length, 'text-violet-400']];
             }
             const K = ARCH_KIND[d.videoKind === 'rival' ? 'rival' : 'propi'];
             headline = d.videoOnly
@@ -10145,16 +10223,45 @@
             for (let mm = 1; mm <= min; mm++) if (!m.minutes[slotKey(half, mm)]) m.minutes[slotKey(half, mm)] = currentOnCourt.slice();
         }
 
-        const sorted = d.events.slice().sort((a, b) => ((a.half || 1) - (b.half || 1)) || ((a.min || 0) - (b.min || 0)));
+        // Temps exacte: només si algun esdeveniment porta "clock". Si no, tot va com sempre (minuts sencers).
+        const useExact = d.events.some(e => e._sec != null);
+        const HLs = d.halfLength * 60;
+        const stints = [], pjList = [], phaseList = [];
+        let stintStart = 0, stintHalf = 1, pjOpen = null, curPhase = '';
+        const closeStint = endSec => {
+            if (currentOnCourt.length && endSec > stintStart)
+                stints.push({ half: stintHalf, from: stintStart, to: endSec, ids: currentOnCourt.slice(), w: Math.round((endSec - stintStart) / 60 * 100) / 100 });
+        };
+        const closePJ = endSec => { if (pjOpen) { pjList.push({ half: pjOpen.half, from: pjOpen.from, to: Math.max(pjOpen.from, endSec) }); pjOpen = null; } };
+        const secOf = (ev, boundary) => ev._sec != null ? ev._sec : (boundary ? ((ev.min || 1) - 1) * 60 : ((ev.min || 1) - 0.5) * 60);
+        const evKey = ev => (ev.half || 1) * 100000 + secOf(ev, ev.type === 'sub');
+
+        const sorted = d.events.map((e, i) => [e, i]).sort((x, y) => (evKey(x[0]) - evKey(y[0])) || (x[1] - y[1])).map(x => x[0]);
         sorted.forEach(ev => {
             const half = ev.half || currentHalf;
-            if (half !== currentHalf) { fillMinutesTo(currentHalf, d.halfLength); currentHalf = half; }
+            if (half !== currentHalf) {
+                fillMinutesTo(currentHalf, d.halfLength);
+                closeStint(HLs); closePJ(HLs);
+                currentHalf = half; stintHalf = half; stintStart = 0; curPhase = '';
+            }
             const min = ev.min || 1;
+            const sec = secOf(ev, ev.type === 'sub');
+            importSec = ev._sec != null ? ev._sec : null;
+            importClock = ev._clockTxt || null;
 
+            if (ev.type === 'pj_on') { closePJ(sec); pjOpen = { half, from: sec }; logEvent('pj', 'Porter jugador (5 vs 4)', importClock ? `${half}a · ${importClock}` : minLabel(), {}); return; }
+            if (ev.type === 'pj_off') { closePJ(sec); logEvent('pj', 'Fi del porter jugador', importClock ? `${half}a · ${importClock}` : minLabel(), {}); return; }
+            if (ev.type === 'phase') {
+                curPhase = ev.value === 'atac' || ev.value === 'def' ? ev.value : '';
+                phaseList.push({ half, sec, value: curPhase });
+                logEvent('phase', curPhase === 'atac' ? 'Quintet d\'atac' : 'Quintet de defensa', importClock ? `${half}a · ${importClock}` : minLabel(), { value: curPhase });
+                return;
+            }
             if (ev.type === 'lineup') {
                 const ids = (ev._resolved.players || []).filter(r => r.ok && r.id).map(r => r.id);
                 if (ids.length) {
-                    currentOnCourt = ids.slice();
+                    closeStint(sec);
+                    currentOnCourt = ids.slice(); stintStart = sec; stintHalf = half;
                     m.minutes[slotKey(half, 1)] = currentOnCourt.slice();
                     logEvent('half', `Titulars ${half}a part`, currentOnCourt.map(id => shortName(playerById(id))).join(', '));
                 }
@@ -10165,11 +10272,13 @@
                 fillMinutesTo(half, Math.max(0, min - 1));
                 const outIds = (ev._resolved.out || []).filter(r => r.ok && r.id).map(r => r.id);
                 const inIds = (ev._resolved.in || []).filter(r => r.ok && r.id).map(r => r.id);
+                closeStint(sec);
                 outIds.forEach(id => { const i = currentOnCourt.indexOf(id); if (i >= 0) currentOnCourt.splice(i, 1); });
                 inIds.forEach(id => { if (!currentOnCourt.includes(id)) currentOnCourt.push(id); });
+                stintStart = sec;
                 m.minutes[slotKey(half, min)] = currentOnCourt.slice();
                 if (outIds.length || inIds.length) {
-                    logEvent('sub', `Canvi al minut ${clockMin(min, d.halfLength)}`,
+                    logEvent('sub', importClock ? `Canvi a ${importClock}` : `Canvi al minut ${clockMin(min, d.halfLength)}`,
                         [inIds.length ? 'entra ' + inIds.map(id => shortName(playerById(id))).join(', ') : '',
                          outIds.length ? 'surt ' + outIds.map(id => shortName(playerById(id))).join(', ') : ''].filter(Boolean).join(' · '));
                 }
@@ -10179,6 +10288,9 @@
 
             fillMinutesTo(half, min);
             m.half = half; m.min = min;
+            const ctx = {};
+            if (pjOpen && pjOpen.half === half) ctx.pj = true;
+            if (curPhase) ctx.phase = curPhase;
             if (ev.type === 'goal_for') {
                 const scorer = (ev._resolved.scorer && ev._resolved.scorer.ok) ? ev._resolved.scorer.id : '';
                 const assist = (ev._resolved.assist && ev._resolved.assist.ok) ? ev._resolved.assist.id : '';
@@ -10188,11 +10300,11 @@
                 currentOnCourt.forEach(pid => md(pid).gfp++);
                 logEvent('gf', `Gol a favor${scorer ? ' — ' + shortName(playerById(scorer)) : ''}`,
                     `${minLabel()}${assist ? ' · assist. ' + shortName(playerById(assist)) : ''}`,
-                    { scorer, assist, onCourt: currentOnCourt.slice(), cat: '', sub: '' });
+                    Object.assign({ scorer, assist, onCourt: currentOnCourt.slice(), cat: '', sub: '' }, ctx));
             } else if (ev.type === 'goal_against') {
                 m.gc++;
                 currentOnCourt.forEach(pid => md(pid).gcp++);
-                logEvent('gc', 'Gol en contra', minLabel(), { onCourt: currentOnCourt.slice(), cat: '', sub: '' });
+                logEvent('gc', 'Gol en contra', minLabel(), Object.assign({ onCourt: currentOnCourt.slice(), cat: '', sub: '' }, ctx));
             } else if (ev.type === 'foul') {
                 const cat = FOUL_CATS[ev.category] ? ev.category : '';
                 const flag = FOUL_FLAGS[ev.flag] ? ev.flag : '';
@@ -10207,7 +10319,14 @@
                 logEvent('timeout', team === 'nostre' ? 'Temps mort nostre' : 'Temps mort del rival', minLabel(), { team });
             }
         });
+        importSec = null; importClock = null;
         fillMinutesTo(currentHalf, d.halfLength);
+        closeStint(HLs); closePJ(HLs);
+        if (useExact) {
+            m.exact = { v: 1, stints, pj: pjList, phases: phaseList };
+        } else if (pjList.length || phaseList.length) {
+            m.exact = { v: 1, stints: [], pj: pjList, phases: phaseList };
+        }
         m.events.sort((a, b) => (evGlobalMin(m, b) - evGlobalMin(m, a)) || ((b.at || 0) - (a.at || 0)));
 
         const v = ensureVideo();
@@ -10360,9 +10479,14 @@
     }
 
     /* ----------------------------- cronologia ----------------------------- */
+    // Durant una importació amb "clock", importSec/importClock porten el temps exacte
+    // de l'esdeveniment actual (segons transcorreguts i text del marcador).
+    let importSec = null, importClock = null;
     function logEvent(type, label, detail, payload) {
         const m = ensureMatch();
-        m.events.unshift({ id: evUid(), type, label, detail: detail || '', payload: payload || null, half: m.half, min: m.min, at: Date.now() });
+        const ev = { id: evUid(), type, label, detail: detail || '', payload: payload || null, half: m.half, min: m.min, at: Date.now() };
+        if (importSec != null) ev.sec = importSec;
+        m.events.unshift(ev);
     }
 
     function undoLastEvent() {
@@ -10734,7 +10858,7 @@
         const m = ensureMatch();
         const box = document.getElementById('match-events');
         if (!m.events.length) { box.innerHTML = `<p class="text-xs text-slate-500">Encara no hi ha res registrat.</p>`; return; }
-        const tone = { gf: 'border-emerald-500/40', gc: 'border-rose-500/40', sub: 'border-slate-700', half: 'border-slate-500', timeout: 'border-amber-500/50', foul: 'border-orange-500/40', card: 'border-rose-600/50' };
+        const tone = { gf: 'border-emerald-500/40', gc: 'border-rose-500/40', sub: 'border-slate-700', half: 'border-slate-500', timeout: 'border-amber-500/50', foul: 'border-orange-500/40', card: 'border-rose-600/50', pj: 'border-violet-500/50', phase: 'border-sky-500/40' };
         box.innerHTML = m.events.map(e => {
             if (!e.id) e.id = evUid();
             const isGoal = e.type === 'gf' || e.type === 'gc';
@@ -10747,7 +10871,7 @@
                     <div class="min-w-0">
                         <p class="text-xs font-semibold text-slate-100">${esc(e.label)}</p>
                         <p class="text-[10px] text-slate-500">${esc(e.detail)}</p>
-                        ${catBadge}${foulBadge}${cardBadge}
+                        ${catBadge}${foulBadge}${cardBadge}${(isGoal && e.payload && e.payload.pj) ? '<span class="inline-block mt-1 ml-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-300">5 vs 4</span>' : ''}${(isGoal && e.payload && e.payload.phase) ? '<span class="inline-block mt-1 ml-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300">' + (e.payload.phase === 'atac' ? 'quintet atac' : 'quintet defensa') + '</span>' : ''}
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
                         ${isGoal ? `<button onclick="editEvent('${e.id}')" aria-label="Edita" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-100 flex items-center justify-center"><i data-lucide="pencil" class="w-3 h-3"></i></button>` : ''}
@@ -11370,10 +11494,11 @@
         (ensureMatchArchive() || []).slice().reverse().forEach((a, idx) => {      // més antic primer
             const m = a && a.match; if (!m) return;
             if (period && period !== 'tot' && matchPeriod(m) !== period) return;
-            const slots = Object.values(m.minutes || {}).filter(l => Array.isArray(l) && l.length).map(l => l.map(String));
+            const slots = slotsOf(m).filter(sl => sl.ids.length).map(sl => ({ ids: sl.ids.map(String), w: sl.w }));
             if (!slots.length) return;
             let my = 0;
-            slots.forEach(ls => { if (ls.includes(id)) { my++; ls.forEach(o => { if (o !== id) mate(o).min++; }); } });
+            const totW = slots.reduce((a, sl) => a + sl.w, 0);
+            slots.forEach(sl => { if (sl.ids.includes(id)) { my += sl.w; sl.ids.forEach(o => { if (o !== id) mate(o).min += sl.w; }); } });
             let gf = 0, gc = 0, tgf = 0, g = 0, s = 0;
             (m.events || []).forEach(e => {
                 if (e.type !== 'gf' && e.type !== 'gc') return;
@@ -11383,11 +11508,11 @@
                 if (on.includes(id)) { if (isF) gf++; else gc++; on.forEach(o => { if (o !== id) { if (isF) mate(o).gf++; else mate(o).gc++; } }); }
                 else if (isF) gfOff++; else gcOff++;
             });
-            slotsTot += slots.length; mins += my; gfOn += gf; gcOn += gc;
+            slotsTot += totW; mins += my; gfOn += gf; gcOn += gc;
             if (my > 0) { teamGF += tgf; gl += g; as += s; }
-            matches.push({ label: pmMatchLabel(m, idx), rival: m.rival || a.name || '', res: `${m.gf || 0}-${m.gc || 0}`, min: my, total: slots.length, pm: gf - gc, played: my > 0 });
+            matches.push({ label: pmMatchLabel(m, idx), rival: m.rival || a.name || '', res: `${m.gf || 0}-${m.gc || 0}`, min: rnd1(my), total: rnd1(totW), pm: gf - gc, played: my > 0 });
         });
-        return { matches, slotsTot, mins, minsOff: slotsTot - mins, gfOn, gcOn, gfOff, gcOff, teamGF, gl, as, mates };
+        return { matches, slotsTot: rnd1(slotsTot), mins: rnd1(mins), minsOff: rnd1(slotsTot - mins), gfOn, gcOn, gfOff, gcOff, teamGF, gl, as, mates };
     }
     function renderProfileParticipation(p) {
         const box = document.getElementById('pm-part'), ttl = document.getElementById('pm-part-title');
@@ -13842,6 +13967,7 @@
     }
     function closePresentation() {
         presenting = false;
+        presClearMedia();
         setHidden('present-overlay', true);
         document.body.style.overflow = '';
     }
@@ -13862,9 +13988,49 @@
         document.getElementById('pres-note').innerText = mk.note || '';
         document.getElementById('pres-counter').innerText = `${presIdx + 1} / ${presSet.length}`;
         const open = document.getElementById('pres-open');
-        const has = !!presLink(mk);
+        const has = !!presLink(mk) || !!mk.clip;
         open.classList.toggle('opacity-40', !has);
         open.classList.toggle('pointer-events-none', !has);
+        presLoadMedia(mk);
+    }
+    // El vídeo del moment es reprodueix dins la mateixa presentació:
+    // clip local (carpeta enllaçada) o YouTube incrustat al segon del moment.
+    let presMediaUrl = '', presMediaTok = 0;
+    function presClearMedia() {
+        presMediaTok++;
+        const box = document.getElementById('pres-media');
+        if (box) { const v = box.querySelector('video'); if (v) { try { v.pause(); } catch (e) {} } box.innerHTML = ''; box.classList.add('hidden'); }
+        if (presMediaUrl) { try { URL.revokeObjectURL(presMediaUrl); } catch (e) {} presMediaUrl = ''; }
+    }
+    async function presGrantFolder() { try { await clipGetDir(true); } catch (e) {} if (presenting) presShow(); }
+    async function presLoadMedia(mk) {
+        presClearMedia();
+        const tok = presMediaTok, box = document.getElementById('pres-media');
+        if (!box || !mk) return;
+        const msg = (t, btn) => {
+            box.classList.remove('hidden');
+            box.innerHTML = '<div class="w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center"><p class="text-sm text-slate-300 max-w-md">' + esc(t) + '</p>' + (btn ? '<button onclick="presGrantFolder()" class="px-4 py-2 bg-granate-600 hover:bg-granate-700 text-white text-xs font-bold rounded-lg">' + esc(btn) + '</button>' : '') + '</div>';
+        };
+        if (mk.clip && clipsSupported()) {
+            try {
+                const dir = await clipGetDir(false);
+                if (tok !== presMediaTok) return;
+                if (!dir) { msg('Cal permís per llegir la carpeta de clips.', 'Dona permís'); return; }
+                const file = await clipFindFile(dir, mk.clip);
+                if (tok !== presMediaTok) return;
+                if (!file) { msg('No trobo el clip «' + mk.clip + '» dins la carpeta enllaçada.'); return; }
+                presMediaUrl = URL.createObjectURL(file);
+                box.classList.remove('hidden');
+                box.innerHTML = '<video src="' + presMediaUrl + '" controls autoplay playsinline class="w-full h-full object-contain bg-black"></video>';
+            } catch (e) { if (tok === presMediaTok) msg('No s\u2019ha pogut carregar el clip: ' + ((e && (e.message || e.name)) || 'error')); }
+            return;
+        }
+        const link = presLink(mk), id = link ? parseYouTubeId(link) : '';
+        if (id) {
+            const secs = Math.max(0, Math.floor(parseYouTubeTime(link) || 0));
+            box.classList.remove('hidden');
+            box.innerHTML = '<iframe src="https://www.youtube.com/embed/' + id + '?start=' + secs + '&autoplay=0&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full border-0"></iframe>';
+        }
     }
     function presOpenLink() {
         if (!presSet.length) return;
@@ -15401,7 +15567,7 @@
 REGLES: cada bloc porta "kind": multes | partit | entreno | notes | scouting | competicio. Noms de jugador: sempre el NOM COMPLET de la plantilla. Dates AAAA-MM-DD. JSON vàlid (cometes dobles, sense comes finals). Un bloc = un sol kind.
 FORMATS:
 - multes: {"kind":"multes","items":[{"player":"Nom Complet","date":"2026-09-27","amount":3,"concept":"Multa","paid":false}]}
-- partit (minutatge + talls): {"kind":"partit","halfLength":20,"lineupStart":{"half":1,"players":[5 noms]},"events":[{"type":"sub","half":1,"min":6,"out":["..."],"in":["..."]},{"type":"lineup","half":2,"players":[...]},{"type":"goal_for","half":1,"min":8,"scorer":"...","assist":"..."},{"type":"goal_against","half":2,"min":12},{"type":"foul","half":1,"min":5,"category":"uno_vs_uno|pressio|contraatac|llunyana|protesta|altres","flag":"perillosa|innecessaria"},{"type":"card","half":2,"min":3,"color":"groga|vermella","player":"..."},{"type":"timeout","half":1,"min":10,"team":"nostre|rival"}],"videoMarkers":[{"time":"34:12","title":"...","cat":"gol-favor|gol-contra|transicio|abp|error|bona|altre"}]}  (min = minut dins la part; videoMarkers.time = temps del vídeo mm:ss)
+- partit (minutatge + talls): {"kind":"partit","halfLength":20,"lineupStart":{"half":1,"players":[5 noms]},"events":[{"type":"sub","half":1,"min":6,"out":["..."],"in":["..."]},{"type":"lineup","half":2,"players":[...]},{"type":"goal_for","half":1,"min":8,"scorer":"...","assist":"..."},{"type":"goal_against","half":2,"min":12},{"type":"foul","half":1,"min":5,"category":"uno_vs_uno|pressio|contraatac|llunyana|protesta|altres","flag":"perillosa|innecessaria"},{"type":"card","half":2,"min":3,"color":"groga|vermella","player":"..."},{"type":"timeout","half":1,"min":10,"team":"nostre|rival"}],"videoMarkers":[{"time":"34:12","title":"...","cat":"gol-favor|gol-contra|transicio|abp|error|bona|altre"}]}  (min = minut dins la part; videoMarkers.time = temps del vídeo mm:ss). Temps exacte (recomanat): en lloc de "min" fes servir "clock":"16:42" = el que queda al marcador (mm:ss), a sub/goal_for/goal_against/foul/card/timeout. Jugadors: nom complet o dorsal (ex. 79). Porter jugador: {"type":"pj_on","half":2,"clock":"3:00"} i {"type":"pj_off","half":2,"clock":"1:10"} (si no hi ha pj_off acaba a final de part). Quintet atac/defensa: {"type":"phase","half":1,"clock":"12:00","value":"atac"|"def"} (dura fins al següent canvi de fase o final de part)
 - entreno: {"kind":"entreno","date":"2026-09-10","exercises":[{"name":"Rondo 4x2","temps":10,"series":3,"intensitat":7}],"attendance":[{"player":"Nom Complet","status":"P|R|S|J|A"}]}  (la sessió ha d'existir al calendari d'aquell dia)
 - notes: {"kind":"notes","date":"...","notes":[{"player":"...","text":"..."}]}
 - scouting: {"kind":"scouting","rival":"Nom rival","points":["..."]}
@@ -22240,7 +22406,7 @@ ${userText}`;
 <script id="player-photos" type="application/json">{"xavi roca": "jugadors/xavi-roca.webp?v=1", "xavi moya": "jugadors/xavi-moya.webp?v=1", "marti ortega": "jugadors/marti-ortega.webp?v=1", "jan planas": "jugadors/jan-planas.webp?v=1", "oriol domenech": "jugadors/oriol-domenech.webp?v=1", "hugo mila": "jugadors/hugo-mila.webp?v=1", "enrique lobato": "jugadors/enrique-lobato.webp?v=1", "derek buro": "jugadors/derek-buro.webp?v=1", "arnau lalmolda": "jugadors/arnau-lalmolda.webp?v=1", "aleix estanyol": "jugadors/aleix-estanyol.webp?v=1", "gerard santalices": "jugadors/gerard-santalices.webp?v=1", "adam el bassiri": "jugadors/adam-el-bassiri.webp?v=1", "mario chamorro": "jugadors/mario-chamorro.webp?v=1", "__silhouette": "jugadors/silueta.webp?v=1"}</script>
 <script>
 /* ===== PWA: service worker, versió i avís d'actualització ===== */
-const APP_VERSION = '2026.11.20-g';
+const APP_VERSION = '2026.11.26-a';
 (function () {
     const lab = document.getElementById('app-version'); if (lab) lab.textContent = 'NurvKor · v' + APP_VERSION;
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
